@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+
+  --background: #0b0d12;
+  --surface: #12151c;
+  --footer: #080a0f;
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
+  --border: #282d38;
+  --brand: #7c5cff;
+  --brand-foreground: #ffffff;
+  --success: #10b981;
+  --danger: #f87171;
+  --code-bg: #0e1117;
+  --surface-2: #181c24;
+  --surface-3: #151922;
+  --heading: #f4f6fa;
+  --subtle: #6b7280;
+  --secondary: #9ca3af;
+  --emphasis: #e5e7eb;
+  --code-green: #34d399;
+
+  --tint-purple: #7c5cff;
+  --tint-green: #10b981;
+  --tint-amber: #f59e0b;
+  --tint-blue: #3b82f6;
+  --tint-indigo: #818cf8;
+  --tint-red: #ff5f57;
+  --tint-yellow: #febc2e;
+  --tint-violet: #a855f7;
+  --tint-lime: #28c840;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-footer: var(--footer);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-code-bg: var(--code-bg);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-heading: var(--heading);
+  --color-subtle: var(--subtle);
+  --color-secondary: var(--secondary);
+  --color-emphasis: var(--emphasis);
+  --color-code-green: var(--code-green);
+  --color-tint-red: var(--tint-red);
+  --color-tint-yellow: var(--tint-yellow);
+  --color-tint-violet: var(--tint-violet);
+  --color-tint-lime: var(--tint-lime);
+  --color-tint-purple: var(--tint-purple);
+  --color-tint-green: var(--tint-green);
+  --color-tint-amber: var(--tint-amber);
+  --color-tint-blue: var(--tint-blue);
+  --color-tint-indigo: var(--tint-indigo);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+}
+
+@layer components {
+  .field {
+    @apply rounded-md border border-border bg-surface px-2 py-1 text-sm text-foreground;
+  }
+  .code-area {
+    @apply h-80 w-full resize-y rounded-lg border border-border bg-code-bg p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-brand sm:h-[26rem];
+    tab-size: 2;
+  }
+  .prose-tool h2 {
+    @apply mt-10 mb-3 text-xl font-semibold tracking-tight;
+  }
+  .prose-tool p {
+    @apply mb-3 leading-7 text-muted;
+  }
+  .prose-tool ol {
+    @apply mb-3 list-decimal space-y-1.5 pl-5 leading-7 text-muted;
+  }
+}
