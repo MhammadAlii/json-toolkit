@@ -1,0 +1,33 @@
+import type { ToolMeta } from "@/core/tool/types";
+
+export const repairTool: ToolMeta = {
+  slug: "json-repair",
+  name: "JSON Repair",
+  h1: "JSON Repair Tool",
+  title: "JSON Repair – Fix Broken & Invalid JSON Online",
+  description:
+    "Repair broken JSON automatically: fix trailing commas, single quotes, unquoted keys, comments and missing brackets. Free, private and runs in your browser.",
+  keywords: ["json repair", "fix json", "repair json online", "fix invalid json", "json fixer"],
+  category: "core",
+  tagline: "Auto-fix missing quotes or commas",
+  icon: "wrench",
+  tint: "amber",
+  intro:
+    "Paste malformed JSON, such as output from a log, an LLM or a JavaScript object literal, and get valid JSON back. Common mistakes are fixed automatically and every change is listed.",
+  steps: [
+    "Paste the broken JSON or upload a file.",
+    "Review the list of fixes that were applied.",
+    "Copy or download the repaired, valid JSON.",
+  ],
+  faqs: [
+    {
+      q: "What can JSON Repair fix?",
+      a: "Trailing commas, single-quoted strings, unquoted keys, comments, Python-style True/False/None, missing closing brackets and unescaped newlines in strings.",
+    },
+    {
+      q: "Will repairing change my data?",
+      a: "Repair only changes syntax. Review the result, because ambiguous input (such as a truncated file) may need a manual check.",
+    },
+  ],
+  related: ["json-validator", "json-formatter", "json-minifier"],
+};
