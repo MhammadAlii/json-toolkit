@@ -22,13 +22,12 @@ export function HomePage() {
         <AdSlot placement="hero" className="absolute top-0 right-0 hidden w-[197px] xl:block" />
       </section>
 
-      <section id="tools" aria-label="JSON formatter" className="scroll-mt-20 pt-6">
+      <section aria-label="JSON formatter" className="pt-6">
         <FormatterWorkspace />
       </section>
 
       <AdSlot placement="toolBelow" />
 
-      <span id="converters" className="sr-only" />
       <JsonLd
         data={{
           "@context": "https://schema.org",
