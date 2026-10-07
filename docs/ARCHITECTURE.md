@@ -20,7 +20,7 @@ app/                      routes: URLs, metadata, wiring only
 
 | Layer | Path | Contains | May import |
 | --- | --- | --- | --- |
-| Core | `src/core/` | Framework-free domain code: JSON parsing with line/column errors, `TransformResult`, path formatting (`core/json`), the tool model `ToolMeta` / `ToolSlug` / categories (`core/tool`), and text matching (`core/text/matches-query.ts`). | nothing internal |
+| Core | `src/core/` | Framework-free domain code: JSON parsing with line/column errors, `TransformResult`, path formatting (`core/json`), the tool model `ToolMeta` / `ToolSlug` / categories (`core/tool`), JSON syntax tokenizing (`core/json/tokenize.ts`), and text helpers (`core/text`: `matchesQuery`, `formatBytes`). | nothing internal |
 | Config | `src/config/` | Site, ads and legal settings, read from env vars with defaults. | core |
 | Hooks | `src/hooks/` | Reusable client hooks (`useClipboard`, `useUrlHash`, `useShortcutLabel`). | core, config |
 | Shared UI | `src/components/ui`, `icons`, `seo`, `tool` | Design-system components, icons, structured data and the tool page shell. Know nothing about features. | core, config, hooks |
@@ -32,8 +32,8 @@ app/                      routes: URLs, metadata, wiring only
 
 | Feature | Path | Owns |
 | --- | --- | --- |
-| Home | `features/home/` | Home page (placeholder until the design is implemented). |
-| Tools | `features/tools/` | Sub-features: formatter (Code, Tree, Table views), validator, repair, minifier, deep-search, diff, schema-validator, query-selector. `registry.ts` lists them. |
+| Home | `features/home/` | Home page: hero, the Formatter workspace, stats and ad slots. |
+| Tools | `features/tools/` | Sub-features: formatter (`formatter-workspace.tsx` with Code, Tree and Table views, used on the home page), validator, repair, minifier, deep-search, diff, schema-validator, query-selector. `registry.ts` lists them. |
 | Converters | `features/converters/` | Sub-features: json-to-yaml, json-to-csv, json-to-typescript, json-to-excel, json-to-xml, json-to-sql. `registry.ts` lists them. |
 | Legal | `features/legal/` | `privacy/`, `terms/`, `licenses/` pages and the shared `components/` (legal section and paragraph). |
 | Company | `features/company/` | `about/` and `contact/` pages, the contact form and request types. |
@@ -95,15 +95,16 @@ stay inside that feature, also one per file.
 | Folder | Contents |
 | --- | --- |
 | `components/ui/` — typography | `PageTitle` (sizes lg, md, display; weight bold or extrabold), `Lead` (lg, md, sm), `SectionTitle` (lg, md, sm; renders h2 or h3), `SectionHeader` (title + description, start or center), `Text` (body, small, caption), `Overline`, `Eyebrow` |
-| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip; sizes xs, compact, sm, md, lg. `CopyButton` |
-| `components/ui/` — surfaces | `Card` (tones surface, raised, inset, base, faint; radius lg, xl, 2xl), `HeroBand`, `FeatureCard`, `StatCard`, `Callout`, `ComingSoon` |
-| `components/ui/` — content | `Badge` (brand, success), `IconTile` (sm, md, lg; round), `BulletList` (dot, bullet, arrow), `FaqList`, `Kbd` (muted, solid), `SectionNav` |
-| `components/ui/` — forms | `FormField`, `TextInput`, `Textarea`, `Select`, all sharing `input-styles.ts` |
+| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip, soft, accent; sizes tiny, xs, compact, sm, md, lg. `CopyButton`, `SegmentedControl` |
+| `components/ui/` — surfaces | `Card` (tones surface, raised, inset, base, faint; radius lg, xl, 2xl), `Panel` + `PanelTitle` (editor panel with toolbar), `HeroBand`, `FeatureCard`, `StatCard` (plain, or with an icon), `Callout`, `ComingSoon` |
+| `components/ui/` — content | `Badge` (brand, success; pill or note), `IconTile` (sm, md, lg; round), `BulletList` (dot, bullet, arrow), `FaqList`, `Kbd` (muted, solid), `SectionNav` |
+| `components/ui/` — forms | `FormField`, `TextInput`, `Textarea`, `Select` (sharing `input-styles.ts`), `CodeEditor` (monospace input with line numbers), `LineGutter` |
+| `components/json/` | `JsonCodeView` (syntax highlighting and line numbers), `JsonTreeView` + `JsonTreeNode` (collapsible), `JsonTableView`, `JsonPrimitive`, shared `json-token-classes.ts` |
 | `components/icons/` | One file per icon (`search.tsx`, `wand.tsx`, …) using `currentColor`; shared `IconProps` in `icon-props.ts` |
 | `components/seo/` | `JsonLd`, `BreadcrumbJsonLd`, `pageMetadata()` (title, description, canonical, Open Graph, Twitter) |
 | `components/tool/` | `ToolPage`, `ToolStructuredData`, `toolMetadata()` (built on `pageMetadata`), `ToolWorkbench`, `WorkbenchOptionControl`, `ToolGlyph`, `workbench-types.ts` |
 | `components/layout/` | `SiteHeader`, `SiteFooter`, `Logo`, `search/` (`SearchPalette`, `SearchResult`, `SearchHints`, `search-item.ts`) |
-| `hooks/` | `useClipboard`, `useUrlHash`, `useShortcutLabel` |
+| `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel` |
 
 ### Reuse rules
 
@@ -133,8 +134,9 @@ The values come from the Figma file.
 | `muted`, `secondary`, `subtle` | Body text, legal-page text, captions and metadata |
 | `border` | All borders and dividers |
 | `brand`, `brand-foreground` | Accent colour and text on it |
-| `success`, `danger`, `code-green` | Status colours |
-| `tint-purple`, `tint-green`, `tint-amber`, `tint-blue`, `tint-indigo`, `tint-red`, `tint-yellow`, `tint-violet`, `tint-lime` | Icon tiles and accents |
+| `success`, `danger` | Status colours |
+| `code-green`, `code-literal` | Syntax highlighting (strings; numbers and booleans) |
+| `tint-purple`, `tint-green`, `tint-amber`, `tint-blue`, `tint-indigo`, `tint-red`, `tint-yellow`, `tint-violet`, `tint-lime`, `tint-orange` | Icon tiles and accents |
 
 ## Folder structure
 
@@ -149,16 +151,16 @@ src/
 │   ├── layout.tsx, page.tsx, not-found.tsx, globals.css
 │   └── icon.png, apple-icon.png, opengraph-image.png, twitter-image.png
 ├── components/
-│   ├── icons/   layout/   seo/   tool/   ui/
+│   ├── icons/   json/   layout/   seo/   tool/   ui/
 ├── config/                     # site.ts, legal.ts
 ├── core/
-│   ├── json/                   # parse.ts, path.ts
-│   ├── text/                   # matches-query.ts
+│   ├── json/                   # parse.ts, path.ts, tokenize.ts
+│   ├── text/                   # matches-query.ts, format-bytes.ts
 │   └── tool/                   # types.ts
 ├── features/
 │   ├── ads/   company/   converters/   home/   legal/   tools/
 │   └── catalog.ts
-└── hooks/                      # use-clipboard, use-url-hash, use-shortcut-label
+└── hooks/                      # use-clipboard, use-download, use-url-hash, use-shortcut-label
 ```
 
 Folders in parentheses under `app/` are route groups: they organise files without appearing in the
@@ -211,6 +213,7 @@ a secret.
 | `NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR` | same | Sticky sidebar ad on wide screens | same |
 | `NEXT_PUBLIC_ADSENSE_SLOT_IN_CONTENT` | same | Ad inside page content | same |
 | `NEXT_PUBLIC_ADSENSE_SLOT_FOOTER` | same | Ad in the footer bar | same |
+| `NEXT_PUBLIC_ADSENSE_SLOT_HERO` | same | Small ad beside the home page heading on wide screens | same |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | empty: no tag | `google-site-verification` meta tag (`app/layout.tsx`) | Search Console → Add property → URL prefix → HTML tag (the `content` value only). Not needed with DNS verification |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | `hello@getjsontoolkit.com` | Contact page email, contact form recipient, About page buttons (`config/legal.ts`) | An inbox you control |
 | `NEXT_PUBLIC_PRIVACY_EMAIL` | `privacy@getjsontoolkit.com` | "Contact Privacy Officer" on the Privacy page | An inbox you control |

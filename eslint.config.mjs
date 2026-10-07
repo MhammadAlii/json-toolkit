@@ -17,7 +17,7 @@ const eslintConfig = defineConfig([
   ]),
   restrict(["src/config/**"], [{ group: ["@/components/*", "@/features/*", "@/app/*"], message: "config cannot depend on outer layers." }]),
   restrict(["src/hooks/**"], [{ group: ["@/components/*", "@/features/*", "@/app/*"], message: "hooks cannot depend on components, features or routes." }]),
-  restrict(["src/components/ui/**", "src/components/seo/**", "src/components/icons/**", "src/components/tool/**"], [
+  restrict(["src/components/ui/**", "src/components/seo/**", "src/components/icons/**", "src/components/tool/**", "src/components/json/**"], [
     { group: ["@/features/*", "@/components/layout/*", "@/app/*"], message: "Shared components cannot depend on features or layout." },
   ]),
   restrict(["src/features/**"], [{ group: ["@/components/layout/*", "@/app/*"], message: "Features cannot depend on layout or routes." }]),
