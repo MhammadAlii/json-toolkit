@@ -6,7 +6,7 @@ for SEO; tools run entirely in the browser, so user data never leaves the device
 ## Develop
 
 ```bash
-cp .env.example .env
+add .env
 npm install
 npm run dev
 ```
