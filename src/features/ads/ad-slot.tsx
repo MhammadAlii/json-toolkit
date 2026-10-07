@@ -17,6 +17,7 @@ const minHeights: Record<AdPlacement, string> = {
   sidebar: "min-h-[600px]",
   inContent: "min-h-[250px]",
   footer: "min-h-[69px]",
+  hero: "min-h-[128px]",
 };
 
 export function AdSlot({ placement, className = "" }: { placement: AdPlacement; className?: string }) {

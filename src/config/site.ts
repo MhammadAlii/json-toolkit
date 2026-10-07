@@ -18,6 +18,7 @@ export const ads = {
     sidebar: process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR ?? "",
     inContent: process.env.NEXT_PUBLIC_ADSENSE_SLOT_IN_CONTENT ?? "",
     footer: process.env.NEXT_PUBLIC_ADSENSE_SLOT_FOOTER ?? "",
+    hero: process.env.NEXT_PUBLIC_ADSENSE_SLOT_HERO ?? "",
   },
 } as const;
 
