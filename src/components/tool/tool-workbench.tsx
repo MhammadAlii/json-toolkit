@@ -4,17 +4,9 @@ import { useDeferredValue, useId, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useClipboard } from "@/hooks/use-clipboard";
+import { useDownload } from "@/hooks/use-download";
 import { WorkbenchOptionControl } from "./workbench-option";
 import type { WorkbenchConfig, WorkbenchOptions } from "./workbench-types";
-
-function downloadText(text: string, filename: string, mime: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: mime }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 export function ToolWorkbench({ config }: { config: WorkbenchConfig }) {
   const id = useId();
@@ -22,6 +14,7 @@ export function ToolWorkbench({ config }: { config: WorkbenchConfig }) {
   const [input, setInput] = useState("");
   const [opts, setOpts] = useState<WorkbenchOptions>(() => Object.fromEntries(config.options.map((o) => [o.key, o.initial])));
   const { copy, copied } = useClipboard();
+  const downloadText = useDownload();
 
   const deferredInput = useDeferredValue(input);
   const result = useMemo(
