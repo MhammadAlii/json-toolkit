@@ -205,18 +205,19 @@ a secret.
 
 | Variable | Default when empty | Used for | Where to get it |
 | --- | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `metadataBase`, canonical URLs, sitemap, robots.txt, structured data, social tags (`config/site.ts`) | Your production domain, e.g. `https://jsontoolkit.dev`, no trailing slash |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `metadataBase`, canonical URLs, sitemap, robots.txt, structured data, social tags (`config/site.ts`) | Your production domain, e.g. `https://getjsontoolkit.com`, no trailing slash |
 | `NEXT_PUBLIC_ADSENSE_CLIENT` | empty: no ads, no AdSense script | AdSense script, `google-adsense-account` meta tag, `/ads.txt` (`config/site.ts`) | AdSense → Account → Account information (`ca-pub-…`) |
 | `NEXT_PUBLIC_ADSENSE_SLOT_TOOL_BELOW` | empty: slot hidden (placeholder in dev) | Ad below a tool's workbench | AdSense → Ads → By ad unit → Display ad (`data-ad-slot`) |
 | `NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR` | same | Sticky sidebar ad on wide screens | same |
 | `NEXT_PUBLIC_ADSENSE_SLOT_IN_CONTENT` | same | Ad inside page content | same |
 | `NEXT_PUBLIC_ADSENSE_SLOT_FOOTER` | same | Ad in the footer bar | same |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | empty: no tag | `google-site-verification` meta tag (`app/layout.tsx`) | Search Console → Add property → URL prefix → HTML tag (the `content` value only). Not needed with DNS verification |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | `hello@jsontoolkit.dev` | Contact page email, contact form recipient, About page buttons (`config/legal.ts`) | An inbox you control |
-| `NEXT_PUBLIC_PRIVACY_EMAIL` | `privacy@jsontoolkit.dev` | "Contact Privacy Officer" on the Privacy page | An inbox you control |
-| `NEXT_PUBLIC_LEGAL_EMAIL` | `[CONTACT EMAIL]` | Contact section of the Terms page | An inbox you control |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | `hello@getjsontoolkit.com` | Contact page email, contact form recipient, About page buttons (`config/legal.ts`) | An inbox you control |
+| `NEXT_PUBLIC_PRIVACY_EMAIL` | `privacy@getjsontoolkit.com` | "Contact Privacy Officer" on the Privacy page | An inbox you control |
+| `NEXT_PUBLIC_LEGAL_EMAIL` | `legal@getjsontoolkit.com` | Contact section of the Terms page | An inbox you control |
 | `NEXT_PUBLIC_LEGAL_ENTITY_NAME` | `[LEGAL ENTITY NAME]` | Terms of Service | Your company name, or your full legal name |
 | `NEXT_PUBLIC_LEGAL_JURISDICTION` | `[GOVERNING JURISDICTION]` | Terms of Service | The country or state whose law governs the terms |
 
-The bracketed defaults are design placeholders and must be replaced before launch; the
-`jsontoolkit.dev` email defaults come from the design and may not exist.
+The bracketed defaults are design placeholders and must be replaced before launch. The email
+defaults use the site's domain, so set up forwarding for `hello@`, `privacy@` and `legal@`
+`getjsontoolkit.com` (or override them with the variables).
