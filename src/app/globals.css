@@ -21,6 +21,7 @@
   --secondary: #9ca3af;
   --emphasis: #e5e7eb;
   --code-green: #34d399;
+  --code-literal: #fbbf24;
 
   --tint-purple: #7c5cff;
   --tint-green: #10b981;
@@ -31,6 +32,7 @@
   --tint-yellow: #febc2e;
   --tint-violet: #a855f7;
   --tint-lime: #28c840;
+  --tint-orange: #f97316;
 }
 
 @theme inline {
@@ -52,10 +54,12 @@
   --color-secondary: var(--secondary);
   --color-emphasis: var(--emphasis);
   --color-code-green: var(--code-green);
+  --color-code-literal: var(--code-literal);
   --color-tint-red: var(--tint-red);
   --color-tint-yellow: var(--tint-yellow);
   --color-tint-violet: var(--tint-violet);
   --color-tint-lime: var(--tint-lime);
+  --color-tint-orange: var(--tint-orange);
   --color-tint-purple: var(--tint-purple);
   --color-tint-green: var(--tint-green);
   --color-tint-amber: var(--tint-amber);
