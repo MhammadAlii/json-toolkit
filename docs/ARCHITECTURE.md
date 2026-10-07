@@ -33,7 +33,7 @@ app/                      routes: URLs, metadata, wiring only
 | Feature | Path | Owns |
 | --- | --- | --- |
 | Home | `features/home/` | Home page: hero, the Formatter workspace, stats and ad slots. |
-| Tools | `features/tools/` | Sub-features: formatter (`formatter-workspace.tsx` with Code, Tree and Table views, used on the home page), validator, repair, minifier, deep-search, diff, schema-validator, query-selector. `registry.ts` lists them. |
+| Tools | `features/tools/` | The `/tools` directory page (`directory/`) and the tool sub-features: formatter (`formatter-workspace.tsx` with Code, Tree and Table views, used on the home page), validator, repair, minifier, tree-viewer, table-viewer, deep-search, diff, schema-validator, query-selector, and the developer utilities jwt-decoder, url-encoder, base64-converter, epoch-converter. `registry.ts` lists them. |
 | Converters | `features/converters/` | Sub-features: json-to-yaml, json-to-csv, json-to-typescript, json-to-excel, json-to-xml, json-to-sql. `registry.ts` lists them. |
 | Legal | `features/legal/` | `privacy/`, `terms/`, `licenses/` pages and the shared `components/` (legal section and paragraph). |
 | Company | `features/company/` | `about/` and `contact/` pages, the contact form and request types. |
@@ -70,7 +70,9 @@ export default function Page() {
 | tools/validator | `/json-validator` | `validateJson` |
 | tools/repair | `/json-repair` | `repairJson` |
 | tools/minifier | `/json-minifier` | `minifyJson` |
-| tools/deep-search | `/json-deep-search` | `searchJson` |
+| tools/tree-viewer | `/json-tree-viewer` | uses `core/json/parse` + `JsonTreeView` |
+| tools/table-viewer | `/json-table-viewer` | uses `core/json/parse` + `JsonTableView` |
+| tools/deep-search | `/json-deep-search` | `searchJson` (substring, exact or regex) |
 | tools/diff | `/json-diff` | `diffJson` |
 | tools/schema-validator | `/json-schema-validator` | `validateAgainstSchema` (stub, needs Ajv) |
 | tools/query-selector | `/json-query` | `queryJson` (stub, needs a JSONPath library) |
@@ -80,8 +82,14 @@ export default function Page() {
 | converters/json-to-excel | `/json-to-excel` | `jsonToExcel` (stub, needs an .xlsx writer) |
 | converters/json-to-xml | `/json-to-xml` | `jsonToXml` |
 | converters/json-to-sql | `/json-to-sql` | `jsonToSql` |
+| tools/jwt-decoder | `/jwt-decoder` | `decodeJwt` |
+| tools/url-encoder | `/url-encoder` | `encodeUrl`, `decodeUrl` |
+| tools/base64-converter | `/base64-converter` | `encodeBase64`, `decodeBase64` (UTF-8, URL-safe) |
+| tools/epoch-converter | `/epoch-converter` | `fromTimestamp`, `fromDate` |
 
-**Adding one:** create the folder with `meta.ts` and the helper (plus `<name>-tool.tsx` when its
+Tools are grouped into five categories (`ToolCategory`), shown on `/tools` and in search: JSON Core (`core`), Explore JSON (`explore`), Compare & Query (`query`), Converter Hub (`converters`) and Developer Utilities (`utilities`). Labels and order live in `features/catalog.ts`; each category's heading icon and accent colour in `components/tool/tool-category-style.ts`.
+
+**Adding one:** create the folder with `meta.ts` (including `summary`, `icon` and `category`) and the helper (plus `<name>-tool.tsx` when its
 design exists), add the slug to `ToolSlug` in `core/tool/types.ts`, add the meta to the feature's
 `registry.ts`, and add `app/(tools|converters)/<slug>/page.tsx`. Search, footer, home links,
 sitemap and structured data pick it up automatically.
@@ -102,7 +110,7 @@ stay inside that feature, also one per file.
 | `components/json/` | `JsonCodeView` (syntax highlighting and line numbers), `JsonTreeView` + `JsonTreeNode` (collapsible), `JsonTableView`, `JsonPrimitive`, shared `json-token-classes.ts` |
 | `components/icons/` | One file per icon (`search.tsx`, `wand.tsx`, …) using `currentColor`; shared `IconProps` in `icon-props.ts` |
 | `components/seo/` | `JsonLd`, `BreadcrumbJsonLd`, `pageMetadata()` (title, description, canonical, Open Graph, Twitter) |
-| `components/tool/` | `ToolPage`, `ToolStructuredData`, `toolMetadata()` (built on `pageMetadata`), `ToolWorkbench`, `WorkbenchOptionControl`, `ToolGlyph`, `workbench-types.ts` |
+| `components/tool/` | `ToolPage`, `ToolStructuredData`, `toolMetadata()` (built on `pageMetadata`), `ToolWorkbench`, `WorkbenchOptionControl`, `ToolCard`, `CategoryHeading`, `ToolGlyph`, `tool-icons.ts` (icon and tint maps), `tool-category-style.ts`, `workbench-types.ts` |
 | `components/layout/` | `SiteHeader`, `SiteFooter`, `Logo`, `search/` (`SearchPalette`, `SearchResult`, `SearchHints`, `search-item.ts`) |
 | `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel` |
 
@@ -146,7 +154,7 @@ src/
 │   ├── (company)/about, contact
 │   ├── (converters)/json-to-yaml, json-to-csv, …
 │   ├── (legal)/privacy, terms, licenses
-│   ├── (tools)/json-formatter, json-validator, …
+│   ├── (tools)/tools (directory), json-formatter, json-validator, …
 │   ├── ads.txt/route.ts, sitemap.ts, robots.ts, manifest.ts
 │   ├── layout.tsx, page.tsx, not-found.tsx, globals.css
 │   └── icon.png, apple-icon.png, opengraph-image.png, twitter-image.png
@@ -186,7 +194,7 @@ URL (`/privacy`, not `/legal/privacy`).
   request-specific APIs such as `useSearchParams` must sit inside a `<Suspense>` boundary.
 - Every page has a unique title, description and canonical URL; `metadataBase` comes from
   `NEXT_PUBLIC_SITE_URL`.
-- Structured data: `WebSite` (home), `WebApplication` (tools and converters), `AboutPage`,
+- Structured data: `WebSite` (home), `ItemList` (`/tools`), `WebApplication` (tools and converters), `AboutPage`,
   `ContactPage`, and `BreadcrumbList` on every inner page.
 - `sitemap.xml`, `robots.txt`, `manifest.webmanifest` and social images come from Next.js file
   conventions in `app/`.
@@ -195,7 +203,7 @@ URL (`/privacy`, not `/legal/privacy`).
 
 `features/ads/ad-slot.tsx` renders an AdSense unit with a reserved minimum height so ads never shift
 the layout. Without `NEXT_PUBLIC_ADSENSE_CLIENT` and a slot ID it renders nothing in production and
-a labelled placeholder in development. The AdSense script loads once from the root layout, and
+a labelled placeholder in development. The AdSense script loads once from the root layout as a plain async `<script>` in `<head>` (AdSense rejects the `data-nscript` attribute that `next/script` adds), and
 `/ads.txt` is generated from the same publisher ID.
 
 ## Configuration
