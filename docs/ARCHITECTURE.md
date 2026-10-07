@@ -198,5 +198,25 @@ a labelled placeholder in development. The AdSense script loads once from the ro
 
 ## Configuration
 
-All deployment-specific values are env vars; see `.env.example`. Legal placeholders (entity name,
-jurisdiction, emails) live in `config/legal.ts` and must be filled before launch.
+All deployment-specific values are environment variables. Locally they go in a git-ignored `.env`
+file in the project root; in production, set them in the hosting provider's settings. Every
+variable is `NEXT_PUBLIC_`, meaning it is inlined into the browser bundle, so none of them may hold
+a secret.
+
+| Variable | Default when empty | Used for | Where to get it |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `metadataBase`, canonical URLs, sitemap, robots.txt, structured data, social tags (`config/site.ts`) | Your production domain, e.g. `https://jsontoolkit.dev`, no trailing slash |
+| `NEXT_PUBLIC_ADSENSE_CLIENT` | empty: no ads, no AdSense script | AdSense script, `google-adsense-account` meta tag, `/ads.txt` (`config/site.ts`) | AdSense → Account → Account information (`ca-pub-…`) |
+| `NEXT_PUBLIC_ADSENSE_SLOT_TOOL_BELOW` | empty: slot hidden (placeholder in dev) | Ad below a tool's workbench | AdSense → Ads → By ad unit → Display ad (`data-ad-slot`) |
+| `NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR` | same | Sticky sidebar ad on wide screens | same |
+| `NEXT_PUBLIC_ADSENSE_SLOT_IN_CONTENT` | same | Ad inside page content | same |
+| `NEXT_PUBLIC_ADSENSE_SLOT_FOOTER` | same | Ad in the footer bar | same |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | empty: no tag | `google-site-verification` meta tag (`app/layout.tsx`) | Search Console → Add property → URL prefix → HTML tag (the `content` value only). Not needed with DNS verification |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | `hello@jsontoolkit.dev` | Contact page email, contact form recipient, About page buttons (`config/legal.ts`) | An inbox you control |
+| `NEXT_PUBLIC_PRIVACY_EMAIL` | `privacy@jsontoolkit.dev` | "Contact Privacy Officer" on the Privacy page | An inbox you control |
+| `NEXT_PUBLIC_LEGAL_EMAIL` | `[CONTACT EMAIL]` | Contact section of the Terms page | An inbox you control |
+| `NEXT_PUBLIC_LEGAL_ENTITY_NAME` | `[LEGAL ENTITY NAME]` | Terms of Service | Your company name, or your full legal name |
+| `NEXT_PUBLIC_LEGAL_JURISDICTION` | `[GOVERNING JURISDICTION]` | Terms of Service | The country or state whose law governs the terms |
+
+The bracketed defaults are design placeholders and must be replaced before launch; the
+`jsontoolkit.dev` email defaults come from the design and may not exist.
