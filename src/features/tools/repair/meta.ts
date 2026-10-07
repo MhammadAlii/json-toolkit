@@ -10,8 +10,9 @@ export const repairTool: ToolMeta = {
   keywords: ["json repair", "fix json", "repair json online", "fix invalid json", "json fixer"],
   category: "core",
   tagline: "Auto-fix missing quotes or commas",
+  summary: "Automatically fix common syntax errors like trailing commas or missing quotes.",
   icon: "wrench",
-  tint: "amber",
+  tint: "purple",
   intro:
     "Paste malformed JSON, such as output from a log, an LLM or a JavaScript object literal, and get valid JSON back. Common mistakes are fixed automatically and every change is listed.",
   steps: [

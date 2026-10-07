@@ -10,7 +10,8 @@ export const jsonToXmlTool: ToolMeta = {
   keywords: ["json to xml", "convert json to xml", "json xml converter", "json to xml online"],
   category: "converters",
   tagline: "Convert JSON to well-formed XML",
-  icon: "code",
+  summary: "Convert JSON into well-formed, indented XML with a custom root element.",
+  icon: "file-lines",
   tint: "blue",
   intro:
     "Convert JSON into clean, indented XML for legacy APIs, SOAP services and config files. Keys that aren't valid XML names are made safe automatically.",

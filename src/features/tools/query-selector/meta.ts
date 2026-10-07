@@ -10,8 +10,9 @@ export const querySelectorTool: ToolMeta = {
   keywords: ["jsonpath tester", "json query", "jsonpath online", "query json", "json selector"],
   category: "query",
   tagline: "Select data with JSONPath",
-  icon: "code",
-  tint: "purple",
+  summary: "Powerful data manipulation using industry-standard jq-style filters.",
+  icon: "wand",
+  tint: "amber",
   intro:
     "Extract exactly the data you need from JSON using JSONPath. Results update as you type, which makes it easy to build and debug expressions before using them in code.",
   steps: ["Paste your JSON.", "Write a JSONPath expression such as $.store.book[*].author.", "Copy the matching values."],

@@ -10,6 +10,7 @@ export const jsonToCsvTool: ToolMeta = {
   keywords: ["json to csv", "convert json to csv", "json to excel", "json array to csv", "json to csv converter"],
   category: "converters",
   tagline: "Export data for spreadsheet apps",
+  summary: "Turn arrays of JSON objects into CSV for Excel, Google Sheets or Numbers.",
   icon: "csv",
   tint: "blue",
   intro:

@@ -6,6 +6,6 @@ export type SearchItem = {
   tagline: string;
   keywords: string[];
   category: ToolCategory;
-  icon?: ToolIcon;
+  icon: ToolIcon;
   tint: ToolTint;
 };

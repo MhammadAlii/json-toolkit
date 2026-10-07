@@ -10,7 +10,9 @@ export const jsonToYamlTool: ToolMeta = {
   keywords: ["json to yaml", "convert json to yaml", "json to yml", "json yaml converter"],
   category: "converters",
   tagline: "Convert to YAML config files",
-  tint: "green",
+  summary: "Convert JSON to clean YAML for Kubernetes, Docker Compose and CI config files.",
+  icon: "file-code",
+  tint: "blue",
   intro:
     "Convert JSON into clean, human-readable YAML. Strings that YAML could misinterpret, such as yes, no, on or values with special characters, are safely quoted.",
   steps: ["Paste your JSON or upload a file.", "The YAML appears instantly.", "Copy it or download it as a .yaml file."],

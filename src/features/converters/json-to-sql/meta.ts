@@ -10,8 +10,9 @@ export const jsonToSqlTool: ToolMeta = {
   keywords: ["json to sql", "json to sql insert", "convert json to sql", "json to mysql", "json to postgresql"],
   category: "converters",
   tagline: "Generate INSERT statements",
-  icon: "code",
-  tint: "amber",
+  summary: "Generate INSERT statements and CREATE TABLE for MySQL, PostgreSQL or SQLite.",
+  icon: "database",
+  tint: "blue",
   intro:
     "Turn an array of JSON objects into ready-to-run SQL. Column names come from the object keys, values are escaped safely, and a CREATE TABLE statement can be generated too.",
   steps: ["Paste a JSON array of objects.", "Choose the table name and SQL dialect.", "Copy the generated SQL."],

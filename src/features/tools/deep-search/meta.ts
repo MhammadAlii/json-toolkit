@@ -8,9 +8,11 @@ export const deepSearchTool: ToolMeta = {
   description:
     "Search deeply nested JSON for any key or value and get the exact path to every match. Supports case-insensitive and exact matching. Free and private.",
   keywords: ["json search", "search json", "find in json", "json key finder", "json path finder"],
-  category: "query",
+  category: "explore",
   tagline: "Find any key or value at any depth",
-  tint: "blue",
+  summary: "Find specific keys or values across massive datasets using regex or exact match.",
+  icon: "search",
+  tint: "green",
   intro:
     "Find every occurrence of a key or value in large, deeply nested JSON. Each match shows its full path, so you can jump straight to it or reuse it in code.",
   steps: ["Paste your JSON.", "Type the key or value you're looking for.", "Copy the path of any match."],

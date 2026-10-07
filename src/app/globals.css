@@ -33,6 +33,7 @@
   --tint-violet: #a855f7;
   --tint-lime: #28c840;
   --tint-orange: #f97316;
+  --tint-pink: #ec4899;
 }
 
 @theme inline {
@@ -60,6 +61,7 @@
   --color-tint-violet: var(--tint-violet);
   --color-tint-lime: var(--tint-lime);
   --color-tint-orange: var(--tint-orange);
+  --color-tint-pink: var(--tint-pink);
   --color-tint-purple: var(--tint-purple);
   --color-tint-green: var(--tint-green);
   --color-tint-amber: var(--tint-amber);

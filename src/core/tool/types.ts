@@ -4,6 +4,8 @@ export type ToolSlug =
   | "json-repair"
   | "json-minifier"
   | "json-deep-search"
+  | "json-tree-viewer"
+  | "json-table-viewer"
   | "json-diff"
   | "json-schema-validator"
   | "json-query"
@@ -12,12 +14,36 @@ export type ToolSlug =
   | "json-to-typescript"
   | "json-to-excel"
   | "json-to-xml"
-  | "json-to-sql";
+  | "json-to-sql"
+  | "jwt-decoder"
+  | "url-encoder"
+  | "base64-converter"
+  | "epoch-converter";
 
-export type ToolCategory = "core" | "query" | "converters";
+export type ToolCategory = "core" | "explore" | "query" | "converters" | "utilities";
 
-export type ToolIcon = "wand" | "check" | "wrench" | "csv" | "code";
-export type ToolTint = "purple" | "green" | "amber" | "blue" | "indigo";
+export type ToolIcon =
+  | "align-left"
+  | "question"
+  | "wrench"
+  | "compress"
+  | "folder-tree"
+  | "table"
+  | "search"
+  | "table-columns"
+  | "file-shield"
+  | "wand"
+  | "file-code"
+  | "csv"
+  | "code"
+  | "file-excel"
+  | "file-lines"
+  | "database"
+  | "key"
+  | "link"
+  | "barcode"
+  | "clock";
+export type ToolTint = "purple" | "green" | "amber" | "blue" | "indigo" | "pink";
 
 export type Faq = { q: string; a: string };
 
@@ -32,7 +58,8 @@ export type ToolMeta = {
   keywords: string[];
   category: ToolCategory;
   tagline: string;
-  icon?: ToolIcon;
+  summary: string;
+  icon: ToolIcon;
   tint: ToolTint;
   intro: string;
   steps: string[];

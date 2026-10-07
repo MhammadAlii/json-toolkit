@@ -10,8 +10,9 @@ export const jsonToTypeScriptTool: ToolMeta = {
   keywords: ["json to typescript", "json to ts", "json to interface", "typescript interface generator", "json2ts"],
   category: "converters",
   tagline: "Generate interface definitions",
+  summary: "Generate TypeScript interfaces from a JSON sample, including nested types.",
   icon: "code",
-  tint: "indigo",
+  tint: "blue",
   intro:
     "Paste a sample API response and get ready-to-use TypeScript interfaces. Nested objects become their own interfaces, and keys missing from some array items are marked optional.",
   steps: [

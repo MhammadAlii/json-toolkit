@@ -10,8 +10,9 @@ export const schemaValidatorTool: ToolMeta = {
   keywords: ["json schema validator", "validate json schema", "json schema online", "json schema checker"],
   category: "query",
   tagline: "Validate data against a JSON Schema",
-  icon: "check",
-  tint: "green",
+  summary: "Verify that your JSON strictly follows a specific JSON Schema definition.",
+  icon: "file-shield",
+  tint: "amber",
   intro:
     "Check that JSON data matches a JSON Schema. Every violation is listed with the failing path and the rule that was broken, so you can fix payloads or schemas quickly.",
   steps: ["Paste your JSON Schema.", "Paste the JSON data to validate.", "Fix any listed errors."],

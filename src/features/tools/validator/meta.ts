@@ -10,8 +10,9 @@ export const validatorTool: ToolMeta = {
   keywords: ["json validator", "validate json", "json lint", "json checker", "json syntax checker"],
   category: "core",
   tagline: "Check for syntax errors",
-  icon: "check",
-  tint: "green",
+  summary: "Check for syntax errors and validate against RFC 8259 standards instantly.",
+  icon: "question",
+  tint: "purple",
   intro:
     "Check whether your JSON is valid according to the JSON specification (RFC 8259). If it isn't, you'll see the line and column where parsing failed.",
   steps: [

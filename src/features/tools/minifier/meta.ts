@@ -10,7 +10,9 @@ export const minifierTool: ToolMeta = {
   keywords: ["json minifier", "minify json", "compress json", "json compressor", "remove whitespace json"],
   category: "core",
   tagline: "Strip whitespace to shrink payloads",
-  tint: "amber",
+  summary: "Remove whitespace and newlines to compress your JSON payload for production.",
+  icon: "compress",
+  tint: "purple",
   intro:
     "Strip all unnecessary whitespace from JSON to produce the smallest equivalent output, ideal for APIs, config files and storage.",
   steps: [

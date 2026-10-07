@@ -10,7 +10,9 @@ export const diffTool: ToolMeta = {
   keywords: ["json diff", "compare json", "json compare online", "json difference", "diff json files"],
   category: "query",
   tagline: "Compare two JSON documents",
-  tint: "indigo",
+  summary: "Side-by-side comparison to find differences between two JSON objects.",
+  icon: "table-columns",
+  tint: "amber",
   intro:
     "Paste two JSON documents to see exactly what changed. Differences are computed structurally, so key order and whitespace never show up as false changes.",
   steps: ["Paste the original JSON on the left.", "Paste the changed JSON on the right.", "Review added, removed and changed paths."],

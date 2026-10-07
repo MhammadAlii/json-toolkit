@@ -10,7 +10,8 @@ export const formatterTool: ToolMeta = {
   keywords: ["json formatter", "json beautifier", "pretty print json", "format json online", "json pretty"],
   category: "core",
   tagline: "Prettify and clean up JSON code",
-  icon: "wand",
+  summary: "Clean up messy JSON code with custom indentation and styling options.",
+  icon: "align-left",
   tint: "purple",
   intro:
     "Paste minified or messy JSON and get clean, readable, consistently indented output. Errors are reported with the exact line and column so you can fix broken JSON quickly.",

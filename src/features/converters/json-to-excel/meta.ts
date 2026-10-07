@@ -10,8 +10,9 @@ export const jsonToExcelTool: ToolMeta = {
   keywords: ["json to excel", "json to xlsx", "convert json to excel", "json to spreadsheet"],
   category: "converters",
   tagline: "Download JSON as an .xlsx file",
-  icon: "csv",
-  tint: "green",
+  summary: "Download JSON arrays as an Excel workbook with flattened columns.",
+  icon: "file-excel",
+  tint: "blue",
   intro:
     "Turn an array of JSON objects into a real Excel workbook. Nested objects become dot-notation columns, and the file opens directly in Excel, Google Sheets or Numbers.",
   steps: ["Paste a JSON array of objects.", "Preview the columns.", "Download the .xlsx file."],
