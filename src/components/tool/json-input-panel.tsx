@@ -17,6 +17,7 @@ export function JsonInputPanel({
   value,
   onChange,
   loadLabel = "Load File",
+  extraActions,
   className = "h-[320px] lg:h-[500px]",
 }: {
   title: string;
@@ -24,19 +25,24 @@ export function JsonInputPanel({
   value: string;
   onChange: (value: string) => void;
   loadLabel?: string;
+  /** Tool-specific buttons shown before Load File, e.g. a sample or template picker. */
+  extraActions?: React.ReactNode;
   className?: string;
 }) {
   return (
     <Panel
-      className={className}
+      className={`@container ${className}`}
       header={<PanelTitle>{title}</PanelTitle>}
       actions={
         <>
+          {extraActions}
           <FileButton accept={jsonAccept} onText={onChange} variant="soft" size="tiny">
-            <UploadIcon className="h-[11px] w-auto" /> {loadLabel}
+            <UploadIcon className="h-[11px] w-auto" />
+            <span className="sr-only @[26rem]:not-sr-only">{loadLabel}</span>
           </FileButton>
           <Button variant="soft" size="tiny" onClick={() => onChange("")} disabled={!value}>
-            <TrashIcon className="h-[11px] w-auto" /> Clear
+            <TrashIcon className="h-[11px] w-auto" />
+            <span className="sr-only @[26rem]:not-sr-only">Clear</span>
           </Button>
         </>
       }

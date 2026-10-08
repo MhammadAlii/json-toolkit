@@ -15,7 +15,11 @@ export const schemaValidatorTool: ToolMeta = {
   tint: "amber",
   intro:
     "Check that JSON data matches a JSON Schema. Every violation is listed with the failing path and the rule that was broken, so you can fix payloads or schemas quickly.",
-  steps: ["Paste your JSON Schema.", "Paste the JSON data to validate.", "Fix any listed errors."],
+  steps: [
+    "Paste the JSON data to check as the Target JSON.",
+    "Paste your JSON Schema, or load a template or infer one from the data.",
+    "Press Validate and fix each listed violation, which shows its path and line.",
+  ],
   faqs: [
     {
       q: "Which JSON Schema drafts are supported?",
@@ -24,6 +28,10 @@ export const schemaValidatorTool: ToolMeta = {
     {
       q: "How is this different from the JSON Validator?",
       a: "The JSON Validator checks syntax only. The Schema Validator checks that valid JSON also has the right structure, types and values.",
+    },
+    {
+      q: "Can schemas use $ref?",
+      a: "Yes. References inside the schema work, including #/$defs, #/definitions, $anchor and $id. Remote references to other URLs aren't fetched, so paste those definitions into the same schema.",
     },
   ],
   related: ["json-validator", "json-to-typescript", "json-formatter"],

@@ -1,10 +1,10 @@
-import { schemaValidatorTool } from "@/features/tools/schema-validator/meta";
 import { toolMetadata } from "@/components/tool/tool-metadata";
-import { ToolPage } from "@/components/tool/tool-page";
 import { relatedTools } from "@/features/catalog";
+import { schemaValidatorTool } from "@/features/tools/schema-validator/meta";
+import { SchemaToolPage } from "@/features/tools/schema-validator/schema-tool-page";
 
 export const metadata = toolMetadata(schemaValidatorTool);
 
 export default function Page() {
-  return <ToolPage tool={schemaValidatorTool} related={relatedTools(schemaValidatorTool)} />;
+  return <SchemaToolPage tool={schemaValidatorTool} related={relatedTools(schemaValidatorTool)} />;
 }
