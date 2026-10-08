@@ -1,19 +1,16 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { WandIcon } from "@/components/icons/wand";
 import { JsonInputPanel } from "@/components/tool/json-input-panel";
-import { Button } from "@/components/ui/button";
-import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useStoredState } from "@/hooks/use-stored-state";
 import { QueryPipeline } from "./query-pipeline";
 import { QueryResultPanel } from "./query-result-panel";
-import { defaultPipeline, runPipeline, samplePipeline, sampleSource, type Stage, type StageKind } from "./query-selector";
+import { defaultPipeline, runPipeline, type Stage, type StageKind } from "./query-selector";
 
 const panelHeight = "h-[360px] lg:h-[520px]";
 
 export function QueryWorkspace() {
-  const [source, setSource] = useSessionDraft("json-toolkit:query:source");
+  const [source, setSource] = useState("");
   const [stages, setStages] = useStoredState<Stage[]>("json-toolkit:query-pipeline-v2", defaultPipeline);
   const [focusId, setFocusId] = useState<string>();
 
@@ -47,14 +44,6 @@ export function QueryWorkspace() {
           onChange={setSource}
           loadLabel="Import"
           className={panelHeight}
-          extraActions={
-            <Button variant="soft" size="tiny" onClick={() => {
-                setSource(sampleSource);
-                setStages(samplePipeline);
-              }}>
-              <WandIcon className="h-[11px] w-auto" /> Sample
-            </Button>
-          }
         />
         <QueryResultPanel result={empty ? null : result} className={panelHeight} />
       </div>

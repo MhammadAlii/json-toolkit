@@ -113,20 +113,6 @@ export function runPipeline(input: string, stages: Stage[]): PipelineResult {
   return { ok: true, value, count: Array.isArray(value) ? value.length : 1 };
 }
 
-export const sampleSource = JSON.stringify(
-  {
-    users: [
-      { id: 1, email: "ada@example.com", age: 36, country: "UK", profile: { name: "Ada Lovelace", active: true } },
-      { id: 2, email: "alan@example.com", age: 41, country: "UK", profile: { name: "Alan Turing", active: false } },
-      { id: 3, email: "grace@example.com", age: 17, country: "US", profile: { name: "Grace Hopper", active: true } },
-      { id: 4, email: "linus@example.com", age: 28, country: "FI", profile: { name: "Linus Torvalds", active: true } },
-      { id: 5, email: "margaret@example.com", age: 33, country: "US", profile: { name: "Margaret Hamilton", active: true } },
-    ],
-  },
-  null,
-  2,
-);
-
 // Starts with empty stages so the placeholders show how to fill them in.
 export const defaultPipeline: Stage[] = [
   { id: "path", kind: "path", expr: "" },
@@ -134,8 +120,3 @@ export const defaultPipeline: Stage[] = [
   { id: "select", kind: "select", expr: "" },
 ];
 
-export const samplePipeline: Stage[] = [
-  { id: "path", kind: "path", expr: "$.users[*]" },
-  { id: "where", kind: "where", expr: "age > 18" },
-  { id: "select", kind: "select", expr: "id, email, profile.name" },
-];

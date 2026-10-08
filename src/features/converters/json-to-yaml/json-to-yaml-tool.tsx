@@ -9,7 +9,6 @@ const config: WorkbenchConfig = {
   outputLabel: "YAML",
   options: [],
   run: (input) => jsonToYaml(input),
-  sample: '{"apiVersion":"v1","kind":"Service","metadata":{"name":"web","labels":{"app":"web"}},"spec":{"ports":[{"port":80,"targetPort":8080}],"selector":{"app":"web"}}}',
   download: { filename: "output.yaml", mime: "application/yaml" },
   accept: jsonAccept,
 };

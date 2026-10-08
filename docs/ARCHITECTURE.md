@@ -22,7 +22,7 @@ app/                      routes: URLs, metadata, wiring only
 | --- | --- | --- | --- |
 | Core | `src/core/` | Framework-free domain code: JSON parsing with line/column errors, `TransformResult`, path formatting (`core/json`), the tool model `ToolMeta` / `ToolSlug` / categories (`core/tool`), JSON syntax tokenizing (`core/json/tokenize.ts`), value description (`core/json/describe.ts`), path lookup (`valueAtPath` in `core/json/path.ts`), table building, filtering and projection (`core/json/table.ts`), CSV writing (`toCsv` in `core/json/csv.ts`), deep key sorting (`sortDeep` in `core/json/sort.ts`), a JSON Schema validator (`validateSchema` in `core/json/schema.ts`, core keywords of drafts 2020-12 / 2019-09 / 07 with local `$ref`), schema inference (`inferSchema` in `core/json/infer-schema.ts`), path-to-line lookup (`locateLines` in `core/json/locate.ts`), a safe JSONPath evaluator (`core/json/jsonpath.ts`: `queryJsonPath` for RFC 9535-style queries, `compileCondition` for WHERE conditions where bare names refer to the current item, `compileField` for field references), and text helpers (`core/text`: `matchesQuery`, `formatBytes`, the linear-space Myers sequence diff `diffSequences` with an optional deadline). | nothing internal |
 | Config | `src/config/` | Site, ads and legal settings, read from env vars with defaults. | core |
-| Hooks | `src/hooks/` | Reusable client hooks (`useClipboard`, `useUrlHash`, `useShortcutLabel`, `useWorkerTask`, `useSessionDraft`). | core, config |
+| Hooks | `src/hooks/` | Reusable client hooks (`useClipboard`, `useUrlHash`, `useShortcutLabel`, `useWorkerTask`). | core, config |
 | Shared UI | `src/components/ui`, `icons`, `seo`, `tool` | Design-system components, icons, structured data and the tool page shell. Know nothing about features. | core, config, hooks |
 | Features | `src/features/<feature>/` | Everything one product area needs: its pages' content, data, logic and feature-specific components. | all of the above |
 | Layout | `src/components/layout/` | App shell that composes features: header (with search), footer (with ad slot), logo. | all of the above |
@@ -74,7 +74,7 @@ export default function Page() {
 | tools/table-viewer | `/json-table-viewer` | `FormatterWorkspace` opening on `JsonTableExplorer` |
 | tools/deep-search | `/json-deep-search` | `searchJson` (substring, exact or regex) |
 | tools/diff | `/json-diff` | `diff.ts`: `compareJson` (parses once, applies `DiffOptions` via `normalize`), `structuralChanges` (array items matched by content, then paired by similarity) and `toJsonPatch` (RFC 6902). `diff-lines.ts`: `buildLineDiff` (`+` / `-` / `~` rows with paths and inline character or item highlights). `diff-view.ts`: `foldUnchanged`, `hunks`, `splitRows`, `diffToText`. Runs in `diff.worker.ts` through `useWorkerTask`; UI in `DiffWorkspace`, `DiffResult` (unified / split, change navigation, row paging) and their row components |
-| tools/schema-validator | `/json-schema-validator` | `checkAgainstSchema` (violations with category, path and line), `schemaTemplates` (infer from data, user, product, blank); UI in `SchemaToolPage` / `SchemaWorkspace` / `SchemaResultCard` / `SchemaViolationItem` / `SchemaTemplateMenu` |
+| tools/schema-validator | `/json-schema-validator` | `checkAgainstSchema` (violations with category, path and line), `schemaTemplates` (infer from data, blank); UI in `SchemaToolPage` / `SchemaWorkspace` / `SchemaResultCard` / `SchemaViolationItem` / `SchemaTemplateMenu` |
 | tools/query-selector | `/json-query` | `runPipeline` with PATH, WHERE, SELECT, SORT, LIMIT and GROUP stages (`stageInfo`); UI in `QueryToolPage` / `QueryWorkspace` / `QueryPipeline` (stage chips + `QueryStageMenu`) / `QueryResultPanel` (code, table or tree) |
 | converters/json-to-yaml | `/json-to-yaml` | `jsonToYaml` |
 | converters/json-to-csv | `/json-to-csv` | `jsonToCsv` (built on `core/json/csv`) |
@@ -90,6 +90,8 @@ export default function Page() {
 | tools/epoch-converter | `/epoch-converter` | `fromTimestamp`, `fromDate` |
 
 Tools are grouped into five categories (`ToolCategory`), shown on `/tools` and in search: JSON Core (`core`), Explore JSON (`explore`), Compare & Query (`query`), Converter Hub (`converters`) and Developer Utilities (`utilities`). Labels and order live in `features/catalog.ts`; each category's heading icon and accent colour in `components/tool/tool-category-style.ts`.
+
+**Tool inputs start empty.** No tool ships example JSON, and none pre-fills, restores or persists what the user pastes; placeholders only describe what to enter.
 
 **Implemented tool pages** render their own page component (for example `FormatterToolPage`, `DiffToolPage`) that wraps the tool's workspace in `features/tools/shared/tool-layout.tsx` (`ToolHeader` with the hero ad, the bottom ad, `ToolSeoContent` and structured data). Tools without a design yet still use the placeholder `ToolPage`. The Formatter, Tree Viewer and Table Viewer share `FormatterToolPage` and the home page's `FormatterWorkspace`; the viewers pass `lockedView` to show only their view, without the Code / Tree / Table switcher.
 
@@ -116,7 +118,7 @@ stay inside that feature, also one per file.
 | `components/seo/` | `JsonLd`, `BreadcrumbJsonLd`, `pageMetadata()` (title, description, canonical, Open Graph, Twitter) |
 | `components/tool/` | `ToolPage`, `ToolStructuredData`, `toolMetadata()` (built on `pageMetadata`), `ToolWorkbench`, `WorkbenchOptionControl`, `ToolHeader` (icon, title, summary and an aside slot), `JsonInputPanel` (editable JSON with Load File, Clear and drag-and-drop, an `extraActions` slot, icon-only buttons in narrow panels), `ToolSeoContent` (how-to, FAQ and related tools below each implemented tool), `ToolCard`, `CategoryHeading`, `ToolGlyph`, `tool-icons.ts` (icon and tint maps), `tool-category-style.ts`, `workbench-types.ts` |
 | `components/layout/` | `SiteHeader`, `SiteFooter`, `Logo`, `search/` (`SearchPalette`, `SearchResult`, `SearchHints`, `search-item.ts`) |
-| `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel`, `useStoredState` (localStorage-backed state), `useSessionDraft` (text kept in state and mirrored to sessionStorage), `useWorkerTask` (runs a task in a Web Worker, cancelling the previous run, with a main-thread fallback), `useJsonColors` |
+| `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel`, `useStoredState` (localStorage-backed state), `useWorkerTask` (runs a task in a Web Worker, cancelling the previous run, with a main-thread fallback), `useJsonColors` |
 
 ### Reuse rules
 
@@ -173,7 +175,7 @@ src/
 ├── features/
 │   ├── ads/   company/   converters/   home/   legal/   tools/
 │   └── catalog.ts
-└── hooks/                      # use-clipboard, use-download, use-url-hash, use-shortcut-label, use-stored-state, use-session-draft, use-worker-task, use-json-colors
+└── hooks/                      # use-clipboard, use-download, use-url-hash, use-shortcut-label, use-stored-state, use-worker-task, use-json-colors
 ```
 
 Folders in parentheses under `app/` are route groups: they organise files without appearing in the

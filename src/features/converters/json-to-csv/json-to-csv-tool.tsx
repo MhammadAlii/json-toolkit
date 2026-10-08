@@ -21,7 +21,6 @@ const config: WorkbenchConfig = {
     },
   ],
   run: (input, o) => jsonToCsv(input, o.delimiter as Delimiter),
-  sample: '[{"id":1,"name":"Ada","address":{"city":"London"},"active":true},{"id":2,"name":"Grace","address":{"city":"New York"},"active":false},{"id":3,"name":"Linus","address":{"city":"Helsinki"}}]',
   download: { filename: "output.csv", mime: "text/csv" },
   accept: jsonAccept,
 };

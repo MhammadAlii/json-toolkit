@@ -42,9 +42,6 @@ export function ToolWorkbench({ config }: { config: WorkbenchConfig }) {
           />
         ))}
         <div className="ml-auto flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => setInput(config.sample)}>
-            Load sample
-          </Button>
           <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
             Upload file
           </Button>

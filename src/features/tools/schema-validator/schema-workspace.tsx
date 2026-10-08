@@ -1,20 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { WandIcon } from "@/components/icons/wand";
 import { JsonInputPanel } from "@/components/tool/json-input-panel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useSessionDraft } from "@/hooks/use-session-draft";
 import { SchemaResultCard } from "./schema-result-card";
 import { SchemaTemplateMenu } from "./schema-template-menu";
-import { checkAgainstSchema, sampleData, type SchemaCheck } from "./schema-validator";
+import { checkAgainstSchema, type SchemaCheck } from "./schema-validator";
 
 const panelHeight = "h-[360px] lg:h-[480px]";
 
 export function SchemaWorkspace() {
-  const [data, setData] = useSessionDraft("json-toolkit:schema:data");
-  const [schema, setSchema] = useSessionDraft("json-toolkit:schema:schema");
+  const [data, setData] = useState("");
+  const [schema, setSchema] = useState("");
   const [checked, setChecked] = useState<{ data: string; schema: string; result: SchemaCheck }>();
   const [notice, setNotice] = useState("");
 
@@ -39,11 +37,6 @@ export function SchemaWorkspace() {
         value={data}
         onChange={setData}
         className={panelHeight}
-        extraActions={
-          <Button variant="soft" size="tiny" onClick={() => setData(sampleData)}>
-            <WandIcon className="h-[11px] w-auto" /> Sample
-          </Button>
-        }
       />
       <JsonInputPanel
         title="JSON Schema"

@@ -9,7 +9,6 @@ const config: WorkbenchConfig = {
   outputLabel: "TypeScript",
   options: [{ kind: "text", key: "rootName", label: "Root name", initial: "Root" }],
   run: (input, o) => jsonToTypeScript(input, (o.rootName as string) || "Root"),
-  sample: '{"id":1,"name":"Ada","tags":["math"],"address":{"city":"London","zip":null},"orders":[{"id":"a1","total":9.5},{"id":"a2","total":12,"coupon":"SAVE"}]}',
   download: { filename: "types.ts", mime: "text/plain" },
   accept: jsonAccept,
 };

@@ -23,7 +23,6 @@ const config: WorkbenchConfig = {
     { kind: "checkbox", key: "createTable", label: "CREATE TABLE", initial: true },
   ],
   run: (input, o) => jsonToSql(input, { table: o.table as string, dialect: o.dialect as SqlDialect, createTable: o.createTable as boolean }),
-  sample: '[{"id":1,"name":"Ada","address":{"city":"London"},"active":true},{"id":2,"name":"Grace","address":{"city":"New York"},"active":false},{"id":3,"name":"Linus","address":{"city":"Helsinki"}}]',
   download: { filename: "output.sql", mime: "application/sql" },
   accept: jsonAccept,
 };

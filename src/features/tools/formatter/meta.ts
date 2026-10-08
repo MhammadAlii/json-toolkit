@@ -16,7 +16,7 @@ export const formatterTool: ToolMeta = {
   intro:
     "Paste minified or messy JSON and get clean, readable, consistently indented output. Errors are reported with the exact line and column so you can fix broken JSON quickly.",
   steps: [
-    "Paste your JSON into the input box, upload a .json file, or load the sample.",
+    "Paste your JSON into the input box or upload a .json file.",
     "Pick an indentation (2 spaces, 4 spaces or tabs) and optionally sort keys alphabetically.",
     "Copy the formatted result or download it as a .json file.",
   ],

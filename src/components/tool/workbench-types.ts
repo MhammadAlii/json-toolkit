@@ -12,7 +12,6 @@ export type WorkbenchConfig = {
   outputLabel: string;
   options: WorkbenchOption[];
   run: (input: string, opts: WorkbenchOptions) => TransformResult;
-  sample: string;
   download: { filename: string; mime: string };
   accept: string;
 };

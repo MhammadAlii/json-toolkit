@@ -25,7 +25,7 @@ export function JsonInputPanel({
   value: string;
   onChange: (value: string) => void;
   loadLabel?: string;
-  /** Tool-specific buttons shown before Load File, e.g. a sample or template picker. */
+  /** Tool-specific buttons shown before Load File, e.g. a template picker. */
   extraActions?: React.ReactNode;
   className?: string;
 }) {

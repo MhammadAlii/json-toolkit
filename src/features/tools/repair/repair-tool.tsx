@@ -9,7 +9,6 @@ const config: WorkbenchConfig = {
   outputLabel: "Repaired JSON",
   options: [],
   run: (input) => repairJson(input),
-  sample: "{name: 'Ada', active: True, tags: ['math', 'computing',], // comment\n  address: {city: 'London'",
   download: { filename: "repaired.json", mime: "application/json" },
   accept: jsonAccept,
 };

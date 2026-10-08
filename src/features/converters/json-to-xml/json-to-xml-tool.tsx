@@ -9,7 +9,6 @@ const config: WorkbenchConfig = {
   outputLabel: "XML",
   options: [{ kind: "text", key: "root", label: "Root element", initial: "root" }],
   run: (input, o) => jsonToXml(input, o.root as string),
-  sample: '{"id":1042,"name":"Ada Lovelace","email":"ada@example.com","active":true,"roles":["admin","editor"],"address":{"city":"London","postcode":"W1A 1AA"},"lastLogin":null}',
   download: { filename: "output.xml", mime: "application/xml" },
   accept: jsonAccept,
 };

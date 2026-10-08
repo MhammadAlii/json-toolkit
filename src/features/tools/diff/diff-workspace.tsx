@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { JsonInputPanel } from "@/components/tool/json-input-panel";
 import { Card } from "@/components/ui/card";
 import { parseJson } from "@/core/json/parse";
-import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useStoredState } from "@/hooks/use-stored-state";
 import { useWorkerTask } from "@/hooks/use-worker-task";
 import { compareJson, defaultDiffOptions, isLossy, type CompareResult, type DiffOptions } from "./diff";
@@ -27,8 +26,8 @@ const prettify = (text: string) => {
 };
 
 export function DiffWorkspace() {
-  const [a, setA] = useSessionDraft("json-toolkit:diff:a");
-  const [b, setB] = useSessionDraft("json-toolkit:diff:b");
+  const [a, setA] = useState("");
+  const [b, setB] = useState("");
   const [options, setOptions] = useStoredState<DiffOptions>("json-toolkit:diff-options", defaultDiffOptions);
   const [view, setView] = useStoredState<DiffViewMode>("json-toolkit:diff-view", "unified");
   const [compared, setCompared] = useState<CompareInput & { run: number }>();

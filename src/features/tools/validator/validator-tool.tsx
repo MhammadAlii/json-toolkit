@@ -9,7 +9,6 @@ const config: WorkbenchConfig = {
   outputLabel: "Parsed result",
   options: [],
   run: (input) => validateJson(input),
-  sample: '{\n  "name": "Ada",\n  "tags": ["math", "computing"],\n}',
   download: { filename: "valid.json", mime: "application/json" },
   accept: jsonAccept,
 };
