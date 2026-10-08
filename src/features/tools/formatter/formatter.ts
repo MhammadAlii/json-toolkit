@@ -9,7 +9,7 @@ export function formatJson(input: string, indent: Indent = "2", sortKeys = false
   }));
 }
 
-function sortDeep(value: unknown): unknown {
+export function sortDeep(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(sortDeep);
   if (value && typeof value === "object") {
     return Object.fromEntries(

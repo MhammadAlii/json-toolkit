@@ -1,10 +1,10 @@
-import { formatterTool } from "@/features/tools/formatter/meta";
 import { toolMetadata } from "@/components/tool/tool-metadata";
-import { ToolPage } from "@/components/tool/tool-page";
 import { relatedTools } from "@/features/catalog";
+import { FormatterToolPage } from "@/features/tools/formatter/formatter-tool-page";
+import { formatterTool } from "@/features/tools/formatter/meta";
 
 export const metadata = toolMetadata(formatterTool);
 
 export default function Page() {
-  return <ToolPage tool={formatterTool} related={relatedTools(formatterTool)} />;
+  return <FormatterToolPage tool={formatterTool} related={relatedTools(formatterTool)} defaultView="code" />;
 }
