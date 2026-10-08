@@ -6,5 +6,5 @@ import { treeViewerTool } from "@/features/tools/tree-viewer/meta";
 export const metadata = toolMetadata(treeViewerTool);
 
 export default function Page() {
-  return <FormatterToolPage tool={treeViewerTool} related={relatedTools(treeViewerTool)} defaultView="tree" />;
+  return <FormatterToolPage tool={treeViewerTool} related={relatedTools(treeViewerTool)} lockedView="tree" />;
 }

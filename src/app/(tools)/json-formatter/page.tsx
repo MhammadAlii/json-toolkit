@@ -6,5 +6,5 @@ import { formatterTool } from "@/features/tools/formatter/meta";
 export const metadata = toolMetadata(formatterTool);
 
 export default function Page() {
-  return <FormatterToolPage tool={formatterTool} related={relatedTools(formatterTool)} defaultView="code" />;
+  return <FormatterToolPage tool={formatterTool} related={relatedTools(formatterTool)} />;
 }

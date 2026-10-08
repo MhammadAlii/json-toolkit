@@ -2,11 +2,11 @@ import type { ToolMeta } from "@/core/tool/types";
 import { ToolLayout } from "@/features/tools/shared/tool-layout";
 import { FormatterWorkspace, type FormatterView } from "./formatter-workspace";
 
-// Shared by the Formatter, Tree Viewer and Table Viewer pages, which differ only in the opening view.
-export function FormatterToolPage({ tool, related, defaultView }: { tool: ToolMeta; related: ToolMeta[]; defaultView?: FormatterView }) {
+// Shared by the Formatter, Tree Viewer and Table Viewer pages; the viewers pin the output to their view.
+export function FormatterToolPage({ tool, related, lockedView }: { tool: ToolMeta; related: ToolMeta[]; lockedView?: FormatterView }) {
   return (
     <ToolLayout tool={tool} related={related}>
-      <FormatterWorkspace defaultView={defaultView} />
+      <FormatterWorkspace lockedView={lockedView} />
     </ToolLayout>
   );
 }

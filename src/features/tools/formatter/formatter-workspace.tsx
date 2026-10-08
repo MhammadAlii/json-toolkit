@@ -36,9 +36,11 @@ const views = [
 
 const panelHeight = "h-[360px] lg:h-[600px]";
 
-export function FormatterWorkspace({ defaultView = "code" }: { defaultView?: FormatterView }) {
+// `lockedView` pins the output to one view (the Tree and Table Viewer pages) and hides the switcher.
+export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView }) {
   const [input, setInput] = useState("");
-  const [view, setView] = useState<FormatterView>(defaultView);
+  const [chosenView, setView] = useState<FormatterView>("code");
+  const view = lockedView ?? chosenView;
   const [mode, setMode] = useState<Mode>("format");
   const [sortKeys, setSortKeys] = useState(false);
   const { copy, copied, failed } = useClipboard();
@@ -78,7 +80,13 @@ export function FormatterWorkspace({ defaultView = "code" }: { defaultView?: For
         <Panel
           bodyStyle={outputColors.style}
           className={panelHeight}
-          header={<SegmentedControl label="Output view" options={views} value={view} onChange={setView} />}
+          header={
+            lockedView ? (
+              <PanelTitle>{`${views.find((v) => v.value === lockedView)?.label} View`}</PanelTitle>
+            ) : (
+              <SegmentedControl label="Output view" options={views} value={view} onChange={setView} />
+            )
+          }
           actions={
             <>
               <Button variant={mode === "format" ? "accent" : "soft"} size="tiny" onClick={() => setMode("format")} aria-pressed={mode === "format"}>

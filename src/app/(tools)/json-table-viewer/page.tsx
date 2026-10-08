@@ -6,5 +6,5 @@ import { tableViewerTool } from "@/features/tools/table-viewer/meta";
 export const metadata = toolMetadata(tableViewerTool);
 
 export default function Page() {
-  return <FormatterToolPage tool={tableViewerTool} related={relatedTools(tableViewerTool)} defaultView="table" />;
+  return <FormatterToolPage tool={tableViewerTool} related={relatedTools(tableViewerTool)} lockedView="table" />;
 }

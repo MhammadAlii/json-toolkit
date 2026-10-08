@@ -91,7 +91,7 @@ export default function Page() {
 
 Tools are grouped into five categories (`ToolCategory`), shown on `/tools` and in search: JSON Core (`core`), Explore JSON (`explore`), Compare & Query (`query`), Converter Hub (`converters`) and Developer Utilities (`utilities`). Labels and order live in `features/catalog.ts`; each category's heading icon and accent colour in `components/tool/tool-category-style.ts`.
 
-**Implemented tool pages** render their own page component (for example `FormatterToolPage`, `DiffToolPage`) that wraps the tool's workspace in `features/tools/shared/tool-layout.tsx` (`ToolHeader` with the hero ad, the bottom ad, `ToolSeoContent` and structured data). Tools without a design yet still use the placeholder `ToolPage`. The Formatter, Tree Viewer and Table Viewer share `FormatterToolPage` and the home page's `FormatterWorkspace`; only the opening view differs.
+**Implemented tool pages** render their own page component (for example `FormatterToolPage`, `DiffToolPage`) that wraps the tool's workspace in `features/tools/shared/tool-layout.tsx` (`ToolHeader` with the hero ad, the bottom ad, `ToolSeoContent` and structured data). Tools without a design yet still use the placeholder `ToolPage`. The Formatter, Tree Viewer and Table Viewer share `FormatterToolPage` and the home page's `FormatterWorkspace`; the viewers pass `lockedView` to show only their view, without the Code / Tree / Table switcher.
 
 **Adding one:** create the folder with `meta.ts` (including `summary`, `icon` and `category`) and the helper (plus `<name>-tool.tsx` when its
 design exists), add the slug to `ToolSlug` in `core/tool/types.ts`, add the meta to the feature's
