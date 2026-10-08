@@ -8,13 +8,13 @@ import { Card } from "@/components/ui/card";
 import { useSessionDraft } from "@/hooks/use-session-draft";
 import { SchemaResultCard } from "./schema-result-card";
 import { SchemaTemplateMenu } from "./schema-template-menu";
-import { checkAgainstSchema, sampleData, userSchema, type SchemaCheck } from "./schema-validator";
+import { checkAgainstSchema, sampleData, type SchemaCheck } from "./schema-validator";
 
 const panelHeight = "h-[360px] lg:h-[480px]";
 
 export function SchemaWorkspace() {
-  const [data, setData] = useSessionDraft("json-toolkit:schema:data", sampleData);
-  const [schema, setSchema] = useSessionDraft("json-toolkit:schema:schema", userSchema);
+  const [data, setData] = useSessionDraft("json-toolkit:schema:data");
+  const [schema, setSchema] = useSessionDraft("json-toolkit:schema:schema");
   const [checked, setChecked] = useState<{ data: string; schema: string; result: SchemaCheck }>();
   const [notice, setNotice] = useState("");
 

@@ -23,12 +23,12 @@ const views = [
   { value: "tree", label: "Tree" },
 ] as const;
 
-export function QueryResultPanel({ result, className }: { result: PipelineResult; className: string }) {
+export function QueryResultPanel({ result, className }: { result: PipelineResult | null; className: string }) {
   const [view, setView] = useState<View>("code");
   const { copy, copied } = useClipboard();
   const download = useDownload();
   const colors = useJsonColors();
-  const output = result.ok ? JSON.stringify(result.value, null, 2) : "";
+  const output = result?.ok ? JSON.stringify(result.value, null, 2) : "";
 
   return (
     <Panel
@@ -37,7 +37,7 @@ export function QueryResultPanel({ result, className }: { result: PipelineResult
       header={
         <div className="flex items-center gap-3">
           <SegmentedControl label="Result view" options={views} value={view} onChange={setView} />
-          {result.ok && (
+          {result?.ok && (
             <span role="status" className="text-[11px] font-semibold text-muted">
               {result.count} {result.count === 1 ? "result" : "results"}
             </span>
@@ -55,7 +55,9 @@ export function QueryResultPanel({ result, className }: { result: PipelineResult
         </>
       }
     >
-      {!result.ok && result.stage !== undefined ? (
+      {!result ? (
+        <p className="p-4 text-sm leading-5 text-muted/60">Paste or import JSON to see the result.</p>
+      ) : !result.ok && result.stage !== undefined ? (
         <p className="p-4 text-sm leading-5 text-muted">Fix the highlighted stage above to see results.</p>
       ) : !result.ok ? (
         <p role="alert" className="p-4 font-mono text-sm leading-5 text-danger">
