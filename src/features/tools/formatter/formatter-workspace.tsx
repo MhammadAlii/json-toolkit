@@ -56,7 +56,7 @@ export function FormatterWorkspace({ defaultView = "code" }: { defaultView?: For
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,9fr)_minmax(0,11fr)]">
         <Panel
           className={panelHeight}
           header={<PanelTitle>Input</PanelTitle>}

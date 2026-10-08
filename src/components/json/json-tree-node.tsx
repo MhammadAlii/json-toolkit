@@ -12,10 +12,6 @@ function rowClasses(selected: boolean, selectable: boolean) {
   } ${selectable ? "cursor-pointer" : ""}`;
 }
 
-function SelectedTag() {
-  return <span className="ml-auto pl-3 text-[11px] font-semibold text-brand">selected</span>;
-}
-
 export function JsonTreeNode({ name, value, path, rootLabel, selectedPath, onSelect }: NodeProps) {
   const selectable = !!onSelect;
   const selected = !!selectedPath && samePath(selectedPath, path);
@@ -36,7 +32,6 @@ export function JsonTreeNode({ name, value, path, rootLabel, selectedPath, onSel
         <span className={keyClass}>{label}</span>
         <span className={jsonTokenClasses.punct}>:</span>
         <JsonPrimitive value={value} />
-        {selected && <SelectedTag />}
       </div>
     );
   }
@@ -56,7 +51,6 @@ export function JsonTreeNode({ name, value, path, rootLabel, selectedPath, onSel
         </span>
         <span className={keyClass}>{label}</span>
         <span className="text-xs text-muted/60">{count}</span>
-        {selected && <SelectedTag />}
       </summary>
       <div className="ml-4 border-l border-border/50 pl-1">
         {entries.map(([k, v]) => (
