@@ -1,10 +1,10 @@
 import { toolMetadata } from "@/components/tool/tool-metadata";
-import { ToolPage } from "@/components/tool/tool-page";
 import { relatedTools } from "@/features/catalog";
+import { FormatterToolPage } from "@/features/tools/formatter/formatter-tool-page";
 import { tableViewerTool } from "@/features/tools/table-viewer/meta";
 
 export const metadata = toolMetadata(tableViewerTool);
 
 export default function Page() {
-  return <ToolPage tool={tableViewerTool} related={relatedTools(tableViewerTool)} />;
+  return <FormatterToolPage tool={tableViewerTool} related={relatedTools(tableViewerTool)} defaultView="table" />;
 }

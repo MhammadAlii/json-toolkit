@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
+import { ArrowDownAZIcon } from "@/components/icons/arrow-down-a-z";
 import { CheckDoubleIcon } from "@/components/icons/check-double";
 import { CompressIcon } from "@/components/icons/compress";
 import { CopyIcon } from "@/components/icons/copy";
@@ -9,8 +10,8 @@ import { TrashIcon } from "@/components/icons/trash";
 import { WandIcon } from "@/components/icons/wand";
 import { JsonCodeView } from "@/components/json/json-code-view";
 import { JsonColorPicker } from "@/components/json/json-color-picker";
-import { JsonTableView } from "@/components/json/json-table-view";
-import { JsonTreeView } from "@/components/json/json-tree-view";
+import { JsonTableExplorer } from "@/components/json/json-table-explorer";
+import { JsonTreeExplorer } from "@/components/json/json-tree-explorer";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/ui/code-editor";
 import { Panel } from "@/components/ui/panel";
@@ -21,9 +22,10 @@ import { formatBytes } from "@/core/text/format-bytes";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { useDownload } from "@/hooks/use-download";
 import { useJsonColors } from "@/hooks/use-json-colors";
+import { sortDeep } from "./formatter";
 import { FormatterStats, type FormatterValidity } from "./formatter-stats";
 
-type View = "code" | "tree" | "table";
+export type FormatterView = "code" | "tree" | "table";
 type Mode = "format" | "minify";
 
 const views = [
@@ -34,17 +36,19 @@ const views = [
 
 const panelHeight = "h-[360px] lg:h-[600px]";
 
-export function FormatterWorkspace() {
+export function FormatterWorkspace({ defaultView = "code" }: { defaultView?: FormatterView }) {
   const [input, setInput] = useState("");
-  const [view, setView] = useState<View>("code");
+  const [view, setView] = useState<FormatterView>(defaultView);
   const [mode, setMode] = useState<Mode>("format");
+  const [sortKeys, setSortKeys] = useState(false);
   const { copy, copied, failed } = useClipboard();
   const download = useDownload();
   const outputColors = useJsonColors();
 
   const deferredInput = useDeferredValue(input);
   const parsed = useMemo(() => parseJson(deferredInput), [deferredInput]);
-  const output = parsed.ok ? JSON.stringify(parsed.value, null, mode === "format" ? 2 : undefined) : "";
+  const value = useMemo(() => (parsed.ok && sortKeys ? sortDeep(parsed.value) : parsed.ok ? parsed.value : undefined), [parsed, sortKeys]);
+  const output = parsed.ok ? JSON.stringify(value, null, mode === "format" ? 2 : undefined) : "";
 
   const validity: FormatterValidity = deferredInput.trim() === "" ? "empty" : parsed.ok ? "valid" : "invalid";
   const size = formatBytes(new TextEncoder().encode(deferredInput).length);
@@ -82,6 +86,9 @@ export function FormatterWorkspace() {
               </Button>
               <Button variant={mode === "minify" ? "accent" : "soft"} size="tiny" onClick={() => setMode("minify")} aria-pressed={mode === "minify"}>
                 <CompressIcon className="h-[11px] w-auto" /> Minify
+              </Button>
+              <Button variant={sortKeys ? "accent" : "soft"} size="tiny" onClick={() => setSortKeys((s) => !s)} aria-pressed={sortKeys}>
+                <ArrowDownAZIcon className="h-[11px] w-auto" /> Sort
               </Button>
               <span aria-hidden className="mx-1 h-4 w-px bg-border" />
               <JsonColorPicker colors={outputColors.colors} onChange={outputColors.setColor} onReset={outputColors.reset} />
@@ -130,9 +137,9 @@ export function FormatterWorkspace() {
           ) : view === "code" ? (
             <JsonCodeView text={output} />
           ) : view === "tree" ? (
-            <JsonTreeView value={parsed.value} />
+            <JsonTreeExplorer value={value} />
           ) : (
-            <JsonTableView value={parsed.value} />
+            <JsonTableExplorer value={value} />
           )}
         </Panel>
       </div>

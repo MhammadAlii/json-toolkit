@@ -1,4 +1,4 @@
-export type ButtonVariant = "primary" | "secondary" | "outline" | "subtle" | "chip" | "soft" | "accent" | "ghost";
+export type ButtonVariant = "primary" | "secondary" | "outline" | "subtle" | "chip" | "soft" | "accent";
 export type ButtonSize = "tiny" | "xs" | "compact" | "sm" | "md" | "lg";
 
 const base = "inline-flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50";
@@ -11,7 +11,6 @@ const variants: Record<ButtonVariant, string> = {
   chip: "border border-border bg-surface text-muted hover:border-brand/50 hover:text-foreground",
   soft: "bg-border/40 font-semibold text-foreground hover:bg-border/70",
   accent: "bg-brand/20 font-semibold text-brand hover:bg-brand/30",
-  ghost: "font-medium text-muted hover:text-foreground",
 };
 
 const sizes: Record<ButtonSize, string> = {

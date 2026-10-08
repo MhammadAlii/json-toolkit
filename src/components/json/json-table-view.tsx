@@ -1,44 +1,70 @@
-import { isPlainObject } from "@/core/json/path";
-import { JsonPrimitive } from "./json-primitive";
+import { cellPath, cellText, type JsonTable, type TableRow } from "@/core/json/table";
+import { samePath, type PathSegment } from "@/core/json/path";
+import { JsonTableCell } from "./json-table-cell";
 
-function rowsFor(value: unknown): { columns: string[]; rows: Record<string, unknown>[] } | null {
-  if (Array.isArray(value) && value.length > 0 && value.every(isPlainObject)) {
-    const columns = [...new Set(value.flatMap((r) => Object.keys(r)))];
-    return { columns, rows: value };
-  }
-  if (Array.isArray(value)) return { columns: ["#", "value"], rows: value.map((v, i) => ({ "#": i, value: v })) };
-  if (isPlainObject(value)) return { columns: ["key", "value"], rows: Object.entries(value).map(([key, v]) => ({ key, value: v })) };
-  return null;
-}
+const th = "sticky top-0 z-10 border-b border-border bg-code-bg px-4 py-3 text-left text-xs font-bold tracking-[0.6px] whitespace-nowrap text-muted uppercase";
 
-export function JsonTableView({ value }: { value: unknown }) {
-  const table = rowsFor(value);
-  if (!table) return <p className="p-4 text-sm text-muted">A single value can&apos;t be shown as a table.</p>;
+export function JsonTableView({
+  table,
+  rows,
+  columns,
+  selectedPath,
+  onSelect,
+}: {
+  table: JsonTable;
+  rows: TableRow[];
+  columns: string[];
+  selectedPath?: PathSegment[];
+  onSelect?: (path: PathSegment[]) => void;
+}) {
+  const indexed = table.kind !== "entries";
+  const cellClass = (path: PathSegment[]) =>
+    `${selectedPath && samePath(selectedPath, path) ? "bg-brand/10 outline outline-1 -outline-offset-1 outline-brand/40" : ""} ${onSelect ? "cursor-pointer hover:bg-border/30" : ""}`;
 
   return (
-    <div className="p-4">
-      <table className="w-full border-collapse font-mono text-xs leading-5">
-        <thead>
-          <tr>
-            {table.columns.map((c) => (
-              <th key={c} scope="col" className="sticky top-0 border-b border-border bg-code-bg px-3 py-2 text-left font-bold text-heading">
-                {c}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {table.rows.map((row, i) => (
-            <tr key={i} className="border-b border-border/50 hover:bg-border/20">
-              {table.columns.map((c) => (
-                <td key={c} className="max-w-xs truncate px-3 py-2 align-top">
-                  {c in row ? <JsonPrimitive value={row[c]} /> : <span className="text-muted/40">—</span>}
-                </td>
-              ))}
-            </tr>
+    <table className="w-full border-collapse text-sm leading-5">
+      <thead>
+        <tr>
+          {indexed && (
+            <th scope="col" className={`${th} left-0 z-20 w-12`}>
+              #
+            </th>
+          )}
+          {columns.map((c) => (
+            <th key={c} scope="col" className={th}>
+              {c}
+            </th>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={String(row.path[0])} className="group border-b border-border/50">
+            {indexed && (
+              <td
+                onClick={() => onSelect?.(row.path)}
+                className={`sticky left-0 bg-code-bg px-4 py-3 font-mono text-xs text-muted group-even:bg-surface-3 ${cellClass(row.path)}`}
+              >
+                {Number(row.path[0]) + 1}
+              </td>
+            )}
+            {columns.map((c, ci) => {
+              const present = c in row.cells;
+              const path = present ? cellPath(table, row, c) : row.path;
+              return (
+                <td
+                  key={c}
+                  title={present ? cellText(row.cells[c]).slice(0, 300) : undefined}
+                  onClick={() => onSelect?.(path)}
+                  className={`max-w-[240px] truncate px-4 py-3 align-top group-even:bg-surface-3/60 ${cellClass(path)}`}
+                >
+                  <JsonTableCell value={row.cells[c]} emphasize={ci === 0} />
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
