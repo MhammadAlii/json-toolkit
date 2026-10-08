@@ -25,19 +25,19 @@ function write(key: string, value: string) {
 const noSubscribe = () => () => {};
 
 /** Text that survives a reload in the same tab. The live value is kept in state, never re-read from storage. */
-export function useSessionDraft(key: string): [string, (next: string | ((prev: string) => string)) => void] {
+export function useSessionDraft(key: string, initial = ""): [string, (next: string | ((prev: string) => string)) => void] {
   const stored = useSyncExternalStore(noSubscribe, () => read(key), () => null);
   const [local, setLocal] = useState<string | null>(null);
 
   const set = useCallback(
     (next: string | ((prev: string) => string)) =>
       setLocal((prev) => {
-        const value = typeof next === "function" ? next(prev ?? read(key) ?? "") : next;
+        const value = typeof next === "function" ? next(prev ?? read(key) ?? initial) : next;
         write(key, value);
         return value;
       }),
-    [key],
+    [key, initial],
   );
 
-  return [local ?? stored ?? "", set];
+  return [local ?? stored ?? initial, set];
 }

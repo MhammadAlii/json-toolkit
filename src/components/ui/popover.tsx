@@ -11,7 +11,8 @@ export function Popover({
   trigger: (props: { open: boolean; toggle: () => void; id: string }) => React.ReactNode;
   label: string;
   align?: "start" | "end";
-  children: React.ReactNode;
+  /** A function child receives `close`, for menus that should shut after a choice. */
+  children: React.ReactNode | ((api: { close: () => void }) => React.ReactNode);
 }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLSpanElement>(null);
@@ -45,7 +46,7 @@ export function Popover({
             align === "end" ? "right-0" : "left-0"
           }`}
         >
-          {children}
+          {typeof children === "function" ? children({ close: () => setOpen(false) }) : children}
         </div>
       )}
     </span>

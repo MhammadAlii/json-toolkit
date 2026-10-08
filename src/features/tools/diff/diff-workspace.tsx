@@ -5,13 +5,13 @@ import { AlignLeftIcon } from "@/components/icons/align-left";
 import { CodeCompareIcon } from "@/components/icons/code-compare";
 import { RightLeftIcon } from "@/components/icons/right-left";
 import { Button } from "@/components/ui/button";
+import { JsonInputPanel } from "@/components/tool/json-input-panel";
 import { Card } from "@/components/ui/card";
 import { parseJson } from "@/core/json/parse";
 import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useStoredState } from "@/hooks/use-stored-state";
 import { useWorkerTask } from "@/hooks/use-worker-task";
 import { compareJson, defaultDiffOptions, isLossy, type CompareResult, type DiffOptions } from "./diff";
-import { DiffInput } from "./diff-input";
 import { DiffOptionsMenu } from "./diff-options-menu";
 import { DiffProTips } from "./diff-pro-tips";
 import { DiffResult, type DiffViewMode } from "./diff-result";
@@ -84,8 +84,8 @@ export function DiffWorkspace() {
           </Button>
         </Card>
         <div className="grid gap-4 lg:grid-cols-2">
-          <DiffInput title="Original (A)" label="Original JSON (A)" value={a} onChange={setA} />
-          <DiffInput title="Changed (B)" label="Changed JSON (B)" value={b} onChange={setB} />
+          <JsonInputPanel title="Original (A)" label="Original JSON (A)" value={a} onChange={setA} />
+          <JsonInputPanel title="Changed (B)" label="Changed JSON (B)" value={b} onChange={setB} />
         </div>
       </div>
 
