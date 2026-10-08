@@ -8,13 +8,13 @@ import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useStoredState } from "@/hooks/use-stored-state";
 import { QueryPipeline } from "./query-pipeline";
 import { QueryResultPanel } from "./query-result-panel";
-import { runPipeline, samplePipeline, sampleSource, type Stage, type StageKind } from "./query-selector";
+import { defaultPipeline, runPipeline, samplePipeline, sampleSource, type Stage, type StageKind } from "./query-selector";
 
 const panelHeight = "h-[360px] lg:h-[520px]";
 
 export function QueryWorkspace() {
   const [source, setSource] = useSessionDraft("json-toolkit:query:source");
-  const [stages, setStages] = useStoredState<Stage[]>("json-toolkit:query-pipeline", samplePipeline);
+  const [stages, setStages] = useStoredState<Stage[]>("json-toolkit:query-pipeline-v2", defaultPipeline);
   const [focusId, setFocusId] = useState<string>();
 
   const deferredSource = useDeferredValue(source);
@@ -48,7 +48,10 @@ export function QueryWorkspace() {
           loadLabel="Import"
           className={panelHeight}
           extraActions={
-            <Button variant="soft" size="tiny" onClick={() => setSource(sampleSource)}>
+            <Button variant="soft" size="tiny" onClick={() => {
+                setSource(sampleSource);
+                setStages(samplePipeline);
+              }}>
               <WandIcon className="h-[11px] w-auto" /> Sample
             </Button>
           }

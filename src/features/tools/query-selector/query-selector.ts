@@ -127,6 +127,13 @@ export const sampleSource = JSON.stringify(
   2,
 );
 
+// Starts with empty stages so the placeholders show how to fill them in.
+export const defaultPipeline: Stage[] = [
+  { id: "path", kind: "path", expr: "" },
+  { id: "where", kind: "where", expr: "" },
+  { id: "select", kind: "select", expr: "" },
+];
+
 export const samplePipeline: Stage[] = [
   { id: "path", kind: "path", expr: "$.users[*]" },
   { id: "where", kind: "where", expr: "age > 18" },
