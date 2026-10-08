@@ -14,6 +14,7 @@ import type { IconProps } from "@/components/icons/icon-props";
 import { KeyIcon } from "@/components/icons/key";
 import { LinkIcon } from "@/components/icons/link";
 import { QuestionIcon } from "@/components/icons/question";
+import { QuoteRightIcon } from "@/components/icons/quote-right";
 import { SearchIcon } from "@/components/icons/search";
 import { TableIcon } from "@/components/icons/table";
 import { TableColumnsIcon } from "@/components/icons/table-columns";
@@ -42,6 +43,7 @@ export const toolIcons: Record<ToolIcon, React.ComponentType<IconProps>> = {
   link: LinkIcon,
   barcode: BarcodeIcon,
   clock: ClockIcon,
+  quote: QuoteRightIcon,
 };
 
 // Full class names so Tailwind can detect them.

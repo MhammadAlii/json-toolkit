@@ -34,7 +34,7 @@ app/                      routes: URLs, metadata, wiring only
 | --- | --- | --- |
 | Home | `features/home/` | Home page: hero, the Formatter workspace, stats and ad slots. |
 | Tools | `features/tools/` | The `/tools` directory page (`directory/`) and the tool sub-features: formatter (`formatter-workspace.tsx` with Code, Tree and Table views, used on the home page), validator, repair, minifier, tree-viewer, table-viewer, deep-search, diff, schema-validator, query-selector, and the developer utilities jwt-decoder, url-encoder, base64-converter, epoch-converter. `registry.ts` lists them. |
-| Converters | `features/converters/` | Sub-features: json-to-yaml, json-to-csv, json-to-typescript, json-to-excel, json-to-xml, json-to-sql. `registry.ts` lists them. |
+| Converters | `features/converters/` | Sub-features: json-to-yaml, json-to-csv, json-to-typescript, json-to-excel, json-to-xml, json-to-sql, json-to-string, string-to-json. `registry.ts` lists them. |
 | Legal | `features/legal/` | `privacy/`, `terms/`, `licenses/` pages and the shared `components/` (legal section and paragraph). |
 | Company | `features/company/` | `about/` and `contact/` pages, the contact form and request types. |
 | Ads | `features/ads/` | AdSense slot with reserved height. |
@@ -82,6 +82,8 @@ export default function Page() {
 | converters/json-to-excel | `/json-to-excel` | `jsonToExcel` (stub, needs an .xlsx writer) |
 | converters/json-to-xml | `/json-to-xml` | `jsonToXml` |
 | converters/json-to-sql | `/json-to-sql` | `jsonToSql` |
+| converters/json-to-string | `/json-to-string` | `jsonToString` |
+| converters/string-to-json | `/string-to-json` | `stringToJson` (unwraps double-stringified input) |
 | tools/jwt-decoder | `/jwt-decoder` | `decodeJwt` |
 | tools/url-encoder | `/url-encoder` | `encodeUrl`, `decodeUrl` |
 | tools/base64-converter | `/base64-converter` | `encodeBase64`, `decodeBase64` (UTF-8, URL-safe) |

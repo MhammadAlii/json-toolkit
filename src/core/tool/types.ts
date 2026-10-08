@@ -15,6 +15,8 @@ export type ToolSlug =
   | "json-to-excel"
   | "json-to-xml"
   | "json-to-sql"
+  | "json-to-string"
+  | "string-to-json"
   | "jwt-decoder"
   | "url-encoder"
   | "base64-converter"
@@ -42,7 +44,8 @@ export type ToolIcon =
   | "key"
   | "link"
   | "barcode"
-  | "clock";
+  | "clock"
+  | "quote";
 export type ToolTint = "purple" | "green" | "amber" | "blue" | "indigo" | "pink";
 
 export type Faq = { q: string; a: string };

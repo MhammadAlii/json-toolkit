@@ -2,9 +2,11 @@ import type { ToolMeta } from "@/core/tool/types";
 import { jsonToCsvTool } from "./json-to-csv/meta";
 import { jsonToExcelTool } from "./json-to-excel/meta";
 import { jsonToSqlTool } from "./json-to-sql/meta";
+import { jsonToStringTool } from "./json-to-string/meta";
 import { jsonToTypeScriptTool } from "./json-to-typescript/meta";
 import { jsonToXmlTool } from "./json-to-xml/meta";
 import { jsonToYamlTool } from "./json-to-yaml/meta";
+import { stringToJsonTool } from "./string-to-json/meta";
 
 export const converters: ToolMeta[] = [
   jsonToYamlTool,
@@ -13,4 +15,6 @@ export const converters: ToolMeta[] = [
   jsonToExcelTool,
   jsonToXmlTool,
   jsonToSqlTool,
+  jsonToStringTool,
+  stringToJsonTool,
 ];
