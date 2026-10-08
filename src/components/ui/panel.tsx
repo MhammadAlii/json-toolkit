@@ -3,12 +3,14 @@ export function Panel({
   actions,
   className = "",
   bodyClassName = "",
+  bodyStyle,
   children,
 }: {
   header: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
   bodyClassName?: string;
+  bodyStyle?: React.CSSProperties;
   children: React.ReactNode;
 }) {
   return (
@@ -19,7 +21,9 @@ export function Panel({
         {header}
         {actions && <div className="flex flex-wrap items-center gap-1.5">{actions}</div>}
       </div>
-      <div className={`min-h-0 flex-1 overflow-auto bg-code-bg ${bodyClassName}`}>{children}</div>
+      <div className={`min-h-0 flex-1 overflow-auto bg-code-bg ${bodyClassName}`} style={bodyStyle}>
+        {children}
+      </div>
     </section>
   );
 }

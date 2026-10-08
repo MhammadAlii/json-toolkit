@@ -23,6 +23,14 @@
   --code-green: #34d399;
   --code-literal: #fbbf24;
 
+  /* Output syntax colours; users can override these per token type. */
+  --json-key: var(--brand);
+  --json-string: var(--code-green);
+  --json-number: var(--code-literal);
+  --json-boolean: var(--code-literal);
+  --json-null: var(--muted);
+  --json-punct: color-mix(in srgb, var(--muted) 50%, transparent);
+
   --tint-purple: #7c5cff;
   --tint-green: #10b981;
   --tint-amber: #f59e0b;
@@ -56,6 +64,12 @@
   --color-emphasis: var(--emphasis);
   --color-code-green: var(--code-green);
   --color-code-literal: var(--code-literal);
+  --color-json-key: var(--json-key);
+  --color-json-string: var(--json-string);
+  --color-json-number: var(--json-number);
+  --color-json-boolean: var(--json-boolean);
+  --color-json-null: var(--json-null);
+  --color-json-punct: var(--json-punct);
   --color-tint-red: var(--tint-red);
   --color-tint-yellow: var(--tint-yellow);
   --color-tint-violet: var(--tint-violet);
