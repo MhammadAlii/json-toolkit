@@ -8,6 +8,7 @@ import { DownloadIcon } from "@/components/icons/download";
 import { TrashIcon } from "@/components/icons/trash";
 import { WandIcon } from "@/components/icons/wand";
 import { JsonCodeView } from "@/components/json/json-code-view";
+import { JsonColorPicker } from "@/components/json/json-color-picker";
 import { JsonTableView } from "@/components/json/json-table-view";
 import { JsonTreeView } from "@/components/json/json-tree-view";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { describeParseError, parseJson } from "@/core/json/parse";
 import { formatBytes } from "@/core/text/format-bytes";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { useDownload } from "@/hooks/use-download";
+import { useJsonColors } from "@/hooks/use-json-colors";
 import { FormatterStats, type FormatterValidity } from "./formatter-stats";
 
 type View = "code" | "tree" | "table";
@@ -38,6 +40,7 @@ export function FormatterWorkspace() {
   const [mode, setMode] = useState<Mode>("format");
   const { copy, copied, failed } = useClipboard();
   const download = useDownload();
+  const outputColors = useJsonColors();
 
   const deferredInput = useDeferredValue(input);
   const parsed = useMemo(() => parseJson(deferredInput), [deferredInput]);
@@ -69,6 +72,7 @@ export function FormatterWorkspace() {
         </Panel>
 
         <Panel
+          bodyStyle={outputColors.style}
           className={panelHeight}
           header={<SegmentedControl label="Output view" options={views} value={view} onChange={setView} />}
           actions={
@@ -80,6 +84,7 @@ export function FormatterWorkspace() {
                 <CompressIcon className="h-[11px] w-auto" /> Minify
               </Button>
               <span aria-hidden className="mx-1 h-4 w-px bg-border" />
+              <JsonColorPicker colors={outputColors.colors} onChange={outputColors.setColor} onReset={outputColors.reset} />
               <span className="relative">
                 <Button
                   variant="soft"

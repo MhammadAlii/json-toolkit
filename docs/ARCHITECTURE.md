@@ -103,16 +103,16 @@ stay inside that feature, also one per file.
 | Folder | Contents |
 | --- | --- |
 | `components/ui/` — typography | `PageTitle` (sizes lg, md, display; weight bold or extrabold), `Lead` (lg, md, sm), `SectionTitle` (lg, md, sm; renders h2 or h3), `SectionHeader` (title + description, start or center), `Text` (body, small, caption), `Overline`, `Eyebrow` |
-| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip, soft, accent; sizes tiny, xs, compact, sm, md, lg. `CopyButton`, `SegmentedControl` |
+| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip, soft, accent; sizes tiny, xs, compact, sm, md, lg. `CopyButton`, `SegmentedControl`, `Popover` |
 | `components/ui/` — surfaces | `Card` (tones surface, raised, inset, base, faint; radius lg, xl, 2xl), `Panel` + `PanelTitle` (editor panel with toolbar), `HeroBand`, `FeatureCard`, `StatCard` (plain, or with an icon), `Callout`, `ComingSoon` |
 | `components/ui/` — content | `Badge` (brand, success; pill or note), `IconTile` (sm, md, lg; round), `BulletList` (dot, bullet, arrow), `FaqList`, `Kbd` (muted, solid), `SectionNav` |
 | `components/ui/` — forms | `FormField`, `TextInput`, `Textarea`, `Select` (sharing `input-styles.ts`), `CodeEditor` (monospace input with line numbers), `LineGutter` |
-| `components/json/` | `JsonCodeView` (syntax highlighting and line numbers), `JsonTreeView` + `JsonTreeNode` (collapsible), `JsonTableView`, `JsonPrimitive`, shared `json-token-classes.ts` |
+| `components/json/` | `JsonCodeView` (syntax highlighting and line numbers), `JsonTreeView` + `JsonTreeNode` (collapsible), `JsonTableView`, `JsonPrimitive`, `JsonColorPicker` (user-chosen output colours), shared `json-token-classes.ts` |
 | `components/icons/` | One file per icon (`search.tsx`, `wand.tsx`, …) using `currentColor`; shared `IconProps` in `icon-props.ts` |
 | `components/seo/` | `JsonLd`, `BreadcrumbJsonLd`, `pageMetadata()` (title, description, canonical, Open Graph, Twitter) |
 | `components/tool/` | `ToolPage`, `ToolStructuredData`, `toolMetadata()` (built on `pageMetadata`), `ToolWorkbench`, `WorkbenchOptionControl`, `ToolCard`, `CategoryHeading`, `ToolGlyph`, `tool-icons.ts` (icon and tint maps), `tool-category-style.ts`, `workbench-types.ts` |
 | `components/layout/` | `SiteHeader`, `SiteFooter`, `Logo`, `search/` (`SearchPalette`, `SearchResult`, `SearchHints`, `search-item.ts`) |
-| `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel` |
+| `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel`, `useStoredState` (localStorage-backed state), `useJsonColors` |
 
 ### Reuse rules
 
@@ -143,7 +143,8 @@ The values come from the Figma file.
 | `border` | All borders and dividers |
 | `brand`, `brand-foreground` | Accent colour and text on it |
 | `success`, `danger` | Status colours |
-| `code-green`, `code-literal` | Syntax highlighting (strings; numbers and booleans) |
+| `code-green`, `code-literal` | Syntax highlighting base colours |
+| `json-key`, `json-string`, `json-number`, `json-boolean`, `json-null`, `json-punct` | Output colours used by the JSON views; default to the tokens above and can be overridden per user with `JsonColorPicker` (saved in localStorage) |
 | `tint-purple`, `tint-green`, `tint-amber`, `tint-blue`, `tint-indigo`, `tint-red`, `tint-yellow`, `tint-violet`, `tint-lime`, `tint-orange` | Icon tiles and accents |
 
 ## Folder structure
@@ -168,7 +169,7 @@ src/
 ├── features/
 │   ├── ads/   company/   converters/   home/   legal/   tools/
 │   └── catalog.ts
-└── hooks/                      # use-clipboard, use-download, use-url-hash, use-shortcut-label
+└── hooks/                      # use-clipboard, use-download, use-url-hash, use-shortcut-label, use-stored-state, use-json-colors
 ```
 
 Folders in parentheses under `app/` are route groups: they organise files without appearing in the
