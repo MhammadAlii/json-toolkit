@@ -18,11 +18,11 @@ import { Panel } from "@/components/ui/panel";
 import { PanelTitle } from "@/components/ui/panel-title";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { describeParseError, parseJson } from "@/core/json/parse";
+import { sortDeep } from "@/core/json/sort";
 import { formatBytes } from "@/core/text/format-bytes";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { useDownload } from "@/hooks/use-download";
 import { useJsonColors } from "@/hooks/use-json-colors";
-import { sortDeep } from "./formatter";
 import { FormatterStats, type FormatterValidity } from "./formatter-stats";
 
 export type FormatterView = "code" | "tree" | "table";

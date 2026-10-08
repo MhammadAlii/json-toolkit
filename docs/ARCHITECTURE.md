@@ -20,7 +20,7 @@ app/                      routes: URLs, metadata, wiring only
 
 | Layer | Path | Contains | May import |
 | --- | --- | --- | --- |
-| Core | `src/core/` | Framework-free domain code: JSON parsing with line/column errors, `TransformResult`, path formatting (`core/json`), the tool model `ToolMeta` / `ToolSlug` / categories (`core/tool`), JSON syntax tokenizing (`core/json/tokenize.ts`), value description (`core/json/describe.ts`), path lookup (`valueAtPath` in `core/json/path.ts`), table building, filtering and projection (`core/json/table.ts`), CSV writing (`toCsv` in `core/json/csv.ts`), and text helpers (`core/text`: `matchesQuery`, `formatBytes`). | nothing internal |
+| Core | `src/core/` | Framework-free domain code: JSON parsing with line/column errors, `TransformResult`, path formatting (`core/json`), the tool model `ToolMeta` / `ToolSlug` / categories (`core/tool`), JSON syntax tokenizing (`core/json/tokenize.ts`), value description (`core/json/describe.ts`), path lookup (`valueAtPath` in `core/json/path.ts`), table building, filtering and projection (`core/json/table.ts`), CSV writing (`toCsv` in `core/json/csv.ts`), deep key sorting (`sortDeep` in `core/json/sort.ts`), and text helpers (`core/text`: `matchesQuery`, `formatBytes`, the Myers sequence diff `diffSequences`). | nothing internal |
 | Config | `src/config/` | Site, ads and legal settings, read from env vars with defaults. | core |
 | Hooks | `src/hooks/` | Reusable client hooks (`useClipboard`, `useUrlHash`, `useShortcutLabel`). | core, config |
 | Shared UI | `src/components/ui`, `icons`, `seo`, `tool` | Design-system components, icons, structured data and the tool page shell. Know nothing about features. | core, config, hooks |
@@ -73,7 +73,7 @@ export default function Page() {
 | tools/tree-viewer | `/json-tree-viewer` | `FormatterWorkspace` opening on `JsonTreeExplorer` |
 | tools/table-viewer | `/json-table-viewer` | `FormatterWorkspace` opening on `JsonTableExplorer` |
 | tools/deep-search | `/json-deep-search` | `searchJson` (substring, exact or regex) |
-| tools/diff | `/json-diff` | `diffJson` |
+| tools/diff | `/json-diff` | `diffJson` (structural changes and counts), `diffJsonLines` (sorted, line-by-line `+` / `-` / `~` rows), `foldUnchanged`, `diffToText`; UI in `DiffToolPage` / `DiffWorkspace` / `DiffResult` |
 | tools/schema-validator | `/json-schema-validator` | `validateAgainstSchema` (stub, needs Ajv) |
 | tools/query-selector | `/json-query` | `queryJson` (stub, needs a JSONPath library) |
 | converters/json-to-yaml | `/json-to-yaml` | `jsonToYaml` |
@@ -91,7 +91,7 @@ export default function Page() {
 
 Tools are grouped into five categories (`ToolCategory`), shown on `/tools` and in search: JSON Core (`core`), Explore JSON (`explore`), Compare & Query (`query`), Converter Hub (`converters`) and Developer Utilities (`utilities`). Labels and order live in `features/catalog.ts`; each category's heading icon and accent colour in `components/tool/tool-category-style.ts`.
 
-**Implemented tool pages** render their own page component (for example `FormatterToolPage`) built from `ToolHeader`, a workspace, ad slots and `ToolSeoContent`. Tools without a design yet still use the placeholder `ToolPage`. The Formatter, Tree Viewer and Table Viewer share `FormatterToolPage` and the home page's `FormatterWorkspace`; only the opening view differs.
+**Implemented tool pages** render their own page component (for example `FormatterToolPage`, `DiffToolPage`) that wraps the tool's workspace in `features/tools/shared/tool-layout.tsx` (`ToolHeader` with the hero ad, the bottom ad, `ToolSeoContent` and structured data). Tools without a design yet still use the placeholder `ToolPage`. The Formatter, Tree Viewer and Table Viewer share `FormatterToolPage` and the home page's `FormatterWorkspace`; only the opening view differs.
 
 **Adding one:** create the folder with `meta.ts` (including `summary`, `icon` and `category`) and the helper (plus `<name>-tool.tsx` when its
 design exists), add the slug to `ToolSlug` in `core/tool/types.ts`, add the meta to the feature's
