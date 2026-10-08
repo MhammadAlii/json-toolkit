@@ -4,16 +4,22 @@ import { useState } from "react";
 import { AlignLeftIcon } from "@/components/icons/align-left";
 import { CodeCompareIcon } from "@/components/icons/code-compare";
 import { RightLeftIcon } from "@/components/icons/right-left";
-import { TrashIcon } from "@/components/icons/trash";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CodeEditor } from "@/components/ui/code-editor";
-import { Panel } from "@/components/ui/panel";
-import { PanelTitle } from "@/components/ui/panel-title";
 import { parseJson } from "@/core/json/parse";
-import { diffJsonLines, type LineDiffResult } from "./diff";
+import { useSessionDraft } from "@/hooks/use-session-draft";
+import { useStoredState } from "@/hooks/use-stored-state";
+import { useWorkerTask } from "@/hooks/use-worker-task";
+import { compareJson, defaultDiffOptions, isLossy, type CompareResult, type DiffOptions } from "./diff";
+import { DiffInput } from "./diff-input";
+import { DiffOptionsMenu } from "./diff-options-menu";
 import { DiffProTips } from "./diff-pro-tips";
-import { DiffResult } from "./diff-result";
+import { DiffResult, type DiffViewMode } from "./diff-result";
+
+type CompareInput = { left: string; right: string; options: DiffOptions };
+
+const createWorker = () => new Worker(new URL("./diff.worker.ts", import.meta.url));
+const compareOnMainThread = ({ left, right, options }: CompareInput) => compareJson(left, right, options, Date.now() + 1500);
 
 const prettify = (text: string) => {
   const parsed = parseJson(text);
@@ -21,18 +27,24 @@ const prettify = (text: string) => {
 };
 
 export function DiffWorkspace() {
-  const [a, setA] = useState("");
-  const [b, setB] = useState("");
-  const [compared, setCompared] = useState<{ a: string; b: string; result: LineDiffResult; run: number } | null>(null);
+  const [a, setA] = useSessionDraft("json-toolkit:diff:a");
+  const [b, setB] = useSessionDraft("json-toolkit:diff:b");
+  const [options, setOptions] = useStoredState<DiffOptions>("json-toolkit:diff-options", defaultDiffOptions);
+  const [view, setView] = useStoredState<DiffViewMode>("json-toolkit:diff-view", "unified");
+  const [compared, setCompared] = useState<CompareInput & { run: number }>();
+  const task = useWorkerTask<CompareInput, CompareResult>(createWorker, compareOnMainThread);
 
-  const compare = (left = a, right = b) => setCompared((c) => ({ a: left, b: right, result: diffJsonLines(left, right), run: (c?.run ?? 0) + 1 }));
+  const compare = (left = a, right = b, opts = options) => {
+    task.run({ left, right, options: opts });
+    setCompared((c) => ({ left, right, options: opts, run: (c?.run ?? 0) + 1 }));
+  };
   const swap = () => {
     setA(b);
     setB(a);
     if (compared) compare(b, a);
   };
   const canCompare = a.trim() !== "" && b.trim() !== "";
-  const stale = !!compared && (compared.a !== a || compared.b !== b);
+  const stale = !!compared && (compared.left !== a || compared.right !== b || JSON.stringify(compared.options) !== JSON.stringify(options));
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!(e.metaKey || e.ctrlKey)) return;
@@ -45,45 +57,48 @@ export function DiffWorkspace() {
     }
   };
 
-  const editor = (label: string, title: string, value: string, onChange: (v: string) => void) => (
-    <Panel
-      className="h-[320px] lg:h-[500px]"
-      header={<PanelTitle>{title}</PanelTitle>}
-      actions={
-        <Button variant="soft" size="tiny" onClick={() => onChange("")} disabled={!value}>
-          <TrashIcon className="h-[11px] w-auto" /> Clear
-        </Button>
-      }
-    >
-      <CodeEditor aria-label={label} value={value} onChange={onChange} placeholder="Paste JSON here…" className="text-muted/80 placeholder:text-muted/40" />
-    </Panel>
-  );
-
   return (
     <div className="flex flex-col gap-8" onKeyDown={onKeyDown}>
       <div className="flex flex-col gap-4">
         <Card tone="surface" className="flex flex-wrap items-center justify-between gap-3 px-3 py-3.5">
-          <Button size="sm" className="min-w-[160px] py-2.5" onClick={() => compare()} disabled={!canCompare}>
-            <CodeCompareIcon className="size-4" /> Compare
+          <Button size="sm" className="min-w-[160px] py-2.5" onClick={() => compare()} disabled={!canCompare} aria-keyshortcuts="Meta+Enter">
+            <CodeCompareIcon className="size-4" /> {task.pending ? "Comparing…" : "Compare"}
           </Button>
-          <Button variant="secondary" size="sm" className="py-2.5" onClick={swap} disabled={!a && !b} aria-keyshortcuts="Meta+Backslash">
-            <RightLeftIcon className="size-4" /> Swap A/B
-          </Button>
-          <Button variant="secondary" size="sm" className="py-2.5" onClick={() => {
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="secondary" size="sm" className="py-2.5" onClick={swap} disabled={!a && !b} aria-keyshortcuts="Meta+Backslash">
+              <RightLeftIcon className="size-4" /> Swap A/B
+            </Button>
+            <DiffOptionsMenu options={options} onChange={setOptions} />
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="py-2.5"
+            onClick={() => {
               setA(prettify);
               setB(prettify);
-            }} disabled={!a && !b}>
+            }}
+            disabled={!a && !b}
+          >
             <AlignLeftIcon className="size-4" /> Format Both
           </Button>
         </Card>
         <div className="grid gap-4 lg:grid-cols-2">
-          {editor("Original JSON (A)", "Original (A)", a, setA)}
-          {editor("Changed JSON (B)", "Changed (B)", b, setB)}
+          <DiffInput title="Original (A)" label="Original JSON (A)" value={a} onChange={setA} />
+          <DiffInput title="Changed (B)" label="Changed JSON (B)" value={b} onChange={setB} />
         </div>
       </div>
 
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_274px]">
-        <DiffResult key={compared?.run ?? 0} result={compared?.result ?? null} stale={stale} />
+        <DiffResult
+          key={compared?.run ?? 0}
+          result={task.output}
+          pending={task.pending}
+          stale={stale}
+          lossy={isLossy(compared?.options ?? options)}
+          view={view}
+          onViewChange={setView}
+        />
         <DiffProTips />
       </div>
     </div>

@@ -11,12 +11,13 @@ export function DiffProTips() {
         <li className="flex gap-2.5">
           <KeyboardIcon className="mt-0.5 h-[11px] w-auto shrink-0 text-brand" />
           <span>
-            Use <Kbd tone="solid">Cmd + \</Kbd> to swap A and B inputs instantly, and <Kbd tone="solid">Cmd + Enter</Kbd> to compare.
+            Use <Kbd tone="solid">Cmd + \</Kbd> to swap A and B inputs instantly, <Kbd tone="solid">Cmd + Enter</Kbd> to compare and{" "}
+            <Kbd tone="solid">n</Kbd> / <Kbd tone="solid">p</Kbd> to jump between changes.
           </span>
         </li>
         <li className="flex gap-2.5">
           <LightbulbIcon className="mt-0.5 h-[11px] w-auto shrink-0 text-brand" />
-          <span>Keys are compared by name, so reordering them never shows up as a change.</span>
+          <span>Hover a changed line to see its JSON path, or drop a file onto either input to load it.</span>
         </li>
       </ul>
     </Card>

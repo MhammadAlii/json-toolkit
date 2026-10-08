@@ -1,166 +1,171 @@
 import { describeParseError, parseJson } from "@/core/json/parse";
-import { formatPath, isPlainObject, type PathSegment } from "@/core/json/path";
+import { isPlainObject, type PathSegment } from "@/core/json/path";
 import { sortDeep } from "@/core/json/sort";
-import { diffSequences } from "@/core/text/line-diff";
+import { diffSequences, type DiffSequenceOptions } from "@/core/text/line-diff";
+import { buildLineDiff, type DiffLine } from "./diff-lines";
+
+export type DiffOptions = { ignoreKeyOrder: boolean; ignoreArrayOrder: boolean; ignoreCase: boolean; ignoreWhitespace: boolean };
+
+export const defaultDiffOptions: DiffOptions = { ignoreKeyOrder: true, ignoreArrayOrder: false, ignoreCase: false, ignoreWhitespace: false };
+
+/** Options that change values, so a patch built from the normalized documents wouldn't reproduce B. */
+export const isLossy = (o: DiffOptions) => o.ignoreArrayOrder || o.ignoreCase || o.ignoreWhitespace;
+
+const canonical = (value: unknown) => JSON.stringify(value);
+
+export function normalize(value: unknown, o: DiffOptions): unknown {
+  if (typeof value === "string") {
+    let s = o.ignoreWhitespace ? value.trim().replace(/\s+/g, " ") : value;
+    if (o.ignoreCase) s = s.toLowerCase();
+    return s;
+  }
+  if (Array.isArray(value)) {
+    const items = value.map((item) => normalize(item, o));
+    return o.ignoreArrayOrder ? items.map((item) => [canonical(item), item] as const).sort(([x], [y]) => (x < y ? -1 : x > y ? 1 : 0)).map(([, item]) => item) : items;
+  }
+  if (isPlainObject(value)) {
+    const out = Object.fromEntries(Object.entries(value).map(([k, v]) => [k, normalize(v, o)]));
+    return o.ignoreKeyOrder ? sortDeep(out) : out;
+  }
+  return value;
+}
 
 export type DiffChange =
-  | { kind: "added"; path: string; after: unknown }
-  | { kind: "removed"; path: string; before: unknown }
-  | { kind: "changed"; path: string; before: unknown; after: unknown };
+  | { kind: "added"; path: PathSegment[]; pointer: string; after: unknown }
+  | { kind: "removed"; path: PathSegment[]; pointer: string; before: unknown }
+  | { kind: "changed"; path: PathSegment[]; pointer: string; before: unknown; after: unknown };
 
-export type DiffResult = { ok: true; changes: DiffChange[] } | { ok: false; error: string };
+const escapePointer = (segment: PathSegment) => String(segment).replace(/~/g, "~0").replace(/\//g, "~1");
 
-export function diffJson(left: string, right: string): DiffResult {
-  const a = parseJson(left);
-  if (!a.ok) return { ok: false, error: `Original: ${describeParseError(a.error)}` };
-  const b = parseJson(right);
-  if (!b.ok) return { ok: false, error: `Changed: ${describeParseError(b.error)}` };
-
+/**
+ * Structural changes from A to B. Array items are matched by content, so inserting one item reports a
+ * single addition instead of shifting every later index. `pointer` uses the index the item has at the
+ * moment the change applies, so the changes in order form a valid JSON Patch.
+ */
+export function structuralChanges(a: unknown, b: unknown, seq: DiffSequenceOptions = {}): DiffChange[] {
   const changes: DiffChange[] = [];
-  const walk = (x: unknown, y: unknown, path: PathSegment[]) => {
+  const walk = (x: unknown, y: unknown, path: PathSegment[], pointer: string) => {
     if (Array.isArray(x) && Array.isArray(y)) {
-      for (let i = 0; i < Math.max(x.length, y.length); i++) {
-        if (i >= y.length) changes.push({ kind: "removed", path: formatPath([...path, i]), before: x[i] });
-        else if (i >= x.length) changes.push({ kind: "added", path: formatPath([...path, i]), after: y[i] });
-        else walk(x[i], y[i], [...path, i]);
+      const ops = diffSequences(x.map(canonical), y.map(canonical), seq);
+      let ia = 0;
+      let ib = 0;
+      let at = 0;
+      for (let i = 0; i < ops.length; ) {
+        if (ops[i].op === "equal") {
+          ia++;
+          ib++;
+          at++;
+          i++;
+          continue;
+        }
+        const removed: number[] = [];
+        const added: number[] = [];
+        for (; i < ops.length && ops[i].op !== "equal"; i++) {
+          if (ops[i].op === "delete") removed.push(ia + removed.length);
+          else added.push(ib + added.length);
+        }
+        let r = 0;
+        let n = 0;
+        // Each step applies at the current working index, so the pointers form a valid patch in order.
+        for (const [mr, mn] of alignRun(removed.map((k) => x[k]), added.map((k) => y[k]))) {
+          for (; r < mr; r++) changes.push({ kind: "removed", path: [...path, removed[r]], pointer: `${pointer}/${at}`, before: x[removed[r]] });
+          for (; n < mn; n++) changes.push({ kind: "added", path: [...path, added[n]], pointer: `${pointer}/${at++}`, after: y[added[n]] });
+          walk(x[removed[r]], y[added[n]], [...path, added[n]], `${pointer}/${at++}`);
+          r++;
+          n++;
+        }
+        for (; r < removed.length; r++) changes.push({ kind: "removed", path: [...path, removed[r]], pointer: `${pointer}/${at}`, before: x[removed[r]] });
+        for (; n < added.length; n++) changes.push({ kind: "added", path: [...path, added[n]], pointer: `${pointer}/${at++}`, after: y[added[n]] });
+        ia += removed.length;
+        ib += added.length;
       }
     } else if (isPlainObject(x) && isPlainObject(y)) {
-      for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) {
-        if (!(k in y)) changes.push({ kind: "removed", path: formatPath([...path, k]), before: x[k] });
-        else if (!(k in x)) changes.push({ kind: "added", path: formatPath([...path, k]), after: y[k] });
-        else walk(x[k], y[k], [...path, k]);
+      for (const k of Object.keys(x)) {
+        const p = `${pointer}/${escapePointer(k)}`;
+        if (!(k in y)) changes.push({ kind: "removed", path: [...path, k], pointer: p, before: x[k] });
+        else walk(x[k], y[k], [...path, k], p);
       }
-    } else if (!Object.is(x, y)) {
-      changes.push({ kind: "changed", path: formatPath(path), before: x, after: y });
+      for (const k of Object.keys(y)) {
+        if (!(k in x)) changes.push({ kind: "added", path: [...path, k], pointer: `${pointer}/${escapePointer(k)}`, after: y[k] });
+      }
+    } else if (canonical(x) !== canonical(y)) {
+      changes.push({ kind: "changed", path, pointer, before: x, after: y });
     }
   };
-  walk(a.value, b.value, []);
-  return { ok: true, changes };
+  walk(a, b, [], "");
+  return changes;
 }
 
-type PrettyLine = { text: string; head: string; items?: string[]; tail: string };
+// How alike two values are, so an edited item is paired with its new version rather than a neighbour.
+function similarity(x: unknown, y: unknown): number {
+  if (isPlainObject(x) && isPlainObject(y)) {
+    const keys = new Set([...Object.keys(x), ...Object.keys(y)]);
+    let same = 0;
+    for (const k of keys) if (k in x && k in y) same += canonical(x[k]) === canonical(y[k]) ? 1 : 0.25;
+    return keys.size === 0 ? 1 : same / keys.size;
+  }
+  if (Array.isArray(x) && Array.isArray(y)) return 0.5;
+  return typeof x === typeof y && x !== null && y !== null ? 0.3 : 0;
+}
 
-const isPrimitive = (v: unknown) => v === null || typeof v !== "object";
+// Large runs fall back to pairing by position to keep the alignment cheap.
+const maxAlign = 60;
 
-// Pretty-prints like JSON.stringify(v, null, 2), except arrays of plain values stay on one line
-// so that editing one item shows up as a single changed row.
-export function prettyLines(value: unknown): PrettyLine[] {
-  const out: PrettyLine[] = [];
-  const emit = (v: unknown, indent: string, key: string, comma: string) => {
-    const head = `${indent}${key}`;
-    if (Array.isArray(v) && v.every(isPrimitive)) {
-      const items = v.map((item) => JSON.stringify(item));
-      out.push({ text: `${head}[${items.join(", ")}]${comma}`, head, items, tail: comma });
-    } else if (Array.isArray(v) || isPlainObject(v)) {
-      const entries: [string, unknown][] = Array.isArray(v) ? v.map((item) => ["", item]) : Object.entries(v).map(([k, item]) => [`${JSON.stringify(k)}: `, item]);
-      const [open, close] = Array.isArray(v) ? ["[", "]"] : ["{", "}"];
-      if (entries.length === 0) {
-        out.push({ text: `${head}${open}${close}${comma}`, head, tail: comma });
-        return;
-      }
-      out.push({ text: `${head}${open}`, head, tail: "" });
-      entries.forEach(([k, item], i) => emit(item, `${indent}  `, k, i < entries.length - 1 ? "," : ""));
-      out.push({ text: `${indent}${close}${comma}`, head: indent, tail: comma });
-    } else {
-      out.push({ text: `${head}${JSON.stringify(v)}${comma}`, head, tail: comma });
+/** Order-preserving pairing of removed and added items that maximises their total similarity. */
+function alignRun(removed: unknown[], added: unknown[]): [number, number][] {
+  const n = removed.length;
+  const m = added.length;
+  if (n === 0 || m === 0) return [];
+  if (n > maxAlign || m > maxAlign) return Array.from({ length: Math.min(n, m) }, (_, k) => [k, k]);
+  const score = Array.from({ length: n + 1 }, () => new Float64Array(m + 1));
+  const sim = removed.map((r) => added.map((a) => similarity(r, a)));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      const pair = sim[i][j] > 0 ? sim[i][j] + score[i + 1][j + 1] : 0;
+      score[i][j] = Math.max(pair, score[i + 1][j], score[i][j + 1]);
     }
-  };
-  emit(value, "", "", "");
-  return out;
+  }
+  const pairs: [number, number][] = [];
+  for (let i = 0, j = 0; i < n && j < m; ) {
+    if (sim[i][j] > 0 && score[i][j] === sim[i][j] + score[i + 1][j + 1]) pairs.push([i++, j++]);
+    else if (score[i][j] === score[i + 1][j]) i++;
+    else j++;
+  }
+  return pairs;
 }
 
-export type Segment = { text: string; kind: "same" | "added" | "removed" };
+export type JsonPatchOp = { op: "add" | "remove" | "replace"; path: string; value?: unknown };
 
-export type DiffLine =
-  | { kind: "same"; text: string; line: number }
-  | { kind: "added" | "removed"; text: string }
-  | { kind: "modified"; text: string; segments: Segment[] };
-
-// An inline array edited in place becomes one row with its added and removed items marked.
-function mergeArrayEdit(before: PrettyLine, after: PrettyLine): DiffLine | null {
-  if (!before.items || !after.items || before.head !== after.head) return null;
-  const segments: Segment[] = [{ text: `${after.head}[`, kind: "same" }];
-  diffSequences(before.items, after.items).forEach((op, i) => {
-    if (i > 0) segments.push({ text: ", ", kind: "same" });
-    segments.push({ text: op.text, kind: op.op === "equal" ? "same" : op.op === "insert" ? "added" : "removed" });
-  });
-  segments.push({ text: `]${after.tail}`, kind: "same" });
-  return { kind: "modified", text: after.text, segments };
+export function toJsonPatch(changes: DiffChange[]): JsonPatchOp[] {
+  return changes.map((c) =>
+    c.kind === "removed" ? { op: "remove", path: c.pointer } : { op: c.kind === "added" ? "add" : "replace", path: c.pointer, value: c.after },
+  );
 }
 
-export type LineDiffResult =
-  | { ok: true; lines: DiffLine[]; counts: { added: number; removed: number; changed: number } }
+export type CompareResult =
+  | {
+      ok: true;
+      lines: DiffLine[];
+      changes: DiffChange[];
+      counts: { added: number; removed: number; changed: number };
+      /** The time budget ran out, so some regions are shown as whole removals and additions. */
+      approximate: boolean;
+    }
   | { ok: false; error: string };
 
-/** Line-by-line view of two documents, with keys sorted so reordering is never reported. */
-export function diffJsonLines(left: string, right: string): LineDiffResult {
-  const structural = diffJson(left, right);
-  if (!structural.ok) return structural;
-  const a = prettyLines(sortDeep((parseJson(left) as { value: unknown }).value));
-  const b = prettyLines(sortDeep((parseJson(right) as { value: unknown }).value));
+/** Parses both documents once and produces the structural changes and the line view. */
+export function compareJson(left: string, right: string, options: DiffOptions = defaultDiffOptions, deadline?: number): CompareResult {
+  const a = parseJson(left);
+  if (!a.ok) return { ok: false, error: `Original (A): ${describeParseError(a.error)}` };
+  const b = parseJson(right);
+  if (!b.ok) return { ok: false, error: `Changed (B): ${describeParseError(b.error)}` };
 
-  const lines: DiffLine[] = [];
-  let ia = 0;
-  let ib = 0;
-  // Trailing commas depend on a line's position, so they're left out of the comparison.
-  const bare = (l: PrettyLine) => l.text.slice(0, l.text.length - l.tail.length);
-  const ops = diffSequences(a.map(bare), b.map(bare));
-  for (let i = 0; i < ops.length; ) {
-    if (ops[i].op === "equal") {
-      lines.push({ kind: "same", text: b[ib].text, line: ++ib });
-      ia++;
-      i++;
-      continue;
-    }
-    const removed: PrettyLine[] = [];
-    const added: PrettyLine[] = [];
-    for (; i < ops.length && ops[i].op !== "equal"; i++) {
-      if (ops[i].op === "delete") removed.push(a[ia++]);
-      else added.push(b[ib++]);
-    }
-    for (let j = 0; j < Math.max(removed.length, added.length); j++) {
-      const merged = removed[j] && added[j] ? mergeArrayEdit(removed[j], added[j]) : null;
-      if (merged) lines.push(merged);
-      else {
-        if (removed[j]) lines.push({ kind: "removed", text: removed[j].text });
-        if (added[j]) lines.push({ kind: "added", text: added[j].text });
-      }
-    }
-  }
-
-  const count = (kind: DiffChange["kind"]) => structural.changes.filter((c) => c.kind === kind).length;
-  return { ok: true, lines, counts: { added: count("added"), removed: count("removed"), changed: count("changed") } };
-}
-
-export type DiffRow = { type: "line"; index: number; line: DiffLine } | { type: "gap"; from: number; to: number };
-
-/** Keeps `context` unchanged lines around each change and folds longer unchanged runs. */
-export function foldUnchanged(lines: DiffLine[], context = 3, expanded: ReadonlySet<number> = new Set()): DiffRow[] {
-  const keep = lines.map((l) => l.kind !== "same");
-  const near = lines.map((_, i) => keep.slice(Math.max(0, i - context), i + context + 1).some(Boolean));
-  const rows: DiffRow[] = [];
-  for (let i = 0; i < lines.length; ) {
-    if (near[i]) {
-      rows.push({ type: "line", index: i, line: lines[i] });
-      i++;
-      continue;
-    }
-    let j = i;
-    while (j < lines.length && !near[j]) j++;
-    if (expanded.has(i) || j - i <= 1) for (let k = i; k < j; k++) rows.push({ type: "line", index: k, line: lines[k] });
-    else rows.push({ type: "gap", from: i, to: j });
-    i = j;
-  }
-  return rows;
-}
-
-const markers: Record<DiffLine["kind"], string> = { same: " ", added: "+", removed: "-", modified: "~" };
-
-export function diffToText(lines: DiffLine[]): string {
-  return lines
-    .map((l) => {
-      if (l.kind !== "modified") return `${markers[l.kind]} ${l.text}`;
-      return `~ ${l.segments.map((s) => (s.kind === "added" ? `{+${s.text}+}` : s.kind === "removed" ? `[-${s.text}-]` : s.text)).join("")}`;
-    })
-    .join("\n");
+  let approximate = false;
+  const seq: DiffSequenceOptions = { deadline, onTimeout: () => (approximate = true) };
+  const x = normalize(a.value, options);
+  const y = normalize(b.value, options);
+  const changes = structuralChanges(x, y, seq);
+  const lines = buildLineDiff(x, y, seq);
+  const count = (kind: DiffChange["kind"]) => changes.filter((c) => c.kind === kind).length;
+  return { ok: true, lines, changes, counts: { added: count("added"), removed: count("removed"), changed: count("changed") }, approximate };
 }

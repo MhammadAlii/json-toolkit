@@ -20,9 +20,9 @@ app/                      routes: URLs, metadata, wiring only
 
 | Layer | Path | Contains | May import |
 | --- | --- | --- | --- |
-| Core | `src/core/` | Framework-free domain code: JSON parsing with line/column errors, `TransformResult`, path formatting (`core/json`), the tool model `ToolMeta` / `ToolSlug` / categories (`core/tool`), JSON syntax tokenizing (`core/json/tokenize.ts`), value description (`core/json/describe.ts`), path lookup (`valueAtPath` in `core/json/path.ts`), table building, filtering and projection (`core/json/table.ts`), CSV writing (`toCsv` in `core/json/csv.ts`), deep key sorting (`sortDeep` in `core/json/sort.ts`), and text helpers (`core/text`: `matchesQuery`, `formatBytes`, the Myers sequence diff `diffSequences`). | nothing internal |
+| Core | `src/core/` | Framework-free domain code: JSON parsing with line/column errors, `TransformResult`, path formatting (`core/json`), the tool model `ToolMeta` / `ToolSlug` / categories (`core/tool`), JSON syntax tokenizing (`core/json/tokenize.ts`), value description (`core/json/describe.ts`), path lookup (`valueAtPath` in `core/json/path.ts`), table building, filtering and projection (`core/json/table.ts`), CSV writing (`toCsv` in `core/json/csv.ts`), deep key sorting (`sortDeep` in `core/json/sort.ts`), and text helpers (`core/text`: `matchesQuery`, `formatBytes`, the linear-space Myers sequence diff `diffSequences` with an optional deadline). | nothing internal |
 | Config | `src/config/` | Site, ads and legal settings, read from env vars with defaults. | core |
-| Hooks | `src/hooks/` | Reusable client hooks (`useClipboard`, `useUrlHash`, `useShortcutLabel`). | core, config |
+| Hooks | `src/hooks/` | Reusable client hooks (`useClipboard`, `useUrlHash`, `useShortcutLabel`, `useWorkerTask`, `useSessionDraft`). | core, config |
 | Shared UI | `src/components/ui`, `icons`, `seo`, `tool` | Design-system components, icons, structured data and the tool page shell. Know nothing about features. | core, config, hooks |
 | Features | `src/features/<feature>/` | Everything one product area needs: its pages' content, data, logic and feature-specific components. | all of the above |
 | Layout | `src/components/layout/` | App shell that composes features: header (with search), footer (with ad slot), logo. | all of the above |
@@ -73,7 +73,7 @@ export default function Page() {
 | tools/tree-viewer | `/json-tree-viewer` | `FormatterWorkspace` opening on `JsonTreeExplorer` |
 | tools/table-viewer | `/json-table-viewer` | `FormatterWorkspace` opening on `JsonTableExplorer` |
 | tools/deep-search | `/json-deep-search` | `searchJson` (substring, exact or regex) |
-| tools/diff | `/json-diff` | `diffJson` (structural changes and counts), `diffJsonLines` (sorted, line-by-line `+` / `-` / `~` rows), `foldUnchanged`, `diffToText`; UI in `DiffToolPage` / `DiffWorkspace` / `DiffResult` |
+| tools/diff | `/json-diff` | `diff.ts`: `compareJson` (parses once, applies `DiffOptions` via `normalize`), `structuralChanges` (array items matched by content, then paired by similarity) and `toJsonPatch` (RFC 6902). `diff-lines.ts`: `buildLineDiff` (`+` / `-` / `~` rows with paths and inline character or item highlights). `diff-view.ts`: `foldUnchanged`, `hunks`, `splitRows`, `diffToText`. Runs in `diff.worker.ts` through `useWorkerTask`; UI in `DiffWorkspace`, `DiffResult` (unified / split, change navigation, row paging) and their row components |
 | tools/schema-validator | `/json-schema-validator` | `validateAgainstSchema` (stub, needs Ajv) |
 | tools/query-selector | `/json-query` | `queryJson` (stub, needs a JSONPath library) |
 | converters/json-to-yaml | `/json-to-yaml` | `jsonToYaml` |
@@ -107,7 +107,7 @@ stay inside that feature, also one per file.
 | Folder | Contents |
 | --- | --- |
 | `components/ui/` — typography | `PageTitle` (sizes lg, md, display; weight bold or extrabold), `Lead` (lg, md, sm), `SectionTitle` (lg, md, sm; renders h2 or h3), `SectionHeader` (title + description, start or center), `Text` (body, small, caption), `Overline`, `Eyebrow` |
-| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip, soft, accent; sizes tiny, xs, compact, sm, md, lg. `CopyButton`, `SegmentedControl`, `Popover`, `Checkbox` |
+| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip, soft, accent; sizes tiny, xs, compact, sm, md, lg. `CopyButton`, `SegmentedControl`, `Popover`, `Checkbox`, `FileButton` (reads a picked file as text), `DropZone` (reads a dropped file as text) |
 | `components/ui/` — surfaces | `Card` (tones surface, raised, inset, base, faint; radius lg, xl, 2xl), `Panel` + `PanelTitle` (editor panel with toolbar), `HeroBand`, `FeatureCard`, `StatCard` (plain, or with an icon), `Callout`, `ComingSoon` |
 | `components/ui/` — content | `Badge` (brand, success; pill or note), `IconTile` (sm, md, lg; round), `BulletList` (dot, bullet, arrow), `FaqList`, `Kbd` (muted, solid), `SectionNav` |
 | `components/ui/` — forms | `FormField`, `TextInput`, `Textarea`, `Select` (sizes sm, md; sharing `input-styles.ts`), `Checkbox`, `CodeEditor` (monospace input with line numbers), `LineGutter` |
@@ -116,7 +116,7 @@ stay inside that feature, also one per file.
 | `components/seo/` | `JsonLd`, `BreadcrumbJsonLd`, `pageMetadata()` (title, description, canonical, Open Graph, Twitter) |
 | `components/tool/` | `ToolPage`, `ToolStructuredData`, `toolMetadata()` (built on `pageMetadata`), `ToolWorkbench`, `WorkbenchOptionControl`, `ToolHeader` (icon, title, summary and an aside slot), `ToolSeoContent` (how-to, FAQ and related tools below each implemented tool), `ToolCard`, `CategoryHeading`, `ToolGlyph`, `tool-icons.ts` (icon and tint maps), `tool-category-style.ts`, `workbench-types.ts` |
 | `components/layout/` | `SiteHeader`, `SiteFooter`, `Logo`, `search/` (`SearchPalette`, `SearchResult`, `SearchHints`, `search-item.ts`) |
-| `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel`, `useStoredState` (localStorage-backed state), `useJsonColors` |
+| `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel`, `useStoredState` (localStorage-backed state), `useSessionDraft` (text kept in state and mirrored to sessionStorage), `useWorkerTask` (runs a task in a Web Worker, cancelling the previous run, with a main-thread fallback), `useJsonColors` |
 
 ### Reuse rules
 
@@ -173,7 +173,7 @@ src/
 ├── features/
 │   ├── ads/   company/   converters/   home/   legal/   tools/
 │   └── catalog.ts
-└── hooks/                      # use-clipboard, use-download, use-url-hash, use-shortcut-label, use-stored-state, use-json-colors
+└── hooks/                      # use-clipboard, use-download, use-url-hash, use-shortcut-label, use-stored-state, use-session-draft, use-worker-task, use-json-colors
 ```
 
 Folders in parentheses under `app/` are route groups: they organise files without appearing in the
