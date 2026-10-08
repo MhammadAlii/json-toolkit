@@ -29,9 +29,11 @@ export function JsonTreeNode({ name, value, path, rootLabel, selectedPath, onSel
         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onSelect?.(path))}
         className={`ml-5 ${rowClasses(selected, selectable)}`}
       >
-        <span className={keyClass}>{label}</span>
-        <span className={jsonTokenClasses.punct}>:</span>
-        <JsonPrimitive value={value} />
+        <span className={`shrink-0 ${keyClass}`}>{label}</span>
+        <span className={`shrink-0 ${jsonTokenClasses.punct}`}>:</span>
+        <span className="min-w-0 truncate" title={typeof value === "string" ? value : undefined}>
+          <JsonPrimitive value={value} />
+        </span>
       </div>
     );
   }
