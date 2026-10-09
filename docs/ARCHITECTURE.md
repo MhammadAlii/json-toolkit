@@ -69,7 +69,7 @@ export default function Page() {
 | tools/formatter | `/json-formatter` | `formatJson` |
 | tools/validator | `/json-validator` | `validateJsonText` (built on `lintJson` and `jsonStats`), `explain` (headline, what happened and tips per error code), `excerpt`; UI in `ValidatorToolPage` / `ValidatorWorkspace` / `ValidatorResultCard` (Jump to Error, Auto-Repair via `repairJson`) / `ValidatorExplanationCard` / `ValidatorStructureCard` |
 | tools/repair | `/json-repair` | `repair` (lenient parser that records every change with its rule, input line and output line, honouring per-rule `RepairOptions`) and `repairJson` (all rules, used by the Validator's Auto-Repair); UI in `RepairToolPage` / `RepairWorkspace` / `RepairOutputView` (changed characters highlighted) / `RepairAuditLog` + `RepairChangeItem` / `RepairRulesCard` |
-| tools/minifier | `/json-minifier` | `minifyJson` |
+| tools/minifier | `/json-minifier` | `minify` (checks with `lintJson`, then strips whitespace from the source text so numbers and escapes stay byte-for-byte, with byte counts and content/whitespace bins) and `gzipSize`; UI in `MinifierToolPage` / `MinifierWorkspace` / `MinifierStatCard` / `MinifierReductionCard` / `MinifierDistributionChart` |
 | tools/tree-viewer | `/json-tree-viewer` | `FormatterWorkspace` opening on `JsonTreeExplorer` |
 | tools/table-viewer | `/json-table-viewer` | `FormatterWorkspace` opening on `JsonTableExplorer` |
 | tools/deep-search | `/json-deep-search` | `searchJson` (substring, exact or regex) |
@@ -109,7 +109,7 @@ stay inside that feature, also one per file.
 | Folder | Contents |
 | --- | --- |
 | `components/ui/` — typography | `PageTitle` (sizes lg, md, display; weight bold or extrabold), `Lead` (lg, md, sm), `SectionTitle` (lg, md, sm; renders h2 or h3), `SectionHeader` (title + description, start or center), `Text` (body, small, caption), `Overline`, `Eyebrow` |
-| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip, soft, accent; sizes tiny, xs, compact, sm, md, lg. `CopyButton`, `SegmentedControl`, `Popover` (a function child receives `close`), `Checkbox`, `FileButton` (reads a picked file as text), `DropZone` (reads a dropped file as text) |
+| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip, soft, accent; sizes tiny, xs, compact, sm, md, lg. `CopyButton`, `StatusPill` (live status in a tool's top bar), `SegmentedControl`, `Popover` (a function child receives `close`), `Checkbox`, `FileButton` (reads a picked file as text), `DropZone` (reads a dropped file as text) |
 | `components/ui/` — surfaces | `Card` (tones surface, raised, inset, base, faint; radius lg, xl, 2xl), `Panel` + `PanelTitle` (editor panel with toolbar), `HeroBand`, `FeatureCard`, `StatCard` (plain, or with an icon), `Callout`, `ComingSoon` |
 | `components/ui/` — content | `Badge` (brand, success; pill or note), `IconTile` (sm, md, lg; round), `BulletList` (dot, bullet, arrow), `FaqList`, `Kbd` (muted, solid), `SectionNav` |
 | `components/ui/` — forms | `FormField`, `TextInput`, `Textarea`, `Select` (sharing `input-styles.ts`), `Checkbox`, `CodeEditor` (monospace input with line numbers, an optional error `highlightLine` and a `ref`), `LineGutter` (optional highlighted line) |
