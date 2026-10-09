@@ -33,8 +33,8 @@ app/                      routes: URLs, metadata, wiring only
 | Feature | Path | Owns |
 | --- | --- | --- |
 | Home | `features/home/` | Home page: hero, the Formatter workspace, stats and ad slots. |
-| Tools | `features/tools/` | The `/tools` directory page (`directory/`) and the tool sub-features: formatter (`formatter-workspace.tsx` with Code, Tree and Table views, Format/Minify and Sort keys, used on the home page and the Formatter, Tree Viewer and Table Viewer pages), validator, repair, minifier, tree-viewer, table-viewer, deep-search, diff, schema-validator, query-selector, and the developer utilities jwt-decoder, url-encoder, base64-converter, epoch-converter. `registry.ts` lists them. |
-| Converters | `features/converters/` | Sub-features: json-to-yaml, json-to-csv, json-to-typescript, json-to-excel, json-to-xml, json-to-sql, json-to-string, string-to-json. `registry.ts` lists them. |
+| Tools | `features/tools/` | The `/tools` directory page (`directory/`, every category except converters), `shared/` (`ToolLayout` for tool pages, `DirectoryLayout` for the `/tools` and `/converters` listings) and the tool sub-features: formatter (`formatter-workspace.tsx` with Code, Tree and Table views, Format/Minify and Sort keys, used on the home page and the Formatter, Tree Viewer and Table Viewer pages), validator, repair, minifier, tree-viewer, table-viewer, deep-search, diff, schema-validator, query-selector, and the developer utilities jwt-decoder, url-encoder, base64-converter, epoch-converter. `registry.ts` lists them. |
+| Converters | `features/converters/` | The `/converters` listing page (`directory/`, each converter as a `ToolCard`). Sub-features: json-to-yaml, json-to-csv, json-to-typescript, json-to-excel, json-to-xml, json-to-sql, json-to-string, string-to-json. `registry.ts` lists them. |
 | Legal | `features/legal/` | `privacy/`, `terms/`, `licenses/` pages and the shared `components/` (legal section and paragraph). |
 | Company | `features/company/` | `about/` and `contact/` pages, the contact form and request types. |
 | Ads | `features/ads/` | AdSense slot with reserved height. |

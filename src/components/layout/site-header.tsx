@@ -18,7 +18,7 @@ const searchItems: SearchItem[] = catalog.map(({ slug, name, tagline, keywords, 
 
 const nav = [
   { label: "Tools", href: "/tools" },
-  { label: "Converters", href: "/tools#converters" },
+  { label: "Converters", href: "/converters" },
 ];
 
 export function SiteHeader() {

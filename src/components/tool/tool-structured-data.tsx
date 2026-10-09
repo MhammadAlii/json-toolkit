@@ -6,7 +6,12 @@ import type { ToolMeta } from "@/core/tool/types";
 export function ToolStructuredData({ tool }: { tool: ToolMeta }) {
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: tool.name, href: `/${tool.slug}` }]} />
+      <BreadcrumbJsonLd
+        items={[
+          tool.category === "converters" ? { name: "JSON Converters", href: "/converters" } : { name: "Developer Tools", href: "/tools" },
+          { name: tool.name, href: `/${tool.slug}` },
+        ]}
+      />
       <JsonLd
         data={{
           "@context": "https://schema.org",
