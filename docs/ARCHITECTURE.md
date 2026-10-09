@@ -68,7 +68,7 @@ export default function Page() {
 | --- | --- | --- |
 | tools/formatter | `/json-formatter` | `formatJson` |
 | tools/validator | `/json-validator` | `validateJsonText` (built on `lintJson` and `jsonStats`), `explain` (headline, what happened and tips per error code), `excerpt`; UI in `ValidatorToolPage` / `ValidatorWorkspace` / `ValidatorResultCard` (Jump to Error, Auto-Repair via `repairJson`) / `ValidatorExplanationCard` / `ValidatorStructureCard` |
-| tools/repair | `/json-repair` | `repairJson` |
+| tools/repair | `/json-repair` | `repair` (lenient parser that records every change with its rule, input line and output line, honouring per-rule `RepairOptions`) and `repairJson` (all rules, used by the Validator's Auto-Repair); UI in `RepairToolPage` / `RepairWorkspace` / `RepairOutputView` (changed characters highlighted) / `RepairAuditLog` + `RepairChangeItem` / `RepairRulesCard` |
 | tools/minifier | `/json-minifier` | `minifyJson` |
 | tools/tree-viewer | `/json-tree-viewer` | `FormatterWorkspace` opening on `JsonTreeExplorer` |
 | tools/table-viewer | `/json-table-viewer` | `FormatterWorkspace` opening on `JsonTableExplorer` |

@@ -17,8 +17,8 @@ export const repairTool: ToolMeta = {
     "Paste malformed JSON, such as output from a log, an LLM or a JavaScript object literal, and get valid JSON back. Common mistakes are fixed automatically and every change is listed.",
   steps: [
     "Paste the broken JSON or upload a file.",
-    "Review the list of fixes that were applied.",
-    "Copy or download the repaired, valid JSON.",
+    "Review the audit log: each fix shows its line, what changed, and where it is in the highlighted result.",
+    "Copy or download the repaired JSON, or press Apply Repair to replace your input. Turn off any repair rule you don't want applied.",
   ],
   faqs: [
     {
