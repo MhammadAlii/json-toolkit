@@ -49,49 +49,40 @@ Each tool or converter has the same shape:
 
 ```
 features/<tools|converters>/<name>/
-├── meta.ts           # ToolMeta: slug, SEO title/description/keywords, copy, FAQ, category, icon
-├── <name>.ts         # helper: pure logic (input → result). No React or Next.js (lint-enforced)
-└── <name>-tool.tsx   # client UI, built on the shared ToolWorkbench
+├── meta.ts                # ToolMeta: slug, SEO title/description/keywords, copy, FAQ, category, icon
+├── <name>.ts              # helper: pure logic (input → result). No React or Next.js (lint-enforced)
+├── <name>-tool-page.tsx   # the page: the workspace inside the shared ToolLayout
+└── <name>-workspace.tsx   # client UI, laid out like the home formatter (panels with header actions)
 ```
 
-and its own route that only wires them together:
+A tool without a design yet has only `meta.ts`, and its route renders the "coming soon" `ToolPage`.
+Each route only wires things together:
 
 ```tsx
 // app/(tools)/json-repair/page.tsx
 export const metadata = toolMetadata(repairTool);
 export default function Page() {
-  return <ToolPage tool={repairTool} related={relatedTools(repairTool)} />;
+  return <RepairToolPage tool={repairTool} related={relatedTools(repairTool)} />;
 }
 ```
 
 | Sub-feature | Route | Helper |
 | --- | --- | --- |
-| tools/formatter | `/json-formatter` | `formatJson` |
+| tools/formatter | `/json-formatter` | `FormatterWorkspace` (Code, Tree and Table views, Format / Minify / Sort) |
 | tools/validator | `/json-validator` | `validateJsonText` (built on `lintJson` and `jsonStats`), `explain` (headline, what happened and tips per error code), `excerpt`; UI in `ValidatorToolPage` / `ValidatorWorkspace` / `ValidatorResultCard` (Jump to Error, Auto-Repair via `repairJson`) / `ValidatorExplanationCard` / `ValidatorStructureCard` |
-| tools/repair | `/json-repair` | `repair` (lenient parser that records every change with its rule, input line and output line, honouring per-rule `RepairOptions`) and `repairJson` (all rules, used by the Validator's Auto-Repair); UI in `RepairToolPage` / `RepairWorkspace` / `RepairOutputView` (changed characters highlighted) / `RepairAuditLog` + `RepairChangeItem` (rule checkboxes, Repair, copy and download in the output header, laid out like the home formatter) |
+| tools/repair | `/json-repair` | `repair` (lenient parser that records every change with its rule, input line and output line, honouring per-rule `RepairOptions`) and `repairJson` (all rules, used by the Validator's Auto-Repair); UI in `RepairToolPage` / `RepairWorkspace` / `RepairOutputView` (changed characters highlighted) / `RepairAuditLog` + `RepairChangeItem` / `RepairFixMenu` (rule checkboxes in a Fix options menu; Repair, colours, copy and download sit in the output header) |
 | tools/minifier | `/json-minifier` | `minify` (checks with `lintJson`, then strips whitespace from the source text so numbers and escapes stay byte-for-byte, with byte counts and content/whitespace bins) and `gzipSize`; UI in `MinifierToolPage` / `MinifierWorkspace` / `MinifierStatCard` / `MinifierReductionCard` / `MinifierDistributionChart` |
 | tools/tree-viewer | `/json-tree-viewer` | `FormatterWorkspace` opening on `JsonTreeExplorer` |
 | tools/table-viewer | `/json-table-viewer` | `FormatterWorkspace` opening on `JsonTableExplorer` |
-| tools/deep-search | `/json-deep-search` | `searchJson` (substring, exact or regex) |
 | tools/diff | `/json-diff` | `diff.ts`: `compareJson` (parses once, applies `DiffOptions` via `normalize`), `structuralChanges` (array items matched by content, then paired by similarity) and `toJsonPatch` (RFC 6902). `diff-lines.ts`: `buildLineDiff` (`+` / `-` / `~` rows with paths and inline character or item highlights). `diff-view.ts`: `foldUnchanged`, `hunks`, `splitRows`, `diffToText`. Runs in `diff.worker.ts` through `useWorkerTask`; UI in `DiffWorkspace`, `DiffResult` (unified / split, change navigation, row paging) and their row components |
 | tools/schema-validator | `/json-schema-validator` | `checkAgainstSchema` (violations with category, path and line), `schemaTemplates` (infer from data, blank); UI in `SchemaToolPage` / `SchemaWorkspace` / `SchemaResultCard` / `SchemaViolationItem` / `SchemaTemplateMenu` |
 | tools/query-selector | `/json-query` | `runPipeline` with PATH, WHERE, SELECT, SORT, LIMIT and GROUP stages (`stageInfo`); UI in `QueryToolPage` / `QueryWorkspace` / `QueryPipeline` (stage chips + `QueryStageMenu`) / `QueryResultPanel` (code, table or tree) |
-| converters/json-to-yaml | `/json-to-yaml` | `jsonToYaml` |
-| converters/json-to-csv | `/json-to-csv` | `jsonToCsv` (built on `core/json/csv`) |
-| converters/json-to-typescript | `/json-to-typescript` | `jsonToTypeScript` |
-| converters/json-to-excel | `/json-to-excel` | `jsonToExcel` (stub, needs an .xlsx writer) |
-| converters/json-to-xml | `/json-to-xml` | `jsonToXml` |
-| converters/json-to-sql | `/json-to-sql` | `jsonToSql` |
-| converters/json-to-string | `/json-to-string` | `jsonToString` |
-| converters/string-to-json | `/string-to-json` | `stringToJson` (unwraps double-stringified input) |
-| tools/jwt-decoder | `/jwt-decoder` | `decodeJwt` |
-| tools/url-encoder | `/url-encoder` | `encodeUrl`, `decodeUrl` |
-| tools/base64-converter | `/base64-converter` | `encodeBase64`, `decodeBase64` (UTF-8, URL-safe) |
-| tools/epoch-converter | `/epoch-converter` | `fromTimestamp`, `fromDate` |
+
+Deep Search, the converters (JSON to YAML, CSV, TypeScript, Excel, XML, SQL, String and String to JSON) and the developer utilities (JWT, URL, Base64, Epoch) have only `meta.ts` until their designs are implemented; earlier helper drafts are in git history.
 
 Tools are grouped into five categories (`ToolCategory`), shown on `/tools` and in search: JSON Core (`core`), Explore JSON (`explore`), Compare & Query (`query`), Converter Hub (`converters`) and Developer Utilities (`utilities`). Labels and order live in `features/catalog.ts`; each category's heading icon and accent colour in `components/tool/tool-category-style.ts`.
 
-**Tool inputs start empty.** No tool ships example JSON, and none pre-fills, restores or persists what the user pastes; placeholders only describe what to enter.
+**Tool inputs start empty.** No tool ships example JSON, and none pre-fills, restores or persists what the user pastes; placeholders only describe what to enter. Tools also show no "waiting" UI: result cards, stats and charts appear only once there is input, and actions live in panel headers like the home formatter (no separate top bars).
 
 **Implemented tool pages** render their own page component (for example `FormatterToolPage`, `DiffToolPage`) that wraps the tool's workspace in `features/tools/shared/tool-layout.tsx` (`ToolHeader` with the hero ad, the bottom ad, `ToolSeoContent` and structured data). Tools without a design yet still use the placeholder `ToolPage`. The Formatter, Tree Viewer and Table Viewer share `FormatterToolPage` and the home page's `FormatterWorkspace`; the viewers pass `lockedView` to show only their view, without the Code / Tree / Table switcher.
 
@@ -109,14 +100,14 @@ stay inside that feature, also one per file.
 | Folder | Contents |
 | --- | --- |
 | `components/ui/` — typography | `PageTitle` (sizes lg, md, display; weight bold or extrabold), `Lead` (lg, md, sm), `SectionTitle` (lg, md, sm; renders h2 or h3), `SectionHeader` (title + description, start or center), `Text` (body, small, caption), `Overline`, `Eyebrow` |
-| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip, soft, accent; sizes tiny, xs, compact, sm, md, lg. `CopyButton`, `CopyIconButton` (icon-only with a "Copied!" bubble), `StatusPill` (live status in a tool's top bar), `SegmentedControl`, `Popover` (a function child receives `close`), `Checkbox`, `FileButton` (reads a picked file as text), `DropZone` (reads a dropped file as text) |
+| `components/ui/` — actions | `Button`, `ButtonLink` (internal, external and `mailto:` links) sharing `button-styles.ts`: variants primary, secondary, outline, subtle, chip, soft, accent; sizes tiny, xs, compact, sm, md, lg. `CopyButton`, `CopyIconButton` (icon-only with a "Copied!" bubble), `SegmentedControl`, `Popover` (a function child receives `close`), `Checkbox`, `DropZone` (reads a dropped file as text) |
 | `components/ui/` — surfaces | `Card` (tones surface, raised, inset, base, faint; radius lg, xl, 2xl), `Panel` + `PanelTitle` (editor panel with toolbar), `HeroBand`, `FeatureCard`, `StatCard` (plain, or with an icon), `Callout`, `ComingSoon` |
 | `components/ui/` — content | `Badge` (brand, success; pill or note), `IconTile` (sm, md, lg; round), `BulletList` (dot, bullet, arrow), `FaqList`, `Kbd` (muted, solid), `SectionNav` |
-| `components/ui/` — forms | `FormField`, `TextInput`, `Textarea`, `Select` (sharing `input-styles.ts`), `Checkbox` (sizes sm, md), `CodeEditor` (monospace input with line numbers, an optional error `highlightLine` and a `ref`), `LineGutter` (optional highlighted line) |
+| `components/ui/` — forms | `FormField`, `TextInput`, `Textarea`, `Select` (sharing `input-styles.ts`), `Checkbox`, `CodeEditor` (monospace input with line numbers, an optional error `highlightLine` and a `ref`), `LineGutter` (optional highlighted line) |
 | `components/json/` | `JsonCodeView` (syntax highlighting and line numbers), `JsonTreeView` + `JsonTreeNode` (collapsible, optionally selectable), `JsonExplorerLayout` (output beside `JsonNodeInspector` + `InspectorField`, stacking on narrow containers), `JsonTreeExplorer` (selectable tree), `JsonTableExplorer` (row filter, `JsonTableColumnsMenu`, CSV export, selectable cells, rows revealed 200 at a time) over `JsonTableView` + `JsonTableCell`, `JsonPrimitive`, `JsonColorPicker` (user-chosen output colours), shared `json-token-classes.ts` |
 | `components/icons/` | One file per icon (`search.tsx`, `wand.tsx`, …) using `currentColor`; shared `IconProps` in `icon-props.ts` |
 | `components/seo/` | `JsonLd`, `BreadcrumbJsonLd`, `pageMetadata()` (title, description, canonical, Open Graph, Twitter) |
-| `components/tool/` | `ToolPage`, `ToolStructuredData`, `toolMetadata()` (built on `pageMetadata`), `ToolWorkbench`, `WorkbenchOptionControl`, `ToolHeader` (icon, title, summary and an aside slot), `JsonInputPanel` (editable JSON with Load File, Clear and drag-and-drop, an `extraActions` slot, icon-only buttons in narrow panels), `ToolSeoContent` (how-to, FAQ and related tools below each implemented tool), `ToolCard`, `CategoryHeading`, `ToolGlyph`, `tool-icons.ts` (icon and tint maps), `tool-category-style.ts`, `workbench-types.ts` |
+| `components/tool/` | `ToolPage` (coming soon), `ToolStructuredData`, `toolMetadata()` (built on `pageMetadata`), `ToolHeader` (icon, title, summary and an aside slot), `JsonInputPanel` + `toolPanelHeight` (the home formatter's input panel: title, `extraActions`, Clear, drag-and-drop), `ToolSeoContent` (how-to, FAQ and related tools below each implemented tool), `ToolCard`, `CategoryHeading`, `ToolGlyph`, `tool-icons.ts` (icon and tint maps), `tool-category-style.ts` |
 | `components/layout/` | `SiteHeader`, `SiteFooter`, `Logo`, `search/` (`SearchPalette`, `SearchResult`, `SearchHints`, `search-item.ts`) |
 | `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel`, `useStoredState` (localStorage-backed state), `useWorkerTask` (runs a task in a Web Worker, cancelling the previous run, with a main-thread fallback), `useJsonColors` |
 
@@ -224,7 +215,7 @@ a secret.
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `metadataBase`, canonical URLs, sitemap, robots.txt, structured data, social tags (`config/site.ts`) | Your production domain, e.g. `https://getjsontoolkit.com`, no trailing slash |
 | `NEXT_PUBLIC_ADSENSE_CLIENT` | empty: no ads, no AdSense script | AdSense script, `google-adsense-account` meta tag, `/ads.txt` (`config/site.ts`) | AdSense → Account → Account information (`ca-pub-…`) |
-| `NEXT_PUBLIC_ADSENSE_SLOT_TOOL_BELOW` | empty: slot hidden (placeholder in dev) | Ad below a tool's workbench | AdSense → Ads → By ad unit → Display ad (`data-ad-slot`) |
+| `NEXT_PUBLIC_ADSENSE_SLOT_TOOL_BELOW` | empty: slot hidden (placeholder in dev) | Ad below a tool | AdSense → Ads → By ad unit → Display ad (`data-ad-slot`) |
 | `NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR` | same | Sticky sidebar ad on wide screens | same |
 | `NEXT_PUBLIC_ADSENSE_SLOT_IN_CONTENT` | same | Ad inside page content | same |
 | `NEXT_PUBLIC_ADSENSE_SLOT_FOOTER` | same | Ad in the footer bar | same |

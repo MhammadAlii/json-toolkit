@@ -18,7 +18,7 @@ export const schemaValidatorTool: ToolMeta = {
   steps: [
     "Paste the JSON data to check as the Target JSON.",
     "Paste your JSON Schema, or load a template or infer one from the data.",
-    "Press Validate and fix each listed violation, which shows its path and line.",
+    "Results update as you type. Fix each listed violation, which shows its path and line.",
   ],
   faqs: [
     {

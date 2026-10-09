@@ -25,10 +25,7 @@ export function MinifierDistributionChart({ bins, totalBytes }: { bins: Bin[]; t
           </span>
         </div>
       </div>
-      {bins.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted">Paste JSON to see where its bytes go.</p>
-      ) : (
-        <figure>
+      <figure>
           <svg viewBox={`0 0 ${width} ${height + 20}`} className="h-[140px] w-full" preserveAspectRatio="none" role="img" aria-label={`${formatBytes(whitespace)} of ${formatBytes(totalBytes)} is whitespace`}>
             {bins.map((b, i) => {
               const x = i * slot + (slot - bar) / 2;
@@ -51,8 +48,7 @@ export function MinifierDistributionChart({ bins, totalBytes }: { bins: Bin[]; t
           <figcaption className="pt-3 text-xs text-muted">
             Position in the original file, left to right. {formatBytes(whitespace)} of {formatBytes(totalBytes)} is whitespace that minifying removes.
           </figcaption>
-        </figure>
-      )}
+      </figure>
     </Card>
   );
 }

@@ -20,8 +20,8 @@ export function DiffOptionsMenu({ options, onChange }: { options: DiffOptions; o
       label="Compare options"
       align="start"
       trigger={({ open, toggle, id }) => (
-        <Button variant="secondary" size="sm" className="py-2.5" onClick={toggle} aria-expanded={open} aria-controls={id}>
-          <SlidersIcon className="size-4" /> Options
+        <Button variant="soft" size="xs" onClick={toggle} aria-expanded={open} aria-controls={id}>
+          <SlidersIcon className="size-3" /> Options
           {changed > 0 && <span className="rounded-full bg-brand/20 px-1.5 text-[11px] text-brand">{changed}</span>}
         </Button>
       )}

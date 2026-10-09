@@ -35,17 +35,18 @@ const isTyping = (target: EventTarget | null) =>
 export function DiffResult({
   result,
   pending,
-  stale,
   lossy,
   view,
   onViewChange,
+  options,
 }: {
-  result: CompareResult | null;
+  result: CompareResult;
   pending: boolean;
-  stale: boolean;
   lossy: boolean;
   view: DiffViewMode;
   onViewChange: (view: DiffViewMode) => void;
+  /** The compare options menu, shown with the result's other controls. */
+  options: React.ReactNode;
 }) {
   const [expanded, setExpanded] = useState<ReadonlySet<number>>(new Set());
   const [limit, setLimit] = useState(pageSize);
@@ -54,7 +55,7 @@ export function DiffResult({
   const { copy, copied } = useClipboard();
   const download = useDownload();
 
-  const lines = result?.ok ? result.lines : null;
+  const lines = result.ok ? result.lines : null;
   const changeHunks = useMemo(() => (lines ? hunks(lines) : []), [lines]);
   const rows = useMemo(() => (lines ? foldUnchanged(lines, 3, expanded) : []), [lines, expanded]);
   const split = useMemo(() => (view === "split" ? splitRows(rows) : []), [view, rows]);
@@ -101,7 +102,7 @@ export function DiffResult({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface-2 px-6 py-4">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <h2 className="text-base leading-6 font-bold text-heading">Diff Result</h2>
-          {result?.ok && (
+          {result.ok && (
             <p className="flex flex-wrap items-center gap-3 text-[10px] leading-[15px] font-semibold text-muted">
               <DiffCount tone="bg-success" label={plural(result.counts.added, "Addition", "Additions")} />
               <DiffCount tone="bg-danger" label={plural(result.counts.removed, "Removal", "Removals")} />
@@ -109,15 +110,15 @@ export function DiffResult({
             </p>
           )}
           {pending && <span className="text-[11px] font-semibold text-brand">Comparing…</span>}
-          {stale && !pending && <span className="text-[11px] font-semibold text-tint-amber">Inputs changed — compare again</span>}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {options}
           <SegmentedControl label="Diff layout" options={views} value={view} onChange={onViewChange} />
           <Button
             variant="soft"
             size="xs"
-            onClick={() => result?.ok && download(JSON.stringify(toJsonPatch(result.changes), null, 2), "json-patch.json")}
-            disabled={!result?.ok || identical || lossy}
+            onClick={() => result.ok && download(JSON.stringify(toJsonPatch(result.changes), null, 2), "json-patch.json")}
+            disabled={!result.ok || identical || lossy}
             title={lossy ? "Turn off the ignore options to export a patch that reproduces B exactly" : "Download the changes as an RFC 6902 JSON Patch"}
           >
             <DownloadIcon className="size-3" /> JSON Patch
@@ -129,19 +130,17 @@ export function DiffResult({
         </div>
       </div>
 
-      {result?.ok && !identical && (
+      {result.ok && !identical && (
         <DiffNav current={current} total={changeHunks.length} path={hunk ? formatPath(lines![hunk.start].path) : ""} onMove={move} />
       )}
-      {result?.ok && result.approximate && (
+      {result.ok && result.approximate && (
         <p className="border-b border-border bg-tint-amber/10 px-6 py-2 text-xs text-tint-amber">
           These documents differ heavily, so parts of the diff are shown as whole removals and additions to finish quickly.
         </p>
       )}
 
       <div ref={scroller} className={`relative max-h-[560px] min-h-[120px] overflow-auto bg-code-bg transition-opacity ${pending ? "opacity-60" : ""}`}>
-        {!result ? (
-          <p className="p-6 text-sm text-muted">{pending ? "Comparing…" : "Paste two JSON documents above and press Compare."}</p>
-        ) : !result.ok ? (
+        {!result.ok ? (
           <p role="alert" className="p-6 font-mono text-sm text-danger">
             {result.error}
           </p>

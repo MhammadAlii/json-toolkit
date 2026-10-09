@@ -6,14 +6,15 @@ import { StatCard } from "@/components/ui/stat-card";
 
 export type FormatterValidity = "valid" | "invalid" | "empty";
 
-const validityLabel: Record<FormatterValidity, string> = { valid: "Valid JSON", invalid: "Invalid JSON", empty: "No input" };
-const validityTint: Record<FormatterValidity, string> = {
+type Shown = Exclude<FormatterValidity, "empty">;
+
+const validityLabel: Record<Shown, string> = { valid: "Valid JSON", invalid: "Invalid JSON" };
+const validityTint: Record<Shown, string> = {
   valid: "bg-tint-green/20 text-tint-green",
   invalid: "bg-tint-red/20 text-tint-red",
-  empty: "bg-border/40 text-muted",
 };
 
-export function FormatterStats({ size, lines, validity }: { size: string; lines: number; validity: FormatterValidity }) {
+export function FormatterStats({ size, lines, validity }: { size: string; lines: number; validity: Shown }) {
   return (
     <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard label="Size" value={size} icon={<DatabaseIcon className="h-4 w-auto" />} iconClassName="bg-brand/20 text-brand" />

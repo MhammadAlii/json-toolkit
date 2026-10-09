@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { CheckDoubleIcon } from "@/components/icons/check-double";
-import { CopyIcon } from "@/components/icons/copy";
 import { DownloadIcon } from "@/components/icons/download";
 import { JsonCodeView } from "@/components/json/json-code-view";
+import { JsonColorPicker } from "@/components/json/json-color-picker";
 import { JsonTableExplorer } from "@/components/json/json-table-explorer";
 import { JsonTreeExplorer } from "@/components/json/json-tree-explorer";
 import { Button } from "@/components/ui/button";
+import { CopyIconButton } from "@/components/ui/copy-icon-button";
 import { Panel } from "@/components/ui/panel";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { useClipboard } from "@/hooks/use-clipboard";
 import { useDownload } from "@/hooks/use-download";
 import { useJsonColors } from "@/hooks/use-json-colors";
 import type { PipelineResult } from "./query-selector";
@@ -25,7 +24,6 @@ const views = [
 
 export function QueryResultPanel({ result, className }: { result: PipelineResult | null; className: string }) {
   const [view, setView] = useState<View>("code");
-  const { copy, copied } = useClipboard();
   const download = useDownload();
   const colors = useJsonColors();
   const output = result?.ok ? JSON.stringify(result.value, null, 2) : "";
@@ -46,18 +44,15 @@ export function QueryResultPanel({ result, className }: { result: PipelineResult
       }
       actions={
         <>
-          <Button variant="soft" size="tiny" onClick={() => copy(output)} disabled={!output} aria-label={copied ? "Copied" : "Copy result"}>
-            {copied ? <CheckDoubleIcon className="h-[11px] w-auto text-success" /> : <CopyIcon className="size-[11px]" />}
-          </Button>
-          <Button variant="soft" size="tiny" onClick={() => download(output, "query-result.json")} disabled={!output}>
-            <DownloadIcon className="size-[11px]" /> Export
+          <JsonColorPicker colors={colors.colors} onChange={colors.setColor} onReset={colors.reset} />
+          <CopyIconButton text={output} label="Copy result" />
+          <Button variant="soft" size="tiny" onClick={() => download(output, "query-result.json")} disabled={!output} aria-label="Download result">
+            <DownloadIcon className="size-[11px]" />
           </Button>
         </>
       }
     >
-      {!result ? (
-        <p className="p-4 text-sm leading-5 text-muted/60">Paste or import JSON to see the result.</p>
-      ) : !result.ok && result.stage !== undefined ? (
+      {!result ? null : !result.ok && result.stage !== undefined ? (
         <p className="p-4 text-sm leading-5 text-muted">Fix the highlighted stage above to see results.</p>
       ) : !result.ok ? (
         <p role="alert" className="p-4 font-mono text-sm leading-5 text-danger">

@@ -1,25 +1,12 @@
 import { ArrowRightIcon } from "@/components/icons/arrow-right";
 import { CircleCheckIcon } from "@/components/icons/circle-check";
-import { CodeIcon } from "@/components/icons/code";
 import { ShieldAlertIcon } from "@/components/icons/shield-alert";
 import { WrenchIcon } from "@/components/icons/wrench";
 import { Button } from "@/components/ui/button";
 import type { Validation } from "./validator";
 
 export function ValidatorResultCard({ validation, canRepair, onJump, onRepair }: { validation: Validation; canRepair: boolean; onJump: () => void; onRepair: () => void }) {
-  if (validation.status === "empty") {
-    return (
-      <section aria-label="Validation result" className="flex items-center gap-5 rounded-xl border border-border bg-surface p-6 sm:p-8">
-        <span className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-border/40 text-muted">
-          <CodeIcon className="h-6 w-auto" />
-        </span>
-        <div>
-          <h2 className="text-xl leading-7 font-bold text-heading">Waiting for JSON</h2>
-          <p className="text-sm leading-6 text-muted">Paste JSON or load a file. It&apos;s checked as you type.</p>
-        </div>
-      </section>
-    );
-  }
+  if (validation.status === "empty") return null;
   if (validation.status === "valid") {
     return (
       <section aria-label="Validation result" aria-live="polite" className="flex items-center gap-5 rounded-xl border border-success/30 bg-success/5 p-6 sm:p-8">

@@ -3,12 +3,10 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { ArrowRightIcon } from "@/components/icons/arrow-right";
 import { DownloadIcon } from "@/components/icons/download";
-import { TrashIcon } from "@/components/icons/trash";
+import { JsonInputPanel, toolPanelHeight } from "@/components/tool/json-input-panel";
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
-import { CodeEditor } from "@/components/ui/code-editor";
 import { CopyIconButton } from "@/components/ui/copy-icon-button";
-import { DropZone } from "@/components/ui/drop-zone";
 import { Panel } from "@/components/ui/panel";
 import { PanelTitle } from "@/components/ui/panel-title";
 import type { LintError } from "@/core/json/lint";
@@ -20,15 +18,12 @@ import { MinifierDistributionChart } from "./minifier-distribution-chart";
 import { MinifierReductionCard } from "./minifier-reduction-card";
 import { MinifierStatCard } from "./minifier-stat-card";
 
-// Same panel sizes and split as the home page formatter.
-const panelHeight = "h-[360px] lg:h-[600px]";
-
 const headline = (error: LintError) => {
   const e = explain(error);
   return `${e.lead}${e.token ?? ""}${e.trail}`;
 };
 
-const split = (bytes?: number) => (bytes === undefined ? ["—", ""] : formatBytes(bytes).split(" "));
+const split = (bytes: number) => formatBytes(bytes).split(" ");
 
 export function MinifierWorkspace() {
   const [input, setInput] = useState("");
@@ -49,25 +44,13 @@ export function MinifierWorkspace() {
   }, [done]);
   const gzipBytes = done && gzip?.output === done.output ? gzip.bytes : null;
 
-  const [originalValue, originalUnit] = split(done?.originalBytes);
-  const [minifiedValue, minifiedUnit] = split(done?.minifiedBytes);
+  const [originalValue, originalUnit] = done ? split(done.originalBytes) : [];
+  const [minifiedValue, minifiedUnit] = done ? split(done.minifiedBytes) : [];
 
   return (
     <div className="flex flex-col gap-8">
       <div className="relative grid gap-4 lg:grid-cols-[minmax(0,9fr)_minmax(0,11fr)]">
-        <Panel
-          className={panelHeight}
-          header={<PanelTitle>Source JSON</PanelTitle>}
-          actions={
-            <Button variant="soft" size="tiny" onClick={() => setInput("")} disabled={!input}>
-              <TrashIcon className="h-[11px] w-auto" /> Clear
-            </Button>
-          }
-        >
-          <DropZone onText={setInput} className="h-full">
-            <CodeEditor aria-label="Source JSON" value={input} onChange={setInput} placeholder="Paste your JSON here…" className="text-muted/80 placeholder:text-muted/40" />
-          </DropZone>
-        </Panel>
+        <JsonInputPanel title="Source JSON" label="Source JSON" value={input} onChange={setInput} />
         {done && (
           <span
             aria-hidden
@@ -77,7 +60,7 @@ export function MinifierWorkspace() {
           </span>
         )}
         <Panel
-          className={panelHeight}
+          className={toolPanelHeight}
           header={<PanelTitle>Minified Output</PanelTitle>}
           actions={
             <>
@@ -90,9 +73,7 @@ export function MinifierWorkspace() {
             </>
           }
         >
-          {result.status === "empty" ? (
-            <p className="p-4 font-mono text-sm leading-5 text-muted/60">Minified JSON appears here.</p>
-          ) : result.status === "invalid" ? (
+          {result.status === "empty" ? null : result.status === "invalid" ? (
             <div role="alert" className="flex flex-col items-start gap-3 p-4">
               <p className="text-sm leading-5 text-danger">{headline(result.error)}</p>
               <div className="flex flex-wrap gap-2">
@@ -110,20 +91,24 @@ export function MinifierWorkspace() {
         </Panel>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <MinifierStatCard label="Original Size" value={originalValue} unit={originalUnit} />
-        <MinifierStatCard
-          label="Minified Size"
-          value={minifiedValue}
-          unit={minifiedUnit}
-          note={done && gzipBytes && gzipBytes < done.minifiedBytes ? `≈ ${formatBytes(gzipBytes)} when gzipped` : undefined}
-        />
-        <div className="md:col-span-2">
-          <MinifierReductionCard percent={done?.savedPercent} />
-        </div>
-      </div>
+      {done && (
+        <>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <MinifierStatCard label="Original Size" value={originalValue} unit={originalUnit} />
+            <MinifierStatCard
+              label="Minified Size"
+              value={minifiedValue}
+              unit={minifiedUnit}
+              note={gzipBytes && gzipBytes < done.minifiedBytes ? `≈ ${formatBytes(gzipBytes)} when gzipped` : undefined}
+            />
+            <div className="md:col-span-2">
+              <MinifierReductionCard percent={done.savedPercent} />
+            </div>
+          </div>
 
-      <MinifierDistributionChart bins={done?.bins ?? []} totalBytes={done?.originalBytes ?? 0} />
+          <MinifierDistributionChart bins={done.bins} totalBytes={done.originalBytes} />
+        </>
+      )}
     </div>
   );
 }

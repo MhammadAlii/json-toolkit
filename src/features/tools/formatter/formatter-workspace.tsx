@@ -110,9 +110,7 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
             </>
           }
         >
-          {validity === "empty" ? (
-            <p className="p-4 font-mono text-sm leading-5 text-muted/60">Output appears here.</p>
-          ) : !parsed.ok ? (
+          {validity === "empty" ? null : !parsed.ok ? (
             <p role="alert" className="p-4 font-mono text-sm leading-5 text-danger">
               {describeParseError(parsed.error)}
             </p>
@@ -126,7 +124,7 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
         </Panel>
       </div>
 
-      <FormatterStats size={size} lines={lines} validity={validity} />
+      {validity !== "empty" && <FormatterStats size={size} lines={lines} validity={validity} />}
     </div>
   );
 }

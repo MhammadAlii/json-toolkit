@@ -1,13 +1,11 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { JsonInputPanel } from "@/components/tool/json-input-panel";
+import { JsonInputPanel, toolPanelHeight } from "@/components/tool/json-input-panel";
 import { useStoredState } from "@/hooks/use-stored-state";
 import { QueryPipeline } from "./query-pipeline";
 import { QueryResultPanel } from "./query-result-panel";
 import { defaultPipeline, runPipeline, type Stage, type StageKind } from "./query-selector";
-
-const panelHeight = "h-[360px] lg:h-[520px]";
 
 export function QueryWorkspace() {
   const [source, setSource] = useState("");
@@ -36,16 +34,9 @@ export function QueryWorkspace() {
         onAdd={add}
         onRemove={(id) => setStages(stages.filter((s) => s.id !== id))}
       />
-      <div className="grid gap-4 lg:grid-cols-2">
-        <JsonInputPanel
-          title="Raw JSON Source"
-          label="JSON source"
-          value={source}
-          onChange={setSource}
-          loadLabel="Import"
-          className={panelHeight}
-        />
-        <QueryResultPanel result={empty ? null : result} className={panelHeight} />
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,9fr)_minmax(0,11fr)]">
+        <JsonInputPanel title="Raw JSON Source" label="JSON source" value={source} onChange={setSource} />
+        <QueryResultPanel result={empty ? null : result} className={toolPanelHeight} />
       </div>
     </div>
   );

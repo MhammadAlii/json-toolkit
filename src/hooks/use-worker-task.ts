@@ -11,6 +11,7 @@ type Reply<O> = { id: number; output: O };
 export function useWorkerTask<I, O>(create: () => Worker, fallback: (input: I) => O) {
   const worker = useRef<Worker | null>(null);
   const runId = useRef(0);
+  const busy = useRef(false);
   const [state, setState] = useState<{ pending: boolean; output: O | null }>({ pending: false, output: null });
 
   useEffect(() => () => worker.current?.terminate(), []);
@@ -18,13 +19,17 @@ export function useWorkerTask<I, O>(create: () => Worker, fallback: (input: I) =
   const run = useCallback(
     (input: I) => {
       const id = ++runId.current;
-      const finish = (output: O) => id === runId.current && setState({ pending: false, output });
+      const finish = (output: O) => {
+        if (id !== runId.current) return;
+        busy.current = false;
+        setState({ pending: false, output });
+      };
       if (typeof Worker === "undefined") {
         finish(fallback(input));
         return;
       }
       // A busy worker can't be interrupted, so it's replaced.
-      if (state.pending) {
+      if (busy.current) {
         worker.current?.terminate();
         worker.current = null;
       }
@@ -36,10 +41,11 @@ export function useWorkerTask<I, O>(create: () => Worker, fallback: (input: I) =
       }
       worker.current.onmessage = (e: MessageEvent<Reply<O>>) => finish(e.data.output);
       worker.current.onerror = () => finish(fallback(input));
+      busy.current = true;
       setState((s) => ({ ...s, pending: true }));
       worker.current.postMessage({ id, input });
     },
-    [create, fallback, state.pending],
+    [create, fallback],
   );
 
   return { run, pending: state.pending, output: state.output };
