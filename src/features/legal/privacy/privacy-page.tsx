@@ -6,11 +6,9 @@ import { DatabaseIcon } from "@/components/icons/database";
 import { EnvelopeIcon } from "@/components/icons/envelope";
 import { MicrochipIcon } from "@/components/icons/microchip";
 import { NetworkIcon } from "@/components/icons/network";
-import { ShieldCheckIcon } from "@/components/icons/shield-check";
 import { UserSlashIcon } from "@/components/icons/user-slash";
 import { legal } from "@/config/legal";
 import { site } from "@/config/site";
-import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Lead } from "@/components/ui/lead";
@@ -111,9 +109,6 @@ export function PrivacyPage() {
   return (
     <div className="container-page flex flex-col gap-16 py-8 sm:pb-16">
       <section className="flex flex-col items-start gap-4">
-        <Badge tone="success" icon={<ShieldCheckIcon className="size-2.5" />}>
-          Private by design
-        </Badge>
         <PageTitle>Privacy First.</PageTitle>
         <Lead className="max-w-3xl pt-2">
           Your JSON data is sensitive. That&apos;s why <span className="text-foreground">JSON TOOLKIT</span> processes everything
