@@ -43,7 +43,7 @@ export function ValidatorWorkspace() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,9fr)_minmax(0,11fr)]">
       <Panel
         className={toolPanelHeight}
         bodyClassName="flex flex-col overflow-hidden"
@@ -89,15 +89,15 @@ export function ValidatorWorkspace() {
         )}
       </Panel>
 
-      {validation.status !== "empty" && (
-        <div className={`grid items-start gap-8 ${valid ? "lg:grid-cols-[minmax(0,1fr)_384px]" : ""}`}>
-          <div className="flex min-w-0 flex-col gap-6">
+      <Panel className={toolPanelHeight} header={<PanelTitle>Validation Result</PanelTitle>}>
+        {validation.status !== "empty" && (
+          <div className="flex flex-col gap-4 p-4">
             <ValidatorResultCard validation={validation} canRepair={!!repaired?.ok} onJump={jump} onRepair={() => repaired?.ok && setInput(repaired.output)} />
             {validation.status === "invalid" && <ValidatorExplanationCard text={text} error={validation.error} explanation={validation.explanation} />}
+            {valid && <ValidatorStructureCard size={size} stats={valid.stats} />}
           </div>
-          {valid && <ValidatorStructureCard size={size} stats={valid.stats} />}
-        </div>
-      )}
+        )}
+      </Panel>
     </div>
   );
 }
