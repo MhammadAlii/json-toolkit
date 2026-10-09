@@ -17,8 +17,8 @@ export const validatorTool: ToolMeta = {
     "Check whether your JSON is valid according to the JSON specification (RFC 8259). If it isn't, you'll see the line and column where parsing failed.",
   steps: [
     "Paste the JSON you want to check, or upload a file.",
-    "The validator checks it instantly as you type.",
-    "Fix any reported error at the given line and column, then re-check.",
+    "The validator checks it instantly as you type and highlights the line with the first error.",
+    "Read what happened and what to try, then press Jump to Error or Auto-Repair to fix it.",
   ],
   faqs: [
     {
