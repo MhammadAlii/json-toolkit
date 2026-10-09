@@ -18,7 +18,7 @@ export const repairTool: ToolMeta = {
   steps: [
     "Paste the broken JSON or upload a file.",
     "Review the audit log: each fix shows its line, what changed, and where it is in the highlighted result.",
-    "Copy or download the repaired JSON, or press Apply Repair to replace your input. Turn off any repair rule you don't want applied.",
+    "Copy or download the repaired JSON, or press Repair to replace your input. Untick any repair rule you don't want applied.",
   ],
   faqs: [
     {

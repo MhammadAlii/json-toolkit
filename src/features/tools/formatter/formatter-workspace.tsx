@@ -2,9 +2,7 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import { ArrowDownAZIcon } from "@/components/icons/arrow-down-a-z";
-import { CheckDoubleIcon } from "@/components/icons/check-double";
 import { CompressIcon } from "@/components/icons/compress";
-import { CopyIcon } from "@/components/icons/copy";
 import { DownloadIcon } from "@/components/icons/download";
 import { TrashIcon } from "@/components/icons/trash";
 import { WandIcon } from "@/components/icons/wand";
@@ -14,13 +12,13 @@ import { JsonTableExplorer } from "@/components/json/json-table-explorer";
 import { JsonTreeExplorer } from "@/components/json/json-tree-explorer";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/ui/code-editor";
+import { CopyIconButton } from "@/components/ui/copy-icon-button";
 import { Panel } from "@/components/ui/panel";
 import { PanelTitle } from "@/components/ui/panel-title";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { describeParseError, parseJson } from "@/core/json/parse";
 import { sortDeep } from "@/core/json/sort";
 import { formatBytes } from "@/core/text/format-bytes";
-import { useClipboard } from "@/hooks/use-clipboard";
 import { useDownload } from "@/hooks/use-download";
 import { useJsonColors } from "@/hooks/use-json-colors";
 import { FormatterStats, type FormatterValidity } from "./formatter-stats";
@@ -43,7 +41,6 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
   const view = lockedView ?? chosenView;
   const [mode, setMode] = useState<Mode>("format");
   const [sortKeys, setSortKeys] = useState(false);
-  const { copy, copied, failed } = useClipboard();
   const download = useDownload();
   const outputColors = useJsonColors();
 
@@ -100,30 +97,7 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
               </Button>
               <span aria-hidden className="mx-1 h-4 w-px bg-border" />
               <JsonColorPicker colors={outputColors.colors} onChange={outputColors.setColor} onReset={outputColors.reset} />
-              <span className="relative">
-                <Button
-                  variant="soft"
-                  size="tiny"
-                  onClick={() => copy(output)}
-                  disabled={!output}
-                  aria-label={copied ? "Copied" : failed ? "Copy failed" : "Copy output"}
-                >
-                  {copied ? <CheckDoubleIcon className="h-[11px] w-auto text-success" /> : <CopyIcon className="size-[11px]" />}
-                </Button>
-                {(copied || failed) && (
-                  <span
-                    aria-hidden
-                    className={`pointer-events-none absolute top-full left-1/2 z-10 mt-1.5 -translate-x-1/2 rounded-md border border-border bg-surface-2 px-2 py-1 text-[11px] leading-4 font-semibold whitespace-nowrap shadow-lg ${
-                      copied ? "text-success" : "text-danger"
-                    }`}
-                  >
-                    {copied ? "Copied!" : "Copy failed"}
-                  </span>
-                )}
-              </span>
-              <span role="status" className="sr-only">
-                {copied ? "Output copied to clipboard" : failed ? "Couldn't copy. Select the output and copy it manually." : ""}
-              </span>
+              <CopyIconButton text={output} />
               <Button
                 variant="soft"
                 size="tiny"

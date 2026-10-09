@@ -2,19 +2,17 @@
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { ArrowRightIcon } from "@/components/icons/arrow-right";
-import { CheckDoubleIcon } from "@/components/icons/check-double";
-import { CopyIcon } from "@/components/icons/copy";
 import { DownloadIcon } from "@/components/icons/download";
-import { JsonInputPanel } from "@/components/tool/json-input-panel";
+import { TrashIcon } from "@/components/icons/trash";
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
-import { Card } from "@/components/ui/card";
+import { CodeEditor } from "@/components/ui/code-editor";
+import { CopyIconButton } from "@/components/ui/copy-icon-button";
+import { DropZone } from "@/components/ui/drop-zone";
 import { Panel } from "@/components/ui/panel";
 import { PanelTitle } from "@/components/ui/panel-title";
-import { StatusPill } from "@/components/ui/status-pill";
 import type { LintError } from "@/core/json/lint";
 import { formatBytes } from "@/core/text/format-bytes";
-import { useClipboard } from "@/hooks/use-clipboard";
 import { explain } from "@/features/tools/validator/validator";
 import { useDownload } from "@/hooks/use-download";
 import { gzipSize, minify } from "./minifier";
@@ -22,7 +20,8 @@ import { MinifierDistributionChart } from "./minifier-distribution-chart";
 import { MinifierReductionCard } from "./minifier-reduction-card";
 import { MinifierStatCard } from "./minifier-stat-card";
 
-const panelHeight = "h-[380px] lg:h-[500px]";
+// Same panel sizes and split as the home page formatter.
+const panelHeight = "h-[360px] lg:h-[600px]";
 
 const headline = (error: LintError) => {
   const e = explain(error);
@@ -34,7 +33,6 @@ const split = (bytes?: number) => (bytes === undefined ? ["—", ""] : formatByt
 export function MinifierWorkspace() {
   const [input, setInput] = useState("");
   const [gzip, setGzip] = useState<{ output: string; bytes: number | null }>();
-  const { copy, copied } = useClipboard();
   const download = useDownload();
 
   const text = useDeferredValue(input);
@@ -56,25 +54,24 @@ export function MinifierWorkspace() {
 
   return (
     <div className="flex flex-col gap-8">
-      <Card tone="surface" className="flex flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-4">
-        {result.status === "empty" ? (
-          <StatusPill tone="muted">Waiting for input</StatusPill>
-        ) : result.status === "invalid" ? (
-          <StatusPill tone="danger">Invalid JSON · line {result.error.line}</StatusPill>
-        ) : (
-          <StatusPill tone="success">Minified · {result.savedPercent.toFixed(1)}% smaller</StatusPill>
-        )}
-        <Button size="sm" className="min-w-[160px] py-2.5" onClick={() => done && download(done.output, "minified.json")} disabled={!done}>
-          <DownloadIcon className="h-3.5 w-auto" /> Download .json
-        </Button>
-      </Card>
-
-      <div className="relative grid gap-6 lg:grid-cols-2">
-        <JsonInputPanel title="Source JSON" label="Source JSON" value={input} onChange={setInput} className={panelHeight} />
+      <div className="relative grid gap-4 lg:grid-cols-[minmax(0,9fr)_minmax(0,11fr)]">
+        <Panel
+          className={panelHeight}
+          header={<PanelTitle>Source JSON</PanelTitle>}
+          actions={
+            <Button variant="soft" size="tiny" onClick={() => setInput("")} disabled={!input}>
+              <TrashIcon className="h-[11px] w-auto" /> Clear
+            </Button>
+          }
+        >
+          <DropZone onText={setInput} className="h-full">
+            <CodeEditor aria-label="Source JSON" value={input} onChange={setInput} placeholder="Paste your JSON here…" className="text-muted/80 placeholder:text-muted/40" />
+          </DropZone>
+        </Panel>
         {done && (
           <span
             aria-hidden
-            className="absolute top-1/2 left-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full border border-success/40 bg-surface px-3 py-1.5 text-xs font-bold text-success shadow-lg lg:flex"
+            className="absolute top-1/2 left-[45%] z-10 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full border border-success/40 bg-surface px-3 py-1.5 text-xs font-bold text-success shadow-lg lg:flex"
           >
             −{done.savedPercent.toFixed(1)}% <ArrowRightIcon className="h-3 w-auto" />
           </span>
@@ -84,10 +81,9 @@ export function MinifierWorkspace() {
           header={<PanelTitle>Minified Output</PanelTitle>}
           actions={
             <>
-              <Button variant="soft" size="tiny" onClick={() => done && copy(done.output)} disabled={!done}>
-                {copied ? <CheckDoubleIcon className="h-[11px] w-auto text-success" /> : <CopyIcon className="size-[11px]" />}
-                {copied ? "Copied!" : "Copy"}
-              </Button>
+              {done && <span className="text-[11px] font-semibold text-success">−{done.savedPercent.toFixed(1)}%</span>}
+              <span aria-hidden className="mx-1 h-4 w-px bg-border" />
+              <CopyIconButton text={done?.output ?? ""} label="Copy minified JSON" />
               <Button variant="soft" size="tiny" onClick={() => done && download(done.output, "minified.json")} disabled={!done} aria-label="Download minified JSON">
                 <DownloadIcon className="size-[11px]" />
               </Button>

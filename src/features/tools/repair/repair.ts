@@ -7,11 +7,11 @@ import type { TransformResult } from "@/core/json/parse";
 export type RepairRule = "quotes" | "commas" | "brackets" | "comments" | "literals";
 
 export const repairRules: { id: RepairRule; label: string; hint: string }[] = [
-  { id: "quotes", label: "Quotes Fix", hint: "Single quotes, backticks, unquoted keys and values" },
-  { id: "commas", label: "Missing Comma", hint: "Adds missing commas and colons, removes trailing ones" },
-  { id: "brackets", label: "Object Close", hint: "Closes unclosed brackets and strings, removes stray ones" },
+  { id: "quotes", label: "Quotes", hint: "Single quotes, backticks, unquoted keys and values" },
+  { id: "commas", label: "Commas", hint: "Adds missing commas and colons, removes trailing ones" },
+  { id: "brackets", label: "Brackets", hint: "Closes unclosed brackets and strings, removes stray ones" },
   { id: "comments", label: "Comments", hint: "Removes // and /* */ comments" },
-  { id: "literals", label: "Literals & Numbers", hint: "True, None, undefined, NaN, hex and other invalid numbers" },
+  { id: "literals", label: "Literals", hint: "True, None, undefined, NaN, hex and other invalid numbers" },
 ];
 
 export type RepairOptions = Record<RepairRule, boolean>;
