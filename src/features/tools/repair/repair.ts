@@ -375,7 +375,9 @@ function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): 
   for (skipStray(); peek(); skipStray()) roots.push(value());
   if (roots.length === 1) return roots[0];
   const change = record({ rule: "brackets", title: "Wrapped Multiple Values in an Array", line: 1, note: `Found ${roots.length} top-level values.` });
-  return { k: "arr", items: roots.map((v) => ({ value: v, comma: {} })), close: {}, endLine: lastLine, ...marked(change) };
+  // The added brackets and the commas between the values all belong to this one fix.
+  const mark = marked(change);
+  return { k: "arr", items: roots.map((v) => ({ value: v, comma: mark })), close: mark, endLine: lastLine, ...mark };
 }
 
 function serialize(root: Node): { output: string; segments: OutputSegment[] } {
