@@ -15,7 +15,11 @@ export const jsonToXmlTool: ToolMeta = {
   tint: "blue",
   intro:
     "Convert JSON into clean, indented XML for legacy APIs, SOAP services and config files. Keys that aren't valid XML names are made safe automatically.",
-  steps: ["Paste your JSON.", "Set the root element name.", "Copy or download the XML."],
+  steps: [
+    "Paste your JSON or drop a file into the input.",
+    "The XML appears as you type; keys that aren't valid XML names are renamed and listed under View changes.",
+    "Use Options for the root element, attributes, arrays, nulls and declaration, then copy or download the .xml file.",
+  ],
   faqs: [
     {
       q: "How are arrays converted?",
