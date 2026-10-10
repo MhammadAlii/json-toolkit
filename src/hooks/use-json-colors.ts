@@ -14,6 +14,8 @@ export function useJsonColors() {
     colors,
     style,
     setColor: (key: JsonColorKey, value: string) => setColors({ ...colors, [key]: value }),
+    /** Replaces every colour at once, e.g. with a theme; an empty object means the defaults. */
+    setAll: (next: JsonColors) => setColors(Object.keys(next).length ? next : null),
     reset: () => setColors(null),
   };
 }

@@ -44,7 +44,7 @@ export function QueryResultPanel({ result, className }: { result: PipelineResult
       }
       actions={
         <>
-          <JsonColorPicker colors={colors.colors} onChange={colors.setColor} onReset={colors.reset} />
+          <JsonColorPicker colors={colors.colors} onChange={colors.setColor} onApply={colors.setAll} onReset={colors.reset} />
           <CopyIconButton text={output} label="Copy result" />
           <Button variant="soft" size="tiny" onClick={() => download(output, "query-result.json")} disabled={!output} aria-label="Download result">
             <DownloadIcon className="size-[11px]" />

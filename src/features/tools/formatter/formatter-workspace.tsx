@@ -96,7 +96,7 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
                 <ArrowDownAZIcon className="h-[11px] w-auto" /> Sort
               </Button>
               <span aria-hidden className="mx-1 h-4 w-px bg-border" />
-              <JsonColorPicker colors={outputColors.colors} onChange={outputColors.setColor} onReset={outputColors.reset} />
+              <JsonColorPicker colors={outputColors.colors} onChange={outputColors.setColor} onApply={outputColors.setAll} onReset={outputColors.reset} />
               <CopyIconButton text={output} />
               <Button
                 variant="soft"

@@ -60,7 +60,7 @@ export function RepairWorkspace() {
                 <span aria-hidden className="mx-1 h-4 w-px bg-border" />
                 <RepairFixMenu options={options} onChange={setOptions} />
                 <span aria-hidden className="mx-1 h-4 w-px bg-border" />
-                <JsonColorPicker colors={colors.colors} onChange={colors.setColor} onReset={colors.reset} />
+                <JsonColorPicker colors={colors.colors} onChange={colors.setColor} onApply={colors.setAll} onReset={colors.reset} />
                 <CopyIconButton text={output} label="Copy repaired JSON" />
                 <Button variant="soft" size="tiny" onClick={() => download(output, "repaired.json")} disabled={!output} aria-label="Download repaired JSON">
                   <DownloadIcon className="size-[11px]" />

@@ -4,16 +4,13 @@ import { PaletteIcon } from "@/components/icons/palette";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import type { JsonColorKey, JsonColors } from "@/hooks/use-json-colors";
+import { defaultJsonColors as defaults, jsonColorThemes, type JsonColorTheme } from "./json-color-themes";
 
-// Keep in sync with the --json-* defaults in app/globals.css.
-const defaults: Record<JsonColorKey, string> = {
-  key: "#7c5cff",
-  string: "#34d399",
-  number: "#fbbf24",
-  boolean: "#fbbf24",
-  null: "#94a3b8",
-  punct: "#5a6577",
-};
+const keys: JsonColorKey[] = ["key", "string", "number", "boolean", "null", "punct"];
+
+// The Toolkit theme is the defaults, so no customisation counts as choosing it.
+const isActive = (theme: JsonColorTheme, colors: JsonColors) =>
+  keys.every((k) => (colors[k] ?? defaults[k]).toLowerCase() === theme.colors[k].toLowerCase());
 
 const rows: { key: JsonColorKey; label: string; sample: string }[] = [
   { key: "key", label: "Keys", sample: '"name"' },
@@ -27,10 +24,12 @@ const rows: { key: JsonColorKey; label: string; sample: string }[] = [
 export function JsonColorPicker({
   colors,
   onChange,
+  onApply,
   onReset,
 }: {
   colors: JsonColors;
   onChange: (key: JsonColorKey, value: string) => void;
+  onApply: (colors: JsonColors) => void;
   onReset: () => void;
 }) {
   const customized = Object.keys(colors).length > 0;
@@ -44,7 +43,32 @@ export function JsonColorPicker({
       )}
     >
       <div className="flex flex-col gap-3">
-        <p className="text-xs leading-4 font-bold tracking-[0.6px] text-muted uppercase">Output colors</p>
+        <p className="text-xs leading-4 font-bold tracking-[0.6px] text-muted uppercase">Themes</p>
+        <ul className="grid grid-cols-2 gap-1.5">
+          {jsonColorThemes.map((t) => {
+            const active = isActive(t, colors);
+            return (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  onClick={() => onApply(t.id === "toolkit" ? {} : t.colors)}
+                  aria-pressed={active}
+                  className={`flex w-full flex-col gap-1.5 rounded-md border px-2 py-1.5 text-left transition-colors ${
+                    active ? "border-brand/60 bg-brand/10" : "border-border bg-background hover:border-brand/40"
+                  }`}
+                >
+                  <span className="truncate text-[11px] leading-4 font-semibold text-heading">{t.name}</span>
+                  <span aria-hidden className="flex gap-1">
+                    {(["key", "string", "number", "boolean", "null"] as const).map((k) => (
+                      <span key={k} className="size-2.5 rounded-full" style={{ background: t.colors[k] }} />
+                    ))}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="border-t border-border pt-3 text-xs leading-4 font-bold tracking-[0.6px] text-muted uppercase">Customize</p>
         <ul className="flex flex-col gap-2">
           {rows.map((r) => {
             const value = colors[r.key] ?? defaults[r.key];
