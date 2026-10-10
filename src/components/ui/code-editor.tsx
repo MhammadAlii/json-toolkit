@@ -8,6 +8,8 @@ type CodeEditorProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "
   onChange: (value: string) => void;
   /** 1-based line to mark, e.g. where a parse error is. */
   highlightLine?: number;
+  /** `danger` for errors, `brand` for a selected search match. */
+  highlightTone?: "danger" | "brand";
   ref?: React.Ref<HTMLTextAreaElement>;
 };
 
@@ -15,7 +17,7 @@ type CodeEditorProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "
 const padTop = 16;
 const lineHeight = 20;
 
-export function CodeEditor({ value, onChange, highlightLine, className = "", ...props }: CodeEditorProps) {
+export function CodeEditor({ value, onChange, highlightLine, highlightTone = "danger", className = "", ...props }: CodeEditorProps) {
   const gutter = useRef<HTMLDivElement>(null);
   const band = useRef<HTMLDivElement>(null);
   const top = (scrollTop: number) => `translateY(${padTop + ((highlightLine ?? 1) - 1) * lineHeight - scrollTop}px)`;
@@ -32,10 +34,10 @@ export function CodeEditor({ value, onChange, highlightLine, className = "", ...
           ref={band}
           aria-hidden
           style={{ height: lineHeight }}
-          className="pointer-events-none absolute inset-x-0 top-0 border-l-2 border-danger bg-danger/10"
+          className={`pointer-events-none absolute inset-x-0 top-0 border-l-2 ${highlightTone === "brand" ? "border-brand bg-brand/10" : "border-danger bg-danger/10"}`}
         />
       )}
-      <LineGutter ref={gutter} count={value.split("\n").length} highlight={highlightLine} />
+      <LineGutter ref={gutter} count={value.split("\n").length} highlight={highlightLine} highlightTone={highlightTone} />
       <textarea
         {...props}
         value={value}
