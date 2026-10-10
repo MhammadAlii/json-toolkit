@@ -15,7 +15,11 @@ export const jsonToYamlTool: ToolMeta = {
   tint: "blue",
   intro:
     "Convert JSON into clean, human-readable YAML. Strings that YAML could misinterpret, such as yes, no, on or values with special characters, are safely quoted.",
-  steps: ["Paste your JSON or upload a file.", "The YAML appears instantly.", "Copy it or download it as a .yaml file."],
+  steps: [
+    "Paste your JSON or drop a file into the input.",
+    "The YAML appears as you type; use Options for indentation, inline (flow) style, sorted keys or quoted strings.",
+    "Copy it or download it as a .yaml file.",
+  ],
   faqs: [
     {
       q: "Is all JSON valid YAML?",
