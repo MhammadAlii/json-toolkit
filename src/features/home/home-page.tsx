@@ -10,19 +10,18 @@ import { FormatterWorkspace } from "@/features/tools/formatter/formatter-workspa
 export function HomePage() {
   return (
     <div className="container-page flex flex-col gap-8 py-12">
-      {/* The hero ad sits in its own column, the same size and spot as on tool pages, so it never covers the text. */}
-      <section className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="flex flex-col items-center gap-4 pt-0.5 text-center">
-          <Badge>Free developer toolkit</Badge>
-          <PageTitle>JSON tools for developers.</PageTitle>
-          <Lead size="sm" className="max-w-2xl pb-2">
-            Format, validate, repair, explore and convert JSON — directly in your browser.
-          </Lead>
-          <Badge tone="success" size="note" icon={<ShieldHalfIcon className="size-3" />}>
-            Runs in your browser — your data never leaves your device.
-          </Badge>
-        </div>
-        <AdSlot placement="hero" className="hidden xl:block" />
+      {/* The hero text is centred on the whole page; the ad is pinned top-right outside the flow so it can't shift the
+          title, and the intro is kept narrow enough on wide screens to stay clear of it. */}
+      <section className="relative flex flex-col items-center gap-4 pt-0.5 text-center">
+        <Badge>Free developer toolkit</Badge>
+        <PageTitle>JSON tools for developers.</PageTitle>
+        <Lead size="sm" className="max-w-2xl pb-2 text-balance xl:max-w-[560px]">
+          Format, validate, repair, explore and convert JSON — directly in your browser.
+        </Lead>
+        <Badge tone="success" size="note" icon={<ShieldHalfIcon className="size-3" />}>
+          Runs in your browser — your data never leaves your device.
+        </Badge>
+        <AdSlot placement="hero" className="absolute top-0 right-0 hidden w-[300px] xl:block" />
       </section>
 
       <section aria-label="JSON formatter" className="pt-6">
