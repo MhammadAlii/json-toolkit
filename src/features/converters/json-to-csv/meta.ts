@@ -16,9 +16,9 @@ export const jsonToCsvTool: ToolMeta = {
   intro:
     "Turn an array of JSON objects into a CSV table you can open in Excel, Google Sheets or Numbers. Nested objects become dot-notation columns such as address.city.",
   steps: [
-    "Paste a JSON array of objects (a single object also works).",
-    "Choose a delimiter: comma, semicolon (common in European Excel) or tab.",
-    "Download the .csv file or copy it into a spreadsheet.",
+    "Paste a JSON array of objects, or an object holding one, and pick the array if asked.",
+    "The CSV appears as you type; switch to Preview to check it as a table, and use Options for the delimiter, quoting, arrays and nulls.",
+    "Copy the CSV or download it, with a BOM for Excel if you need one.",
   ],
   faqs: [
     {

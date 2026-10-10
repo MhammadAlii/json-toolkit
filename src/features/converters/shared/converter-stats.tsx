@@ -6,7 +6,7 @@ const tones = { success: "text-success", danger: "text-danger", brand: "text-tin
 
 export function ConverterStats({ stats }: { stats: ConverterStat[] }) {
   return (
-    <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+    <dl className={`grid grid-cols-2 gap-4 sm:grid-cols-3 ${stats.length > 5 ? "lg:grid-cols-6" : "lg:grid-cols-5"}`}>
       {stats.map((s) => (
         <Card key={s.label} tone="surface" className="flex flex-col-reverse gap-1 p-4">
           <dt className="text-[10px] leading-[15px] font-bold tracking-[0.6px] text-muted uppercase">{s.label}</dt>
