@@ -16,9 +16,9 @@ export const jsonToTypeScriptTool: ToolMeta = {
   intro:
     "Paste a sample API response and get ready-to-use TypeScript interfaces. Nested objects become their own interfaces, and keys missing from some array items are marked optional.",
   steps: [
-    "Paste a representative JSON sample.",
-    "Set the root interface name.",
-    "Copy the generated interfaces into your project.",
+    "Paste a representative JSON sample, ideally one that includes every field and variant.",
+    "The types appear as you type; keys missing from some array items become optional and mixed values become unions.",
+    "Use Options for the root type name, interface or type, array style, null handling and more, then copy or download the .ts file.",
   ],
   faqs: [
     {
