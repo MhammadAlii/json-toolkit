@@ -28,9 +28,14 @@ export const defaultCsvOptions: CsvOptions = {
 
 export type CsvResult = { csv: string; rows: number; columns: number; headers: string[]; cells: string[][] };
 
+export type TableOptions = Pick<CsvOptions, "flatten" | "arrays" | "sortColumns">;
+
+/** Rows as columns of raw values, before they're written out; missing cells are `undefined`. */
+export type Table = { headers: string[]; values: unknown[][] };
+
 const isScalar = (v: unknown) => v === null || typeof v !== "object";
 
-function flattenRow(value: unknown, o: CsvOptions, prefix: string, out: Record<string, unknown>): Record<string, unknown> {
+function flattenRow(value: unknown, o: TableOptions, prefix: string, out: Record<string, unknown>): Record<string, unknown> {
   if (isPlainObject(value) && (o.flatten || !prefix)) {
     const entries = Object.entries(value);
     if (entries.length === 0 && prefix) out[prefix] = "";
@@ -57,14 +62,21 @@ function quote(cell: string, o: CsvOptions): string {
   return needs ? `"${cell.replace(/"/g, '""')}"` : cell;
 }
 
-/** Writes rows as RFC 4180 CSV. Each object becomes a row; any other value becomes a row with a `value` column. */
-export function toCsv(items: unknown[], options: Partial<CsvOptions> = {}): CsvResult {
+/** Flattens rows into a table the same way CSV does. Each object becomes a row; any other value becomes a row with a `value` column. */
+export function tabulate(items: unknown[], options: Partial<TableOptions> = {}): Table {
   const o = { ...defaultCsvOptions, ...options };
   const rows = items.map((item) => flattenRow(isPlainObject(item) ? item : { value: item }, o, "", {}));
   let headers = [...new Set(rows.flatMap((row) => Object.keys(row)))];
   if (o.sortColumns) headers = [...headers].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-  const cells = rows.map((row) => headers.map((h) => text(row[h], o)));
+  return { headers, values: rows.map((row) => headers.map((h) => row[h])) };
+}
+
+/** Writes rows as RFC 4180 CSV. */
+export function toCsv(items: unknown[], options: Partial<CsvOptions> = {}): CsvResult {
+  const o = { ...defaultCsvOptions, ...options };
+  const { headers, values } = tabulate(items, o);
+  const cells = values.map((r) => r.map((v) => text(v, o)));
   const lines = cells.map((r) => r.map((c) => quote(c, o)).join(o.delimiter));
   if (o.headers) lines.unshift(headers.map((h) => quote(h, o)).join(o.delimiter));
-  return { csv: lines.join("\r\n"), rows: rows.length, columns: headers.length, headers, cells };
+  return { csv: lines.join("\r\n"), rows: values.length, columns: headers.length, headers, cells };
 }

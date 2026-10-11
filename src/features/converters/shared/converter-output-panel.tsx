@@ -19,6 +19,7 @@ export function ConverterOutputPanel({
   mime,
   options,
   header,
+  onDownload,
   children,
 }: {
   title: string;
@@ -30,6 +31,8 @@ export function ConverterOutputPanel({
   options?: React.ReactNode;
   /** Replaces the plain title, e.g. with view tabs. */
   header?: React.ReactNode;
+  /** Replaces downloading `output` as text, for binary files such as .xlsx. */
+  onDownload?: () => void;
   children?: React.ReactNode;
 }) {
   const download = useDownload();
@@ -42,7 +45,7 @@ export function ConverterOutputPanel({
           {options}
           {options && <span aria-hidden className="mx-1 h-4 w-px bg-border" />}
           <CopyIconButton text={output} label={`Copy ${title.toLowerCase()}`} />
-          <Button variant="soft" size="tiny" onClick={() => download(output, filename, mime)} disabled={!output} aria-label={`Download ${filename}`}>
+          <Button variant="soft" size="tiny" onClick={onDownload ?? (() => download(output, filename, mime))} disabled={!output} aria-label={`Download ${filename}`}>
             <DownloadIcon className="size-[11px]" />
           </Button>
         </>

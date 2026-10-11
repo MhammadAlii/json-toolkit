@@ -41,7 +41,7 @@ export function JsonToSqlWorkspace() {
           <div className="flex flex-wrap gap-2">
             {suggestions.map((s) => (
               <Button key={s.key} variant="secondary" size="xs" onClick={() => setRootKey(s.key)}>
-                Use “{s.key}” ({s.rows.toLocaleString()} rows)
+                Use “{s.key}” ({s.rows.toLocaleString()} {s.rows === 1 ? "row" : "rows"})
               </Button>
             ))}
           </div>

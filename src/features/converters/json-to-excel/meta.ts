@@ -15,15 +15,23 @@ export const jsonToExcelTool: ToolMeta = {
   tint: "blue",
   intro:
     "Turn an array of JSON objects into a real Excel workbook. Nested objects become dot-notation columns, and the file opens directly in Excel, Google Sheets or Numbers.",
-  steps: ["Paste a JSON array of objects.", "Preview the columns.", "Download the .xlsx file."],
+  steps: [
+    "Paste a JSON array of objects or drop a file into the input.",
+    "Preview the sheet as you type; an object holding several arrays can become one sheet per array.",
+    "Use Options for the sheet name, header row, filters, dates and nested data, then download the .xlsx file.",
+  ],
   faqs: [
     {
       q: "How is this different from JSON to CSV?",
-      a: "Excel files keep types such as numbers and booleans and avoid delimiter or encoding issues that CSV files can have when opened in Excel.",
+      a: "Excel files keep types such as numbers, booleans and dates and avoid delimiter or encoding issues that CSV files can have when opened in Excel.",
+    },
+    {
+      q: "Can a cell run a formula?",
+      a: "No. Text is written as plain text, so a value like =SUM(A1) shows as typed instead of being calculated.",
     },
     {
       q: "Are nested objects supported?",
-      a: "Yes. Nested objects are flattened into columns like address.city; arrays are written as JSON text.",
+      a: "Yes. Nested objects are flattened into columns like address.city. Arrays are written as JSON text by default, or joined or split into columns from Options.",
     },
   ],
   related: ["json-to-csv", "json-to-sql", "json-formatter"],

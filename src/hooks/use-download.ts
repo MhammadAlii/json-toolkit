@@ -3,8 +3,8 @@
 import { useCallback } from "react";
 
 export function useDownload() {
-  return useCallback((text: string, filename: string, mime = "application/json") => {
-    const url = URL.createObjectURL(new Blob([text], { type: mime }));
+  return useCallback((data: BlobPart, filename: string, mime = "application/json") => {
+    const url = URL.createObjectURL(new Blob([data], { type: mime }));
     const a = document.createElement("a");
     a.href = url;
     a.download = filename;

@@ -1,7 +1,19 @@
 // Rendering huge tables is slow; the preview shows the first rows and says how many are left out.
 const maxRows = 200;
 
-export function CsvPreviewTable({ headers, cells }: { headers: string[]; cells: string[][] }) {
+export function ConverterPreviewTable({
+  headers,
+  cells,
+  total = cells.length,
+  complete,
+}: {
+  headers: string[];
+  cells: string[][];
+  /** The full row count, when `cells` holds only the rows to preview. */
+  total?: number;
+  /** Where the rows left out of the preview can be found, e.g. "The CSV tab and download include". */
+  complete: string;
+}) {
   const th = "sticky top-0 border-b border-border bg-code-bg px-4 py-3 text-left text-xs font-bold tracking-[0.6px] whitespace-nowrap text-muted uppercase";
   return (
     <div>
@@ -31,9 +43,9 @@ export function CsvPreviewTable({ headers, cells }: { headers: string[]; cells: 
           ))}
         </tbody>
       </table>
-      {cells.length > maxRows && (
+      {total > maxRows && (
         <p className="px-4 py-3 text-xs text-muted">
-          Showing the first {maxRows} of {cells.length.toLocaleString()} rows. The CSV tab and download include all of them.
+          Showing the first {maxRows} of {total.toLocaleString()} rows. {complete} all of them.
         </p>
       )}
     </div>

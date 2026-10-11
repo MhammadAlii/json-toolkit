@@ -9,10 +9,10 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useStoredState } from "@/hooks/use-stored-state";
 import { ConverterCodeView } from "@/features/converters/shared/converter-code-view";
 import { ConverterOutputPanel } from "@/features/converters/shared/converter-output-panel";
+import { ConverterPreviewTable } from "@/features/converters/shared/converter-preview-table";
 import { ConverterStats } from "@/features/converters/shared/converter-stats";
 import { byteSize, parseInput } from "@/features/converters/shared/converter";
 import { CsvOptionsMenu } from "./csv-options-menu";
-import { CsvPreviewTable } from "./csv-preview-table";
 import { convertToCsv, defaultCsvConverterOptions, withBom, type CsvConverterOptions } from "./json-to-csv";
 
 type View = "csv" | "preview";
@@ -46,7 +46,7 @@ export function JsonToCsvWorkspace() {
           <div className="flex flex-wrap gap-2">
             {result.suggestions.map((s) => (
               <Button key={s.key} variant="secondary" size="xs" onClick={() => setRootKey(s.key)}>
-                Use “{s.key}” ({s.rows.toLocaleString()} rows)
+                Use “{s.key}” ({s.rows.toLocaleString()} {s.rows === 1 ? "row" : "rows"})
               </Button>
             ))}
           </div>
@@ -90,7 +90,7 @@ export function JsonToCsvWorkspace() {
             (view === "csv" ? (
               <ConverterCodeView text={csv.replace(/\r\n/g, "\n")} firstLineClassName={options.headers ? "font-semibold text-json-key" : ""} />
             ) : (
-              result && <CsvPreviewTable headers={result.headers} cells={result.cells} />
+              result && <ConverterPreviewTable headers={result.headers} cells={result.cells} complete="The CSV tab and download include" />
             ))}
         </ConverterOutputPanel>
       </div>
