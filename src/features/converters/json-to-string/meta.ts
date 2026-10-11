@@ -15,7 +15,11 @@ export const jsonToStringTool: ToolMeta = {
   tint: "blue",
   intro:
     "Paste JSON and get it back as a single escaped string, the same result as JSON.stringify applied twice. Useful for embedding JSON inside other JSON, environment variables or source code.",
-  steps: ["Paste your JSON.", "Choose whether to minify it first.", "Copy the escaped string."],
+  steps: [
+    "Paste your JSON or drop a file into the input.",
+    "The escaped string appears as you type, with every escape sequence highlighted.",
+    "Use Options for the JSON layout, the quote style and Unicode escapes, then copy or download the result.",
+  ],
   faqs: [
     {
       q: "What does JSON to String do?",
