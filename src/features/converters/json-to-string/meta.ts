@@ -2,23 +2,31 @@ import type { ToolMeta } from "@/core/tool/types";
 
 export const jsonToStringTool: ToolMeta = {
   slug: "json-to-string",
-  name: "JSON to String",
-  h1: "JSON to String Converter",
-  title: "JSON to String – Escape JSON as a String Literal Online",
+  name: "JSON ⇄ String",
+  h1: "JSON to String & String to JSON",
+  title: "JSON to String & String to JSON – Escape and Unescape Online",
   description:
-    "Convert JSON into an escaped string you can embed in code, config or another JSON field. Quotes, backslashes and newlines are escaped for you. Free and private.",
-  keywords: ["json to string", "stringify json", "escape json string", "json stringify online", "json to escaped string"],
+    "Escape JSON into a string literal for code, config or another JSON field, or unescape a stringified JSON string back into formatted JSON. Free and private.",
+  keywords: [
+    "json to string",
+    "string to json",
+    "stringify json",
+    "escape json string",
+    "unescape json",
+    "parse json string",
+    "json stringify online",
+  ],
   category: "converters",
-  tagline: "Escape JSON into a string literal",
-  summary: "Turn JSON into an escaped string ready to embed in code or another JSON field.",
+  tagline: "Escape and unescape JSON strings",
+  summary: "Escape JSON into a string literal, or turn an escaped string from logs or APIs back into JSON.",
   icon: "quote",
   tint: "blue",
   intro:
-    "Paste JSON and get it back as a single escaped string, the same result as JSON.stringify applied twice. Useful for embedding JSON inside other JSON, environment variables or source code.",
+    "Escape JSON into a single string you can embed in code, environment variables or another JSON field, or swap direction to unescape a string like \"{\\\"id\\\":1}\" back into clean JSON. Strings stringified more than once are unwrapped automatically.",
   steps: [
-    "Paste your JSON or drop a file into the input.",
-    "The escaped string appears as you type, with every escape sequence highlighted.",
-    "Use Options for the JSON layout, the quote style and Unicode escapes, then copy or download the result.",
+    "Paste JSON to escape it, or press Swap and paste an escaped string to unescape it.",
+    "The result appears as you type; Swap moves it into the input so you can convert it back.",
+    "Use Options for the layout, quotes and Unicode escapes (or indentation when unescaping), then copy or download the result.",
   ],
   faqs: [
     {
@@ -26,9 +34,13 @@ export const jsonToStringTool: ToolMeta = {
       a: 'It wraps your JSON in quotes and escapes everything inside, so {"a":1} becomes "{\\"a\\":1}", a valid string you can paste anywhere a string is expected.',
     },
     {
-      q: "How do I turn it back into JSON?",
-      a: "Use String to JSON, which reverses the process and formats the result.",
+      q: "Why is my JSON full of backslashes?",
+      a: "It was stringified, often by a logger or by storing JSON inside another JSON field. Swap to String to JSON to remove the escaping.",
+    },
+    {
+      q: "Do I need to include the outer quotes when unescaping?",
+      a: "No. Quoted and unquoted strings both work, as do single-quoted ones and strings stringified twice or more.",
     },
   ],
-  related: ["string-to-json", "json-minifier", "json-formatter"],
+  related: ["json-minifier", "json-repair", "json-formatter"],
 };

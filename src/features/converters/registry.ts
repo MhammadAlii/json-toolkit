@@ -6,7 +6,6 @@ import { jsonToStringTool } from "./json-to-string/meta";
 import { jsonToTypeScriptTool } from "./json-to-typescript/meta";
 import { jsonToXmlTool } from "./json-to-xml/meta";
 import { jsonToYamlTool } from "./json-to-yaml/meta";
-import { stringToJsonTool } from "./string-to-json/meta";
 
 export const converters: ToolMeta[] = [
   jsonToYamlTool,
@@ -16,5 +15,4 @@ export const converters: ToolMeta[] = [
   jsonToXmlTool,
   jsonToSqlTool,
   jsonToStringTool,
-  stringToJsonTool,
 ];

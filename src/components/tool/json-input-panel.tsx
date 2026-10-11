@@ -17,6 +17,7 @@ export function JsonInputPanel({
   value,
   onChange,
   extraActions,
+  placeholder = "Paste your JSON here…",
   className = toolPanelHeight,
 }: {
   title: string;
@@ -25,6 +26,7 @@ export function JsonInputPanel({
   onChange: (value: string) => void;
   /** Tool-specific buttons shown before Clear, e.g. Format or a template picker. */
   extraActions?: React.ReactNode;
+  placeholder?: string;
   className?: string;
 }) {
   return (
@@ -41,7 +43,7 @@ export function JsonInputPanel({
       }
     >
       <DropZone onText={onChange} className="h-full">
-        <CodeEditor aria-label={label} value={value} onChange={onChange} placeholder="Paste your JSON here…" className="text-muted/80 placeholder:text-muted/40" />
+        <CodeEditor aria-label={label} value={value} onChange={onChange} placeholder={placeholder} className="text-muted/80 placeholder:text-muted/40" />
       </DropZone>
     </Panel>
   );

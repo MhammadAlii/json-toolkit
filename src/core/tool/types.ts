@@ -16,7 +16,6 @@ export type ToolSlug =
   | "json-to-xml"
   | "json-to-sql"
   | "json-to-string"
-  | "string-to-json"
   | "jwt-decoder"
   | "url-encoder"
   | "base64-converter"
