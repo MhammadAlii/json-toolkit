@@ -4,10 +4,9 @@ import { SlidersIcon } from "@/components/icons/sliders";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
-import { defaultSqlOptions, dialects, type SqlOptions } from "./json-to-sql";
 import { menuFieldClasses } from "@/components/ui/input-styles";
 import { MenuSelect } from "@/components/ui/menu-select";
-
+import { defaultSqlOptions, dialects, type SqlOptions } from "./json-to-sql";
 
 export function SqlOptionsMenu({ options, keys, onChange }: { options: SqlOptions; keys: string[]; onChange: (options: SqlOptions) => void }) {
   const changed = (Object.keys(defaultSqlOptions) as (keyof SqlOptions)[]).filter((k) => options[k] !== defaultSqlOptions[k]).length;

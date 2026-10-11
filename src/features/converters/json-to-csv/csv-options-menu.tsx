@@ -4,10 +4,9 @@ import { SlidersIcon } from "@/components/icons/sliders";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
+import { MenuSelect } from "@/components/ui/menu-select";
 import type { Delimiter } from "@/core/json/csv";
 import { defaultCsvConverterOptions, type CsvConverterOptions } from "./json-to-csv";
-import { MenuSelect } from "@/components/ui/menu-select";
-
 
 export function CsvOptionsMenu({ options, onChange }: { options: CsvConverterOptions; onChange: (options: CsvConverterOptions) => void }) {
   const changed = (Object.keys(defaultCsvConverterOptions) as (keyof CsvConverterOptions)[]).filter((k) => options[k] !== defaultCsvConverterOptions[k]).length;

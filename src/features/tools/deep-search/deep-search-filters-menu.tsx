@@ -3,8 +3,8 @@
 import { FilterIcon } from "@/components/icons/filter";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
-import { defaultSearchOptions, type SearchOptions, type ValueTypeFilter } from "./deep-search";
 import { MenuSelect } from "@/components/ui/menu-select";
+import { defaultSearchOptions, type SearchOptions, type ValueTypeFilter } from "./deep-search";
 
 const types: { value: ValueTypeFilter; label: string }[] = [
   { value: "any", label: "Any" },
@@ -15,7 +15,6 @@ const types: { value: ValueTypeFilter; label: string }[] = [
   { value: "object", label: "Object" },
   { value: "array", label: "Array" },
 ];
-
 
 export function DeepSearchFiltersMenu({ options, onChange }: { options: SearchOptions; onChange: (options: SearchOptions) => void }) {
   const active = [options.valueType !== "any", options.maxDepth > 0, options.maxResults > 0].filter(Boolean).length;

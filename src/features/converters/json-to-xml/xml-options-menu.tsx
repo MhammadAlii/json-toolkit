@@ -4,10 +4,9 @@ import { SlidersIcon } from "@/components/icons/sliders";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
-import { defaultXmlOptions, type XmlOptions } from "./json-to-xml";
 import { menuFieldClasses } from "@/components/ui/input-styles";
 import { MenuSelect } from "@/components/ui/menu-select";
-
+import { defaultXmlOptions, type XmlOptions } from "./json-to-xml";
 
 export function XmlOptionsMenu({ options, onChange }: { options: XmlOptions; onChange: (options: XmlOptions) => void }) {
   const changed = (Object.keys(defaultXmlOptions) as (keyof XmlOptions)[]).filter((k) => options[k] !== defaultXmlOptions[k]).length;

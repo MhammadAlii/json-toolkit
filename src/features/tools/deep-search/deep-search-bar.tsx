@@ -4,9 +4,9 @@ import { SearchIcon } from "@/components/icons/search";
 import { XmarkIcon } from "@/components/icons/xmark";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { searchModes, type SearchMode, type SearchOptions } from "./deep-search";
 import { DeepSearchFiltersMenu } from "./deep-search-filters-menu";
-import { MenuSelect } from "@/components/ui/menu-select";
 
 const toggles: { key: "caseSensitive" | "exact" | "regex"; label: string; title: string }[] = [
   { key: "caseSensitive", label: "Aa", title: "Case sensitive" },

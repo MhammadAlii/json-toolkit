@@ -4,10 +4,9 @@ import { SlidersIcon } from "@/components/icons/sliders";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
-import { defaultTsOptions, type TsOptions } from "./json-to-typescript";
 import { menuFieldClasses } from "@/components/ui/input-styles";
 import { MenuSelect } from "@/components/ui/menu-select";
-
+import { defaultTsOptions, type TsOptions } from "./json-to-typescript";
 
 export function TsOptionsMenu({ options, onChange }: { options: TsOptions; onChange: (options: TsOptions) => void }) {
   const changed = (Object.keys(defaultTsOptions) as (keyof TsOptions)[]).filter((k) => options[k] !== defaultTsOptions[k]).length;

@@ -4,9 +4,8 @@ import { SlidersIcon } from "@/components/icons/sliders";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
-import { defaultYamlOptions, type YamlOptions } from "./json-to-yaml";
 import { MenuSelect } from "@/components/ui/menu-select";
-
+import { defaultYamlOptions, type YamlOptions } from "./json-to-yaml";
 
 export function YamlOptionsMenu({ options, onChange }: { options: YamlOptions; onChange: (options: YamlOptions) => void }) {
   const changed = (Object.keys(defaultYamlOptions) as (keyof YamlOptions)[]).filter((k) => options[k] !== defaultYamlOptions[k]).length;
