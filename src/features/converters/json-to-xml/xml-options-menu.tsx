@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
 import { defaultXmlOptions, type XmlOptions } from "./json-to-xml";
+import { menuFieldClasses } from "@/components/ui/input-styles";
+import { MenuSelect } from "@/components/ui/menu-select";
 
-const field = "w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-heading outline-none focus:border-brand/60";
 
 export function XmlOptionsMenu({ options, onChange }: { options: XmlOptions; onChange: (options: XmlOptions) => void }) {
   const changed = (Object.keys(defaultXmlOptions) as (keyof XmlOptions)[]).filter((k) => options[k] !== defaultXmlOptions[k]).length;
@@ -14,13 +15,13 @@ export function XmlOptionsMenu({ options, onChange }: { options: XmlOptions; onC
   const select = <K extends keyof XmlOptions>(key: K, label: string, choices: [XmlOptions[K], string][]) => (
     <label className="flex flex-col gap-1">
       <span className="text-heading">{label}</span>
-      <select className={field} value={String(options[key])} onChange={(e) => set(key, choices.find(([v]) => String(v) === e.target.value)![0])}>
+      <MenuSelect value={String(options[key])} onChange={(e) => set(key, choices.find(([v]) => String(v) === e.target.value)![0])}>
         {choices.map(([v, l]) => (
           <option key={String(v)} value={String(v)}>
             {l}
           </option>
         ))}
-      </select>
+      </MenuSelect>
     </label>
   );
   return (
@@ -38,7 +39,7 @@ export function XmlOptionsMenu({ options, onChange }: { options: XmlOptions; onC
         <div className="grid grid-cols-2 gap-2">
           <label className="flex flex-col gap-1">
             <span className="text-heading">Root element</span>
-            <input className={field} value={options.rootName} onChange={(e) => set("rootName", e.target.value)} placeholder="root" spellCheck={false} />
+            <input className={menuFieldClasses} value={options.rootName} onChange={(e) => set("rootName", e.target.value)} placeholder="root" spellCheck={false} />
           </label>
           {select("indent", "Indent", [
             [2, "2 spaces"],

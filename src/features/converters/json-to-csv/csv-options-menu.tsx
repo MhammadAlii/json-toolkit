@@ -6,8 +6,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
 import type { Delimiter } from "@/core/json/csv";
 import { defaultCsvConverterOptions, type CsvConverterOptions } from "./json-to-csv";
+import { MenuSelect } from "@/components/ui/menu-select";
 
-const field = "w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-heading outline-none focus:border-brand/60";
 
 export function CsvOptionsMenu({ options, onChange }: { options: CsvConverterOptions; onChange: (options: CsvConverterOptions) => void }) {
   const changed = (Object.keys(defaultCsvConverterOptions) as (keyof CsvConverterOptions)[]).filter((k) => options[k] !== defaultCsvConverterOptions[k]).length;
@@ -27,34 +27,34 @@ export function CsvOptionsMenu({ options, onChange }: { options: CsvConverterOpt
         <div className="grid grid-cols-2 gap-2">
           <label className="flex flex-col gap-1">
             <span className="text-heading">Delimiter</span>
-            <select className={field} value={options.delimiter} onChange={(e) => set("delimiter", e.target.value as Delimiter)}>
+            <MenuSelect value={options.delimiter} onChange={(e) => set("delimiter", e.target.value as Delimiter)}>
               <option value=",">Comma</option>
               <option value=";">Semicolon</option>
               <option value={"\t"}>Tab</option>
               <option value="|">Pipe</option>
-            </select>
+            </MenuSelect>
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-heading">Quotes</span>
-            <select className={field} value={options.quoting} onChange={(e) => set("quoting", e.target.value as CsvConverterOptions["quoting"])}>
+            <MenuSelect value={options.quoting} onChange={(e) => set("quoting", e.target.value as CsvConverterOptions["quoting"])}>
               <option value="needed">When needed</option>
               <option value="all">All cells</option>
-            </select>
+            </MenuSelect>
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-heading">Arrays</span>
-            <select className={field} value={options.arrays} onChange={(e) => set("arrays", e.target.value as CsvConverterOptions["arrays"])}>
+            <MenuSelect value={options.arrays} onChange={(e) => set("arrays", e.target.value as CsvConverterOptions["arrays"])}>
               <option value="json">Keep as JSON</option>
               <option value="join">Join with commas</option>
               <option value="columns">One column each</option>
-            </select>
+            </MenuSelect>
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-heading">Null values</span>
-            <select className={field} value={options.nulls} onChange={(e) => set("nulls", e.target.value as CsvConverterOptions["nulls"])}>
+            <MenuSelect value={options.nulls} onChange={(e) => set("nulls", e.target.value as CsvConverterOptions["nulls"])}>
               <option value="empty">Empty cell</option>
               <option value="null">null</option>
-            </select>
+            </MenuSelect>
           </label>
         </div>
         <Checkbox label="Include headers" checked={options.headers} onChange={(on) => set("headers", on)} />

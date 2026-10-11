@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { searchModes, type SearchMode, type SearchOptions } from "./deep-search";
 import { DeepSearchFiltersMenu } from "./deep-search-filters-menu";
+import { MenuSelect } from "@/components/ui/menu-select";
 
 const toggles: { key: "caseSensitive" | "exact" | "regex"; label: string; title: string }[] = [
   { key: "caseSensitive", label: "Aa", title: "Case sensitive" },
@@ -51,17 +52,13 @@ export function DeepSearchBar({
         </label>
         <label className="flex items-center gap-2">
           <span className="text-[10px] font-bold tracking-[0.6px] text-muted uppercase">Search mode</span>
-          <select
-            value={options.mode}
-            onChange={(e) => onOptionsChange({ ...options, mode: e.target.value as SearchMode })}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-heading outline-none focus:border-brand/60"
-          >
+          <MenuSelect size="md" value={options.mode} onChange={(e) => onOptionsChange({ ...options, mode: e.target.value as SearchMode })}>
             {searchModes.map((m) => (
               <option key={m.value} value={m.value}>
                 {m.label}
               </option>
             ))}
-          </select>
+          </MenuSelect>
         </label>
         <div className="flex items-center gap-1.5" role="group" aria-label="Matching">
           {toggles.map((t) => (

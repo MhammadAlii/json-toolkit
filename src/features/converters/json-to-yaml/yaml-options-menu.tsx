@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
 import { defaultYamlOptions, type YamlOptions } from "./json-to-yaml";
+import { MenuSelect } from "@/components/ui/menu-select";
 
-const field = "w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-heading outline-none focus:border-brand/60";
 
 export function YamlOptionsMenu({ options, onChange }: { options: YamlOptions; onChange: (options: YamlOptions) => void }) {
   const changed = (Object.keys(defaultYamlOptions) as (keyof YamlOptions)[]).filter((k) => options[k] !== defaultYamlOptions[k]).length;
@@ -25,17 +25,17 @@ export function YamlOptionsMenu({ options, onChange }: { options: YamlOptions; o
         <div className="grid grid-cols-2 gap-2">
           <label className="flex flex-col gap-1">
             <span className="text-heading">Indent</span>
-            <select className={field} value={options.indent} onChange={(e) => onChange({ ...options, indent: Number(e.target.value) as 2 | 4 })}>
+            <MenuSelect value={options.indent} onChange={(e) => onChange({ ...options, indent: Number(e.target.value) as 2 | 4 })}>
               <option value={2}>2 spaces</option>
               <option value={4}>4 spaces</option>
-            </select>
+            </MenuSelect>
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-heading">YAML style</span>
-            <select className={field} value={options.style} onChange={(e) => onChange({ ...options, style: e.target.value as YamlOptions["style"] })}>
+            <MenuSelect value={options.style} onChange={(e) => onChange({ ...options, style: e.target.value as YamlOptions["style"] })}>
               <option value="block">Standard</option>
               <option value="flow">Flow (inline)</option>
-            </select>
+            </MenuSelect>
           </label>
         </div>
         <Checkbox label="Sort keys" checked={options.sortKeys} onChange={(on) => onChange({ ...options, sortKeys: on })} />

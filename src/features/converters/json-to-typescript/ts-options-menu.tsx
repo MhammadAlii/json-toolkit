@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
 import { defaultTsOptions, type TsOptions } from "./json-to-typescript";
+import { menuFieldClasses } from "@/components/ui/input-styles";
+import { MenuSelect } from "@/components/ui/menu-select";
 
-const field = "w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-heading outline-none focus:border-brand/60";
 
 export function TsOptionsMenu({ options, onChange }: { options: TsOptions; onChange: (options: TsOptions) => void }) {
   const changed = (Object.keys(defaultTsOptions) as (keyof TsOptions)[]).filter((k) => options[k] !== defaultTsOptions[k]).length;
@@ -14,13 +15,13 @@ export function TsOptionsMenu({ options, onChange }: { options: TsOptions; onCha
   const select = <K extends keyof TsOptions>(key: K, label: string, choices: [TsOptions[K], string][]) => (
     <label className="flex flex-col gap-1">
       <span className="text-heading">{label}</span>
-      <select className={field} value={String(options[key])} onChange={(e) => set(key, choices.find(([v]) => String(v) === e.target.value)![0])}>
+      <MenuSelect value={String(options[key])} onChange={(e) => set(key, choices.find(([v]) => String(v) === e.target.value)![0])}>
         {choices.map(([v, l]) => (
           <option key={String(v)} value={String(v)}>
             {l}
           </option>
         ))}
-      </select>
+      </MenuSelect>
     </label>
   );
   return (
@@ -37,7 +38,7 @@ export function TsOptionsMenu({ options, onChange }: { options: TsOptions; onCha
         <p className="font-bold tracking-[0.6px] text-muted uppercase">TypeScript options</p>
         <label className="flex flex-col gap-1">
           <span className="text-heading">Root type name</span>
-          <input className={field} value={options.rootName} onChange={(e) => set("rootName", e.target.value)} placeholder="Root" spellCheck={false} />
+          <input className={menuFieldClasses} value={options.rootName} onChange={(e) => set("rootName", e.target.value)} placeholder="Root" spellCheck={false} />
         </label>
         <div className="grid grid-cols-2 gap-2">
           {select("declaration", "Declaration", [

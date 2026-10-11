@@ -4,6 +4,7 @@ import { FilterIcon } from "@/components/icons/filter";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { defaultSearchOptions, type SearchOptions, type ValueTypeFilter } from "./deep-search";
+import { MenuSelect } from "@/components/ui/menu-select";
 
 const types: { value: ValueTypeFilter; label: string }[] = [
   { value: "any", label: "Any" },
@@ -15,7 +16,6 @@ const types: { value: ValueTypeFilter; label: string }[] = [
   { value: "array", label: "Array" },
 ];
 
-const field = "w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-heading outline-none focus:border-brand/60";
 
 export function DeepSearchFiltersMenu({ options, onChange }: { options: SearchOptions; onChange: (options: SearchOptions) => void }) {
   const active = [options.valueType !== "any", options.maxDepth > 0, options.maxResults > 0].filter(Boolean).length;
@@ -33,35 +33,35 @@ export function DeepSearchFiltersMenu({ options, onChange }: { options: SearchOp
         <p className="font-bold tracking-[0.6px] text-muted uppercase">Filters</p>
         <label className="flex flex-col gap-1">
           <span className="text-heading">Value type</span>
-          <select className={field} value={options.valueType} onChange={(e) => onChange({ ...options, valueType: e.target.value as ValueTypeFilter })}>
+          <MenuSelect value={options.valueType} onChange={(e) => onChange({ ...options, valueType: e.target.value as ValueTypeFilter })}>
             {types.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
               </option>
             ))}
-          </select>
+          </MenuSelect>
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-heading">Search depth</span>
-          <select className={field} value={options.maxDepth} onChange={(e) => onChange({ ...options, maxDepth: Number(e.target.value) })}>
+          <MenuSelect value={options.maxDepth} onChange={(e) => onChange({ ...options, maxDepth: Number(e.target.value) })}>
             <option value={0}>Unlimited</option>
             {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
               <option key={n} value={n}>
                 {n} {n === 1 ? "level" : "levels"}
               </option>
             ))}
-          </select>
+          </MenuSelect>
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-heading">Max results</span>
-          <select className={field} value={options.maxResults} onChange={(e) => onChange({ ...options, maxResults: Number(e.target.value) })}>
+          <MenuSelect value={options.maxResults} onChange={(e) => onChange({ ...options, maxResults: Number(e.target.value) })}>
             <option value={0}>Unlimited</option>
             {[10, 50, 100, 500, 1000].map((n) => (
               <option key={n} value={n}>
                 {n}
               </option>
             ))}
-          </select>
+          </MenuSelect>
         </label>
         <button
           type="button"

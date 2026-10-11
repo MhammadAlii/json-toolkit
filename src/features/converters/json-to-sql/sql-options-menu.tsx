@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
 import { defaultSqlOptions, dialects, type SqlOptions } from "./json-to-sql";
+import { menuFieldClasses } from "@/components/ui/input-styles";
+import { MenuSelect } from "@/components/ui/menu-select";
 
-const field = "w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-heading outline-none focus:border-brand/60";
 
 export function SqlOptionsMenu({ options, keys, onChange }: { options: SqlOptions; keys: string[]; onChange: (options: SqlOptions) => void }) {
   const changed = (Object.keys(defaultSqlOptions) as (keyof SqlOptions)[]).filter((k) => options[k] !== defaultSqlOptions[k]).length;
@@ -14,13 +15,13 @@ export function SqlOptionsMenu({ options, keys, onChange }: { options: SqlOption
   const select = <K extends keyof SqlOptions>(key: K, label: string, choices: [SqlOptions[K], string][]) => (
     <label className="flex flex-col gap-1">
       <span className="text-heading">{label}</span>
-      <select className={field} value={String(options[key])} onChange={(e) => set(key, choices.find(([v]) => String(v) === e.target.value)![0])}>
+      <MenuSelect value={String(options[key])} onChange={(e) => set(key, choices.find(([v]) => String(v) === e.target.value)![0])}>
         {choices.map(([v, l]) => (
           <option key={String(v)} value={String(v)}>
             {l}
           </option>
         ))}
-      </select>
+      </MenuSelect>
     </label>
   );
   const pkChoices = [...new Set([options.primaryKey, ...keys].filter(Boolean))];
@@ -49,22 +50,22 @@ export function SqlOptionsMenu({ options, keys, onChange }: { options: SqlOption
           ])}
           <label className="flex flex-col gap-1">
             <span className="text-heading">Table name</span>
-            <input className={field} value={options.table} onChange={(e) => set("table", e.target.value)} placeholder="users" spellCheck={false} />
+            <input className={menuFieldClasses} value={options.table} onChange={(e) => set("table", e.target.value)} placeholder="users" spellCheck={false} />
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-heading">Primary key</span>
-            <select className={field} value={options.primaryKey} onChange={(e) => set("primaryKey", e.target.value)}>
+            <MenuSelect value={options.primaryKey} onChange={(e) => set("primaryKey", e.target.value)}>
               <option value="">None</option>
               {pkChoices.map((k) => (
                 <option key={k} value={k}>
                   {k}
                 </option>
               ))}
-            </select>
+            </MenuSelect>
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-heading">Rows per INSERT</span>
-            <input className={field} type="number" min={1} max={10000} value={options.batchSize} onChange={(e) => set("batchSize", Math.max(1, Math.min(10000, Number(e.target.value) || 1)))} />
+            <input className={menuFieldClasses} type="number" min={1} max={10000} value={options.batchSize} onChange={(e) => set("batchSize", Math.max(1, Math.min(10000, Number(e.target.value) || 1)))} />
           </label>
           {select("quoting", "Quote names", [
             ["auto", "When needed"],
