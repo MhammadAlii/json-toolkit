@@ -19,6 +19,8 @@ export function JsonInputPanel({
   extraActions,
   placeholder = "Paste your JSON here…",
   wrap,
+  onFile,
+  content,
   className = toolPanelHeight,
 }: {
   title: string;
@@ -30,6 +32,10 @@ export function JsonInputPanel({
   placeholder?: string;
   /** Soft-wraps long lines instead of scrolling sideways. */
   wrap?: boolean;
+  /** Receives dropped files instead of their text being pasted in, e.g. to read binary files. */
+  onFile?: (file: File) => void;
+  /** Shown in place of the editor, e.g. a card for a loaded file. */
+  content?: React.ReactNode;
   className?: string;
 }) {
   return (
@@ -39,14 +45,16 @@ export function JsonInputPanel({
       actions={
         <>
           {extraActions}
-          <Button variant="soft" size="tiny" onClick={() => onChange("")} disabled={!value}>
+          <Button variant="soft" size="tiny" onClick={() => onChange("")} disabled={!value && !content}>
             <TrashIcon className="h-[11px] w-auto" /> Clear
           </Button>
         </>
       }
     >
-      <DropZone onText={onChange} className="h-full">
-        <CodeEditor aria-label={label} value={value} onChange={onChange} placeholder={placeholder} wrap={wrap} className="text-muted/80 placeholder:text-muted/40" />
+      <DropZone onText={onChange} onFile={onFile} label={onFile ? "Drop a file" : undefined} className="h-full">
+        {content ?? (
+          <CodeEditor aria-label={label} value={value} onChange={onChange} placeholder={placeholder} wrap={wrap} className="text-muted/80 placeholder:text-muted/40" />
+        )}
       </DropZone>
     </Panel>
   );

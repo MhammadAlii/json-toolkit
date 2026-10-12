@@ -2,8 +2,20 @@
 
 import { useState } from "react";
 
-/** Accepts a dropped text file anywhere over its children. */
-export function DropZone({ onText, label = "Drop a JSON file", className = "", children }: { onText: (text: string, file: File) => void; label?: string; className?: string; children: React.ReactNode }) {
+/** Accepts a dropped file anywhere over its children: its text goes to `onText`, or the file itself to `onFile` when given. */
+export function DropZone({
+  onText,
+  onFile,
+  label = "Drop a JSON file",
+  className = "",
+  children,
+}: {
+  onText: (text: string, file: File) => void;
+  onFile?: (file: File) => void;
+  label?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
   const [over, setOver] = useState(false);
   return (
     <div
@@ -21,7 +33,8 @@ export function DropZone({ onText, label = "Drop a JSON file", className = "", c
         setOver(false);
         if (!file) return;
         e.preventDefault();
-        onText(await file.text(), file);
+        if (onFile) onFile(file);
+        else onText(await file.text(), file);
       }}
     >
       {children}

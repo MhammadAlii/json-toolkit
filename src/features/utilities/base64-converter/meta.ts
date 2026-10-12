@@ -15,7 +15,11 @@ export const base64ConverterTool: ToolMeta = {
   tint: "pink",
   intro:
     "Convert text to Base64 and back, with full UTF-8 support so emoji and non-Latin characters survive the round trip. URL-safe Base64 is handled too.",
-  steps: ["Choose Encode or Decode.", "Paste text, Base64, or pick a file.", "Copy or download the result."],
+  steps: [
+    "Type or paste text, or drop or choose a file, to encode it; press Swap to decode Base64 instead.",
+    "Decoded data is shown as formatted JSON, text, an image preview or a hex dump, depending on what it is.",
+    "Use Options for URL-safe output, padding, line wrapping or a data URI, then copy or download the result.",
+  ],
   faqs: [
     {
       q: "Is Base64 encryption?",
