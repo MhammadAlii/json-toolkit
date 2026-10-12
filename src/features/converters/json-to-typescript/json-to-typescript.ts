@@ -195,7 +195,11 @@ export function jsonToTypeScript(value: unknown, options: TsOptions = defaultTsO
   };
 
   const exp = o.exported ? "export " : "";
-  const rootShape = infer(value, rootName);
+  // Items of a root array are named after the root in the singular (Users → User), or RootItem when it has no plural.
+  const itemName = singular(rootName) !== rootName ? singular(rootName) : `${rootName}Item`;
+  const rootShape: Shape = Array.isArray(value)
+    ? { kind: "array", of: value.length ? value.map((v) => infer(v, itemName)).reduce(merge) : { kind: "unknown" } }
+    : infer(value, rootName);
   const blocks: string[] = [];
 
   // The root is always declared by name, whatever its shape.
