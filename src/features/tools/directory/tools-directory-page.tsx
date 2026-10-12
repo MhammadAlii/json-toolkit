@@ -4,12 +4,12 @@ import { categoryLabels, categoryOrder, toolsInCategory } from "@/features/catal
 import { DirectoryLayout } from "@/features/tools/shared/directory-layout";
 import { ToolSection } from "./tool-section";
 
-// Converters have their own page at /converters.
-const categories = categoryOrder.filter((c) => c !== "converters");
+// Converters and utilities have their own pages at /converters and /utilities.
+const categories = categoryOrder.filter((c) => c !== "converters" && c !== "utilities");
 
 export const toolsDirectoryMetadata = pageMetadata({
   title: "All JSON Tools – Formatter, Validator, Diff, Query & More",
-  description: `Every ${site.name} tool in one place: format, validate, repair, explore, compare and query JSON, plus JWT, Base64, URL and timestamp utilities.`,
+  description: `Every ${site.name} JSON tool in one place: format, validate, repair, minify, explore, search, compare and query JSON in your browser.`,
   path: "/tools",
   absoluteTitle: true,
 });

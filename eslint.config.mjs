@@ -21,7 +21,7 @@ const eslintConfig = defineConfig([
     { group: ["@/features/*", "@/components/layout/*", "@/app/*"], message: "Shared components cannot depend on features or layout." },
   ]),
   restrict(["src/features/**"], [{ group: ["@/components/layout/*", "@/app/*"], message: "Features cannot depend on layout or routes." }]),
-  restrict(["src/features/tools/*/*.ts", "src/features/converters/*/*.ts"], [
+  restrict(["src/features/tools/*/*.ts", "src/features/converters/*/*.ts", "src/features/utilities/*/*.ts"], [
     { group: ["react", "react-dom", "next", "next/*", "@/components/*", "@/app/*"], message: "Tool helpers and meta must stay framework-free." },
   ]),
   {

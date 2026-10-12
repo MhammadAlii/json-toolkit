@@ -1,7 +1,7 @@
 import { toolMetadata } from "@/components/tool/tool-metadata";
 import { ToolPage } from "@/components/tool/tool-page";
 import { relatedTools } from "@/features/catalog";
-import { urlEncoderTool } from "@/features/tools/url-encoder/meta";
+import { urlEncoderTool } from "@/features/utilities/url-encoder/meta";
 
 export const metadata = toolMetadata(urlEncoderTool);
 

@@ -33,8 +33,9 @@ app/                      routes: URLs, metadata, wiring only
 | Feature | Path | Owns |
 | --- | --- | --- |
 | Home | `features/home/` | Home page: hero, the Formatter workspace, stats and ad slots. |
-| Tools | `features/tools/` | The `/tools` directory page (`directory/`, every category except converters), `shared/` (`ToolLayout` for tool pages, `DirectoryLayout` for the `/tools` and `/converters` listings) and the tool sub-features: formatter (`formatter-workspace.tsx` with Code, Tree and Table views, Format/Minify and Sort keys, used on the home page and the Formatter, Tree Viewer and Table Viewer pages), validator, repair, minifier, tree-viewer, table-viewer, deep-search, diff, schema-validator, query-selector, and the developer utilities jwt-decoder, url-encoder, base64-converter, epoch-converter. `registry.ts` lists them. |
+| Tools | `features/tools/` | The `/tools` directory page (`directory/`, every category except converters and utilities), `shared/` (`ToolLayout` for tool pages, `DirectoryLayout` for the `/tools`, `/converters` and `/utilities` listings) and the tool sub-features: formatter (`formatter-workspace.tsx` with Code, Tree and Table views, Format/Minify and Sort keys, used on the home page and the Formatter, Tree Viewer and Table Viewer pages), validator, repair, minifier, tree-viewer, table-viewer, deep-search, diff, schema-validator, query-selector. `registry.ts` lists them. |
 | Converters | `features/converters/` | The `/converters` listing page (`directory/`, each converter as a `ToolCard`). Sub-features: json-to-yaml, json-to-csv, json-to-typescript, json-to-excel, json-to-xml, json-to-sql, json-to-string (both directions). `registry.ts` lists them. |
+| Utilities | `features/utilities/` | The `/utilities` listing page (`directory/`, each utility as a `ToolCard`). Sub-features: jwt-decoder, url-encoder, base64-converter, epoch-converter. `registry.ts` lists them. |
 | Legal | `features/legal/` | `privacy/`, `terms/`, `licenses/` pages and the shared `components/` (legal section and paragraph). |
 | Company | `features/company/` | `about/` and `contact/` pages, the contact form and request types. |
 | Ads | `features/ads/` | AdSense slot with reserved height. |
@@ -88,7 +89,7 @@ export default function Page() {
 
 The developer utilities (JWT, URL, Base64, Epoch) have only `meta.ts` until their designs are implemented; earlier helper drafts are in git history.
 
-Tools are grouped into five categories (`ToolCategory`), shown on `/tools` and in search: JSON Core (`core`), Explore JSON (`explore`), Compare & Query (`query`), Converter Hub (`converters`) and Developer Utilities (`utilities`). Labels and order live in `features/catalog.ts`; each category's heading icon and accent colour in `components/tool/tool-category-style.ts`.
+Tools are grouped into five categories (`ToolCategory`), shown in search and on `/tools`, except converters and utilities, which have their own pages (`/converters`, `/utilities`): JSON Core (`core`), Explore JSON (`explore`), Compare & Query (`query`), Converter Hub (`converters`) and Developer Utilities (`utilities`). Labels and order live in `features/catalog.ts`; each category's heading icon and accent colour in `components/tool/tool-category-style.ts`.
 
 **Tool inputs start empty.** No tool ships example JSON, and none pre-fills, restores or persists what the user pastes; placeholders only describe what to enter. Tools also show no "waiting" UI: result cards, stats and charts appear only once there is input, and actions live in panel headers like the home formatter (no separate top bars).
 

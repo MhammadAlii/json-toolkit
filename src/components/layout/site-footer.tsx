@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { site } from "@/config/site";
 import { converters } from "@/features/converters/registry";
+import { utilities } from "@/features/utilities/registry";
 import { AdSlot } from "@/features/ads/ad-slot";
 import { Logo } from "@/components/layout/logo";
 
@@ -11,6 +12,11 @@ const columns: Column[] = [
     title: "Converters",
     gap: "gap-3",
     links: converters.map((t) => ({ label: t.name, href: `/${t.slug}` })),
+  },
+  {
+    title: "Utilities",
+    gap: "gap-3",
+    links: utilities.map((t) => ({ label: t.name, href: `/${t.slug}` })),
   },
   {
     title: "Legal",
@@ -35,7 +41,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-footer pt-16 pb-12">
       <div className="container-page">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-5">
           <div className="flex flex-col gap-[15px]">
             <Logo size="sm" />
             <p className="max-w-[272px] text-sm leading-[22.75px] text-muted/80">

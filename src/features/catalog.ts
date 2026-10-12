@@ -1,8 +1,9 @@
 import type { ToolCategory, ToolMeta, ToolSlug } from "@/core/tool/types";
 import { converters } from "./converters/registry";
 import { tools } from "./tools/registry";
+import { utilities } from "./utilities/registry";
 
-export const catalog: ToolMeta[] = [...tools, ...converters];
+export const catalog: ToolMeta[] = [...tools, ...converters, ...utilities];
 
 export const catalogBySlug = Object.fromEntries(catalog.map((t) => [t.slug, t])) as Record<ToolSlug, ToolMeta>;
 

@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl("/"), lastModified, changeFrequency: "weekly", priority: 1 },
     { url: absoluteUrl("/tools"), lastModified, changeFrequency: "weekly", priority: 0.8 },
     { url: absoluteUrl("/converters"), lastModified, changeFrequency: "weekly", priority: 0.8 },
+    { url: absoluteUrl("/utilities"), lastModified, changeFrequency: "weekly", priority: 0.8 },
     ...catalog.map((t) => ({ url: absoluteUrl(`/${t.slug}`), lastModified, changeFrequency: "monthly" as const, priority: 0.9 })),
     ...["/about", "/contact", "/privacy", "/terms", "/licenses"].map((p) => ({ url: absoluteUrl(p), lastModified, changeFrequency: "yearly" as const, priority: 0.3 })),
   ];

@@ -1,7 +1,7 @@
 import { toolMetadata } from "@/components/tool/tool-metadata";
 import { ToolPage } from "@/components/tool/tool-page";
 import { relatedTools } from "@/features/catalog";
-import { jwtDecoderTool } from "@/features/tools/jwt-decoder/meta";
+import { jwtDecoderTool } from "@/features/utilities/jwt-decoder/meta";
 
 export const metadata = toolMetadata(jwtDecoderTool);
 
