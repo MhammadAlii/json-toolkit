@@ -15,15 +15,19 @@ export const urlEncoderTool: ToolMeta = {
   tint: "pink",
   intro:
     "Convert text to and from URL percent-encoding, so spaces, symbols and non-ASCII characters can be used safely in links and query strings.",
-  steps: ["Choose Encode or Decode.", "Paste your text or encoded string.", "Copy the result."],
+  steps: [
+    "Paste text to encode it, or press Swap and paste an encoded string to decode it.",
+    "The result appears as you type; full URLs are broken down into their parts and query parameters.",
+    "Use Options for query-value, full-URL or form encoding and line-by-line conversion, then copy the result.",
+  ],
   faqs: [
     {
       q: "Which characters get encoded?",
-      a: "Everything except letters, digits and - _ . ! ~ * ' ( ) is percent-encoded, matching JavaScript's encodeURIComponent.",
+      a: "By default everything except letters, digits and - _ . ! ~ * ' ( ) is percent-encoded, matching JavaScript's encodeURIComponent. Full URL mode also keeps : / ? # & = so the link still works, and form mode writes spaces as +.",
     },
     {
       q: "Why does my decoded text show an error?",
-      a: "A % must be followed by two hex digits. Malformed sequences like %ZZ can't be decoded.",
+      a: "A % must be followed by two hex digits, and the bytes must form valid UTF-8. The error names the character position of the first problem.",
     },
   ],
   related: ["base64-converter", "jwt-decoder", "json-formatter"],
