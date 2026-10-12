@@ -74,7 +74,8 @@ const points: PolicyPoint[] = [
     body: (
       <>
         When you close the tab, your data is gone. We never write the JSON you paste or upload to a database, local storage, or
-        cookies. Your text area content lives and dies with your session.
+        cookies. Your text area content lives and dies with your session. To know which tools are used, we count anonymous page
+        views with Vercel Web Analytics, which sets no cookies, can&apos;t identify you and never sees what you enter.
       </>
     ),
   },
