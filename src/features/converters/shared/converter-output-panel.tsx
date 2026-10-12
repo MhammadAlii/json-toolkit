@@ -20,6 +20,7 @@ export function ConverterOutputPanel({
   options,
   header,
   onDownload,
+  fixLinks = true,
   children,
 }: {
   title: string;
@@ -33,6 +34,8 @@ export function ConverterOutputPanel({
   header?: React.ReactNode;
   /** Replaces downloading `output` as text, for binary files such as .xlsx. */
   onDownload?: () => void;
+  /** Links to the Validator and Repair under an error; off when the input isn't JSON. */
+  fixLinks?: boolean;
   children?: React.ReactNode;
 }) {
   const download = useDownload();
@@ -54,14 +57,16 @@ export function ConverterOutputPanel({
       {error ? (
         <div role="alert" className="flex flex-col items-start gap-3 p-4">
           <p className="text-sm leading-5 text-danger">{error}</p>
-          <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/json-validator" variant="secondary" size="xs">
-              Explain in Validator
-            </ButtonLink>
-            <ButtonLink href="/json-repair" variant="secondary" size="xs">
-              Fix in Repair
-            </ButtonLink>
-          </div>
+          {fixLinks && (
+            <div className="flex flex-wrap gap-2">
+              <ButtonLink href="/json-validator" variant="secondary" size="xs">
+                Explain in Validator
+              </ButtonLink>
+              <ButtonLink href="/json-repair" variant="secondary" size="xs">
+                Fix in Repair
+              </ButtonLink>
+            </div>
+          )}
         </div>
       ) : (
         children

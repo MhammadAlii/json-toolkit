@@ -3,13 +3,15 @@
 import { useLayoutEffect, useRef } from "react";
 import { LineGutter } from "./line-gutter";
 
-type CodeEditorProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "value" | "onChange"> & {
+type CodeEditorProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "value" | "onChange" | "wrap"> & {
   value: string;
   onChange: (value: string) => void;
   /** 1-based line to mark, e.g. where a parse error is. */
   highlightLine?: number;
   /** `danger` for errors, `brand` for a selected search match. */
   highlightTone?: "danger" | "brand";
+  /** Soft-wraps long lines, for single-line text such as tokens; line numbers are hidden since they'd no longer match. */
+  wrap?: boolean;
   ref?: React.Ref<HTMLTextAreaElement>;
 };
 
@@ -17,7 +19,7 @@ type CodeEditorProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "
 const padTop = 16;
 const lineHeight = 20;
 
-export function CodeEditor({ value, onChange, highlightLine, highlightTone = "danger", className = "", ...props }: CodeEditorProps) {
+export function CodeEditor({ value, onChange, highlightLine, highlightTone = "danger", wrap = false, className = "", ...props }: CodeEditorProps) {
   const gutter = useRef<HTMLDivElement>(null);
   const band = useRef<HTMLDivElement>(null);
   const top = (scrollTop: number) => `translateY(${padTop + ((highlightLine ?? 1) - 1) * lineHeight - scrollTop}px)`;
@@ -37,7 +39,7 @@ export function CodeEditor({ value, onChange, highlightLine, highlightTone = "da
           className={`pointer-events-none absolute inset-x-0 top-0 border-l-2 ${highlightTone === "brand" ? "border-brand bg-brand/10" : "border-danger bg-danger/10"}`}
         />
       )}
-      <LineGutter ref={gutter} count={value.split("\n").length} highlight={highlightLine} highlightTone={highlightTone} />
+      {!wrap && <LineGutter ref={gutter} count={value.split("\n").length} highlight={highlightLine} highlightTone={highlightTone} />}
       <textarea
         {...props}
         value={value}
@@ -47,11 +49,11 @@ export function CodeEditor({ value, onChange, highlightLine, highlightTone = "da
           if (band.current) band.current.style.transform = top(e.currentTarget.scrollTop);
           props.onScroll?.(e);
         }}
-        wrap="off"
+        wrap={wrap ? "soft" : "off"}
         spellCheck={false}
         autoCapitalize="off"
         autoCorrect="off"
-        className={`relative h-full min-w-0 flex-1 resize-none overflow-auto bg-transparent p-4 font-mono text-sm leading-5 whitespace-pre outline-none ${className}`}
+        className={`relative h-full min-w-0 flex-1 resize-none overflow-auto bg-transparent p-4 font-mono text-sm leading-5 outline-none ${wrap ? "break-all whitespace-pre-wrap" : "whitespace-pre"} ${className}`}
       />
     </div>
   );
