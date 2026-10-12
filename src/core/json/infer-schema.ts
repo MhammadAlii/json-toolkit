@@ -12,7 +12,8 @@ function typeName(v: unknown): string {
 // Combines the schemas of several samples (e.g. array items) into one that accepts them all.
 function mergeSchemas(schemas: JsonSchema[]): JsonSchema {
   if (schemas.length === 0) return {};
-  const types = [...new Set(schemas.map((s) => s.type as string))];
+  // A schema merged earlier may already list several types; flatten them so the list never nests.
+  const types = [...new Set(schemas.flatMap((s) => (Array.isArray(s.type) ? (s.type as string[]) : [s.type as string])))];
   const merged = types.includes("number") ? types.filter((t) => t !== "integer") : types;
   if (merged.length > 1) return { type: merged };
   if (merged[0] === "object") {
