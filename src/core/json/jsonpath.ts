@@ -2,7 +2,7 @@ import { isPlainObject, type PathSegment } from "@/core/json/path";
 
 // A safe JSONPath (RFC 9535 subset) evaluator: no eval, no prototype access.
 // Supports $, @, .name, ['name'], [n], [-n], [a:b:c], [*], .*, .., unions, and filters
-// [?expr] / [?(expr)] with == != < <= > >= && || ! ( ), literals and length() / match() / search().
+// [?expr] / [?(expr)] with == != < <= > >= && || ! ( ), literals and the RFC 9535 functions length() / count() / match() / search() / value().
 // The same expression language powers WHERE clauses, where bare names refer to the current item.
 
 type Token = { kind: "num" | "str" | "id" | "op"; value: string; num?: number; pos: number };
@@ -262,7 +262,7 @@ class Parser {
           args.push(this.or());
         }
         this.take(")");
-        if (!functions[t.value]) throw new QueryError(`Unknown function ${t.value}() at ${t.pos + 1}`);
+        if (!functions[t.value] && !nodeFunctions[t.value]) throw new QueryError(`Unknown function ${t.value}() at ${t.pos + 1}`);
         return { kind: "fn", name: t.value, args };
       }
       if (this.mode === "where") {
@@ -339,6 +339,12 @@ const functions: Record<string, (...args: unknown[]) => unknown> = {
   search: (s, re) => (typeof s === "string" && typeof re === "string" ? safeRegex(re)?.test(s) ?? false : false),
 };
 
+// count() and value() take the matches of a query rather than a single value.
+const nodeFunctions: Record<string, (v: Value) => unknown> = {
+  count: (v) => (isNodes(v) ? v.length : Nothing),
+  value: (v) => singular(v),
+};
+
 function safeRegex(src: string) {
   try {
     return new RegExp(src, "u");
@@ -354,6 +360,7 @@ function evaluate(e: Expr, current: unknown, root: unknown, mode: Mode): Value {
     case "query":
       return run(e.segments, { value: e.root === "@" ? current : root, path: [] }, root);
     case "fn":
+      if (nodeFunctions[e.name]) return nodeFunctions[e.name](evaluate(e.args[0], current, root, mode));
       return functions[e.name](...e.args.map((a) => singular(evaluate(a, current, root, mode))));
     case "not":
       return !truthy(evaluate(e.a, current, root, mode), e.a, mode);

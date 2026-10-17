@@ -28,7 +28,7 @@ export const querySelectorTool: ToolMeta = {
     },
     {
       q: "Are filter expressions supported?",
-      a: "Yes, for example $.items[?(@.price < 10)] selects every item cheaper than 10. Filters support ==, !=, <, <=, >, >=, &&, ||, ! and the length(), match() and search() functions.",
+      a: "Yes, for example $.items[?(@.price < 10)] selects every item cheaper than 10. Filters support ==, !=, <, <=, >, >=, &&, ||, ! and the RFC 9535 functions length(), count(), match(), search() and value().",
     },
     {
       q: "How do WHERE and SELECT work?",
