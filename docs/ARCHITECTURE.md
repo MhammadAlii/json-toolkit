@@ -12,7 +12,7 @@ Dependencies point inward only. Outer layers may import inner ones, never the re
 ```
 app/                      routes: URLs, metadata, wiring only
   └─▶ components/layout/  app shell: header, search, footer, logo
-        └─▶ features/      home · tools · converters · legal · company · ads
+        └─▶ features/      home · tools · converters · utilities · guides · legal · company · ads
               └─▶ components/ui, icons, seo, tool  +  hooks/   (shared, feature-agnostic)
                     └─▶ config/   site, ads and legal settings from env
                           └─▶ core/    pure domain: JSON primitives, tool model
@@ -20,7 +20,7 @@ app/                      routes: URLs, metadata, wiring only
 
 | Layer | Path | Contains | May import |
 | --- | --- | --- | --- |
-| Core | `src/core/` | Framework-free domain code: JSON parsing with line/column errors, `TransformResult`, path formatting (`core/json`), the tool model `ToolMeta` / `ToolSlug` / categories (`core/tool`), JSON syntax tokenizing (`core/json/tokenize.ts`), value description (`core/json/describe.ts`), path lookup (`valueAtPath` in `core/json/path.ts`), table building, filtering and projection (`core/json/table.ts`), CSV writing (`toCsv` in `core/json/csv.ts`, RFC 4180 with `CsvOptions` for delimiter, quoting, headers, flattening, arrays, nulls and column order, on `tabulate`, which flattens rows into headers and raw values), an uncompressed ZIP writer (`zip` in `core/file/zip.ts`), deep key sorting (`sortDeep` in `core/json/sort.ts`), a strict RFC 8259 syntax checker (`lintJson` in `core/json/lint.ts`, which names the first error with a code such as `MISSING_COMMA` and its exact location), structure counts (`jsonStats` in `core/json/stats.ts`), a JSON Schema validator (`validateSchema` in `core/json/schema.ts`, core keywords of drafts 2020-12 / 2019-09 / 07 with local `$ref`), schema inference (`inferSchema` in `core/json/infer-schema.ts`), path-to-line lookup (`locateLines` in `core/json/locate.ts`), a safe JSONPath evaluator (`core/json/jsonpath.ts`: `queryJsonPath` for RFC 9535-style queries, `compileCondition` for WHERE conditions where bare names refer to the current item, `compileField` for field references), and text helpers (`core/text`: `matchesQuery`, `formatBytes`, `relativeTime`, `formatUtc`, the linear-space Myers sequence diff `diffSequences` with an optional deadline). | nothing internal |
+| Core | `src/core/` | Framework-free domain code: JSON parsing with line/column errors, `TransformResult`, path formatting (`core/json`), the tool model `ToolMeta` / `ToolSlug` / categories (`core/tool`), JSON syntax tokenizing (`core/json/tokenize.ts`), value description (`core/json/describe.ts`), path lookup (`valueAtPath` in `core/json/path.ts`), table building, filtering and projection (`core/json/table.ts`), CSV writing (`toCsv` in `core/json/csv.ts`, RFC 4180 with `CsvOptions` for delimiter, quoting, headers, flattening, arrays, nulls and column order, on `tabulate`, which flattens rows into headers and raw values), an uncompressed ZIP writer (`zip` in `core/file/zip.ts`), deep key sorting (`sortDeep` in `core/json/sort.ts`), a strict RFC 8259 syntax checker (`lintJson` in `core/json/lint.ts`, which names the first error with a code such as `MISSING_COMMA` and its exact location), structure counts (`jsonStats` in `core/json/stats.ts`), a JSON Schema validator (`validateSchema` in `core/json/schema.ts`, core keywords of drafts 2020-12 / 2019-09 / 07 with local `$ref`), schema inference (`inferSchema` in `core/json/infer-schema.ts`), path-to-line lookup (`locateLines` in `core/json/locate.ts`), a safe JSONPath evaluator (`core/json/jsonpath.ts`: `queryJsonPath` for RFC 9535-style queries, `compileCondition` for WHERE conditions where bare names refer to the current item, `compileField` for field references; filters support the RFC 9535 functions `length`, `count`, `match`, `search` and `value`), and text helpers (`core/text`: `matchesQuery`, `formatBytes`, `relativeTime`, `formatUtc`, `formatDay`, the linear-space Myers sequence diff `diffSequences` with an optional deadline). | nothing internal |
 | Config | `src/config/` | Site, ads and legal settings, read from env vars with defaults. | core |
 | Hooks | `src/hooks/` | Reusable client hooks (`useClipboard`, `useUrlHash`, `useShortcutLabel`, `useWorkerTask`). | core, config |
 | Shared UI | `src/components/ui`, `icons`, `seo`, `tool` | Design-system components, icons, structured data and the tool page shell. Know nothing about features. | core, config, hooks |
@@ -32,10 +32,11 @@ app/                      routes: URLs, metadata, wiring only
 
 | Feature | Path | Owns |
 | --- | --- | --- |
-| Home | `features/home/` | Home page: hero, the Formatter workspace, stats and ad slots. |
+| Home | `features/home/` | Home page: hero, the Formatter workspace, ad slots, then indexable content: the tool groups with a link to every tool (`HomeToolGroup`), reasons to use the site (`HomeHighlight`), the latest guides and an FAQ (`home-faqs.ts`, also as FAQ structured data). |
 | Tools | `features/tools/` | The `/tools` directory page (`directory/`, every category except converters and utilities), `shared/` (`ToolLayout` for tool pages, `DirectoryLayout` for the `/tools`, `/converters` and `/utilities` listings) and the tool sub-features: formatter (`formatter-workspace.tsx` with Code, Tree and Table views, Format/Minify and Sort keys, used on the home page and the Formatter, Tree Viewer and Table Viewer pages), validator, repair, minifier, tree-viewer, table-viewer, deep-search, diff, schema-validator, query-selector. `registry.ts` lists them. |
 | Converters | `features/converters/` | The `/converters` listing page (`directory/`, each converter as a `ToolCard`). Sub-features: json-to-yaml, json-to-csv, json-to-typescript, json-to-excel, json-to-xml, json-to-sql, json-to-string (both directions). `registry.ts` lists them. |
 | Utilities | `features/utilities/` | The `/utilities` listing page (`directory/`, each utility as a `ToolCard`). Sub-features: jwt-decoder, url-encoder, base64-converter, epoch-converter. `registry.ts` lists them. |
+| Guides | `features/guides/` | The `/guides` listing (`directory/`) and one folder per guide: `meta.ts` (`GuideMeta`: SEO title, description, keywords, summary, dates, reading time, the tools it uses and an FAQ) and `<slug>-guide.tsx` (the article). `shared/` holds `GuideLayout` (header with the hero ad, article, ad, FAQ, tool cards and more guides), `GuideStructuredData` (TechArticle, breadcrumb and FAQ), `GuideCode` (code samples, JSON coloured like the tools), `GuideSection`, `GuideLink`, `InlineCode`, `GuideCard` and `guideMetadata`. `registry.ts` lists them; each guide has its own route under `app/(guides)/guides/<slug>/`. |
 | Legal | `features/legal/` | `privacy/`, `terms/`, `licenses/` pages and the shared `components/` (legal section and paragraph). |
 | Company | `features/company/` | `about/` and `contact/` pages, the contact form and request types. |
 | Ads | `features/ads/` | AdSense slot with reserved height. |
@@ -117,7 +118,7 @@ stay inside that feature, also one per file.
 | `components/ui/` — forms | `FormField`, `TextInput`, `Textarea`, `Select` (sharing `input-styles.ts`), `Checkbox`, `CodeEditor` (monospace input with line numbers, an optional `highlightLine` in danger or brand tone, and a `ref`), `LineGutter` (optional highlighted line) |
 | `components/json/` | `JsonCodeView` (syntax highlighting and line numbers), `JsonTreeView` + `JsonTreeNode` (collapsible, optionally selectable), `JsonExplorerLayout` (output beside `JsonNodeInspector` + `InspectorField`, stacking on narrow containers), `JsonTreeExplorer` (selectable tree), `JsonTableExplorer` (row filter, `JsonTableColumnsMenu`, CSV export, selectable cells, rows revealed 200 at a time) over `JsonTableView` + `JsonTableCell`, `JsonPrimitive`, `JsonColorPicker` (theme presets from `json-color-themes.ts` plus per-token colours), shared `json-token-classes.ts` |
 | `components/icons/` | One file per icon (`search.tsx`, `wand.tsx`, …) using `currentColor`; shared `IconProps` in `icon-props.ts` |
-| `components/seo/` | `JsonLd`, `BreadcrumbJsonLd`, `pageMetadata()` (title, description, canonical, Open Graph, Twitter) |
+| `components/seo/` | `JsonLd`, `BreadcrumbJsonLd`, `FaqJsonLd`, `pageMetadata()` (title, description, canonical, Open Graph, Twitter) |
 | `components/tool/` | `ToolStructuredData`, `toolMetadata()` (built on `pageMetadata`), `ToolHeader` (icon, title, summary and an aside slot), `JsonInputPanel` + `toolPanelHeight` (the home formatter's input panel: title, `extraActions`, Clear, drag-and-drop; optional placeholder, soft wrap, `onFile` for binary files and `content` to replace the editor), `ToolSeoContent` (how-to, FAQ and related tools below each implemented tool), `ToolCard`, `CategoryHeading`, `ToolGlyph`, `tool-icons.ts` (icon and tint maps), `tool-category-style.ts` |
 | `components/layout/` | `SiteHeader`, `SiteFooter`, `Logo`, `search/` (`SearchPalette`, `SearchResult`, `SearchHints`, `search-item.ts`) |
 | `hooks/` | `useClipboard`, `useDownload`, `useUrlHash`, `useShortcutLabel`, `useStoredState` (localStorage-backed state), `useNow` (the current Unix time, ticking every second, null on the server), `useWorkerTask` (runs a task in a Web Worker, cancelling the previous run, with a main-thread fallback), `useJsonColors` |
@@ -161,7 +162,9 @@ The values come from the Figma file.
 src/
 ├── app/                        # routing only
 │   ├── (company)/about, contact
-│   ├── (converters)/json-to-yaml, json-to-csv, …
+│   ├── (converters)/converters (directory), json-to-yaml, json-to-csv, …
+│   ├── (guides)/guides (directory), guides/<slug>
+│   ├── (utilities)/utilities (directory), jwt-decoder, url-encoder, base64-converter, epoch-converter
 │   ├── (legal)/privacy, terms, licenses
 │   ├── (tools)/tools (directory), json-formatter, json-validator, …
 │   ├── ads.txt/route.ts, sitemap.ts, robots.ts, manifest.ts
@@ -175,7 +178,7 @@ src/
 │   ├── text/                   # matches-query.ts, format-bytes.ts
 │   └── tool/                   # types.ts
 ├── features/
-│   ├── ads/   company/   converters/   home/   legal/   tools/
+│   ├── ads/   company/   converters/   guides/   home/   legal/   tools/   utilities/
 │   └── catalog.ts
 └── hooks/                      # use-clipboard, use-download, use-url-hash, use-shortcut-label, use-stored-state, use-worker-task, use-json-colors, use-now
 ```
