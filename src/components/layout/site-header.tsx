@@ -20,6 +20,7 @@ const nav = [
   { label: "Tools", href: "/tools" },
   { label: "Converters", href: "/converters" },
   { label: "Utilities", href: "/utilities" },
+  { label: "Guides", href: "/guides" },
 ];
 
 export function SiteHeader() {

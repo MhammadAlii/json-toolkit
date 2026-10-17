@@ -6,7 +6,7 @@ export const site = {
     "Format, validate, minify and convert JSON online. Free JSON tools that run entirely in your browser: nothing you paste is uploaded to a server.",
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
   locale: "en_US",
-  lastUpdated: "2026-10-06",
+  lastUpdated: "2026-10-17",
   copyrightYear: "2026",
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "",
 } as const;

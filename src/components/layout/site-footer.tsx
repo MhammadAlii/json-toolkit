@@ -32,6 +32,7 @@ const columns: Column[] = [
     gap: "gap-4",
     links: [
       { label: "About Us", href: "/about" },
+      { label: "Guides", href: "/guides" },
       { label: "Contact", href: "/contact" },
     ],
   },
