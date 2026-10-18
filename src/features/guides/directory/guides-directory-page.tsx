@@ -2,14 +2,13 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 import { pageMetadata } from "@/components/seo/page-metadata";
 import { Lead } from "@/components/ui/lead";
 import { PageTitle } from "@/components/ui/page-title";
-import { site } from "@/config/site";
 import { AdSlot } from "@/features/ads/ad-slot";
 import { guides } from "../registry";
 import { GuideCard } from "../shared/guide-card";
 
 export const guidesDirectoryMetadata = pageMetadata({
   title: "JSON Guides – Fix Errors, Format, Convert and Query JSON",
-  description: `Practical guides to working with JSON: fixing parse errors, formatting, JSON vs YAML, converting to Excel, JWTs and JSONPath, each with a free ${site.name} tool to try it.`,
+  description: "Practical guides to JSON and the formats around it: parse errors, formatting, JSON Schema, JSONPath, JSON vs YAML and XML, Excel, diffs, JWTs, Base64, URL encoding and Unix timestamps.",
   path: "/guides",
   absoluteTitle: true,
 });

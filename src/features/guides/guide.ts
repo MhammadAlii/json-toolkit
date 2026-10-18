@@ -1,6 +1,18 @@
 import type { ToolSlug } from "@/core/tool/types";
 
-export type GuideSlug = "fix-json-errors" | "format-json" | "json-vs-yaml" | "json-to-excel" | "what-is-jwt" | "jsonpath-cheat-sheet";
+export type GuideSlug =
+  | "fix-json-errors"
+  | "format-json"
+  | "json-vs-yaml"
+  | "json-vs-xml"
+  | "json-to-excel"
+  | "compare-json"
+  | "json-schema-tutorial"
+  | "jsonpath-cheat-sheet"
+  | "what-is-jwt"
+  | "base64-explained"
+  | "url-encoding"
+  | "unix-timestamp";
 
 export type GuideMeta = {
   slug: GuideSlug;

@@ -206,10 +206,14 @@ URL (`/privacy`, not `/legal/privacy`).
   request-specific APIs such as `useSearchParams` must sit inside a `<Suspense>` boundary.
 - Every page has a unique title, description and canonical URL; `metadataBase` comes from
   `NEXT_PUBLIC_SITE_URL`.
-- Structured data: `WebSite` (home), `ItemList` (`/tools`), `WebApplication` (tools and converters), `AboutPage`,
-  `ContactPage`, and `BreadcrumbList` on every inner page.
+- Structured data: `WebSite` (home), `ItemList` (`/tools`), `WebApplication` (tools, converters and utilities),
+  `TechArticle` and `FAQPage` (guides), `AboutPage`, `ContactPage`, and `BreadcrumbList` on every inner page.
 - `sitemap.xml`, `robots.txt`, `manifest.webmanifest` and social images come from Next.js file
   conventions in `app/`.
+- IndexNow: the key lives in `config/indexnow.json` and is served at `/<key>.txt`. After each successful
+  production deploy, `.github/workflows/indexnow.yml` runs `scripts/indexnow.mjs`, which submits every sitemap URL
+  to IndexNow (Bing, Yandex and the engines that share it). Run it by hand with `npm run indexnow`, or
+  `npm run indexnow -- --dry-run` to list the URLs without submitting.
 
 ## Ads
 
