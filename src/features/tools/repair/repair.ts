@@ -173,6 +173,18 @@ function tokenize(input: string): Tok[] {
           advance(1);
         }
       }
+      if (unterminated) {
+        // With the closing quote missing, the string ran on to the end of the line or the input and took the
+        // brackets that close its object or array with it ({"key": "text.}). Hand them back as brackets.
+        let back = i;
+        while (back > start + 1 && /[\s}\]]/.test(input[back - 1])) back--;
+        while (back < i && /\s/.test(input[back])) back++;
+        if (back < i && /[}\]]/.test(input.slice(back, i))) {
+          value = value.slice(0, value.length - (i - back)).trimEnd();
+          for (let k = back; k < i; k++) if (input[k] === "\n") line--;
+          i = back;
+        }
+      }
       tokens.push({ t: "str", value, raw: input.slice(start, i), quote: c, line: startLine, endLine: line, unterminated, control, badEscape, innerQuote });
     } else if ("{}[]:,".includes(c)) {
       tokens.push({ t: "punct", raw: c as "{", line });
