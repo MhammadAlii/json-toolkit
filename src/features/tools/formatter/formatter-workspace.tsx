@@ -1,6 +1,7 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { AlignLeftIcon } from "@/components/icons/align-left";
 import { ArrowDownAZIcon } from "@/components/icons/arrow-down-a-z";
 import { CompressIcon } from "@/components/icons/compress";
 import { DownloadIcon } from "@/components/icons/download";
@@ -17,6 +18,7 @@ import { Panel } from "@/components/ui/panel";
 import { PanelTitle } from "@/components/ui/panel-title";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { lintJson } from "@/core/json/lint";
+import { looseFormat } from "@/core/json/loose-format";
 import { describeParseError, parseJson } from "@/core/json/parse";
 import { sortDeep } from "@/core/json/sort";
 import { formatBytes } from "@/core/text/format-bytes";
@@ -54,6 +56,35 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
   const lint = useMemo(() => (parsed.ok || deferredInput.trim() === "" ? null : lintJson(deferredInput)), [parsed, deferredInput]);
   const lintError = lint && !lint.ok ? lint.error : null;
 
+  const editor = useRef<HTMLTextAreaElement>(null);
+  // Set when formatting the input should also select the error, applied once the new text has rendered.
+  const pendingSelection = useRef<number | null>(null);
+
+  // Formats the input in place so long one-line JSON can be edited; invalid JSON is indented anyway.
+  const formatInput = (selectError: boolean) => {
+    const valid = parseJson(input);
+    if (valid.ok) {
+      setInput(JSON.stringify(valid.value, null, 2));
+      return;
+    }
+    const check = lintJson(input);
+    const formatted = looseFormat(input, check.ok ? undefined : check.error.offset);
+    if (selectError && formatted.mark) pendingSelection.current = formatted.mark.offset;
+    setInput(formatted.text);
+  };
+
+  useEffect(() => {
+    const at = pendingSelection.current;
+    const box = editor.current;
+    if (at === null || !box) return;
+    pendingSelection.current = null;
+    box.focus();
+    box.setSelectionRange(at, at + 1);
+    // Centre the selected line; the editor's line height is 20px plus 16px of top padding.
+    const line = input.slice(0, at).split("\n").length;
+    box.scrollTop = 16 + (line - 1) * 20 - box.clientHeight / 2;
+  }, [input]);
+
   const validity: FormatterValidity = deferredInput.trim() === "" ? "empty" : parsed.ok ? "valid" : "invalid";
   const size = formatBytes(new TextEncoder().encode(deferredInput).length);
   const lines = (output || deferredInput).split("\n").length;
@@ -65,12 +96,18 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
           className={panelHeight}
           header={<PanelTitle>Input</PanelTitle>}
           actions={
-            <Button variant="soft" size="tiny" onClick={() => setInput("")} disabled={!input}>
-              <TrashIcon className="h-[11px] w-auto" /> Clear
-            </Button>
+            <>
+              <Button variant="soft" size="tiny" onClick={() => formatInput(false)} disabled={!input.trim()} title="Indent the input so it's easier to edit">
+                <AlignLeftIcon className="h-[11px] w-auto" /> Format
+              </Button>
+              <Button variant="soft" size="tiny" onClick={() => setInput("")} disabled={!input}>
+                <TrashIcon className="h-[11px] w-auto" /> Clear
+              </Button>
+            </>
           }
         >
           <CodeEditor
+            ref={editor}
             aria-label="JSON input"
             value={input}
             onChange={setInput}
@@ -117,7 +154,7 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
           }
         >
           {validity === "empty" ? null : lintError ? (
-            <FormatterErrorView input={deferredInput} error={lintError} />
+            <FormatterErrorView input={deferredInput} error={lintError} onFixInInput={() => formatInput(true)} />
           ) : !parsed.ok ? (
             <p role="alert" className="p-4 font-mono text-sm leading-5 text-danger">
               {describeParseError(parsed.error)}

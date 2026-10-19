@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { looseFormat } from "@/core/json/loose-format";
 import type { LintError } from "@/core/json/lint";
 import { explain } from "@/features/tools/validator/validator";
@@ -10,7 +11,7 @@ const windowSize = 400;
 
 // Shows invalid JSON indented anyway, with the line and character where parsing failed highlighted, so an
 // error in a one-line paste is easy to find. The panel scrolls to it whenever it moves.
-export function FormatterErrorView({ input, error }: { input: string; error: LintError }) {
+export function FormatterErrorView({ input, error, onFixInInput }: { input: string; error: LintError; onFixInInput: () => void }) {
   const { text, mark } = looseFormat(input, error.offset);
   const e = explain(error);
   const lines = text.split("\n");
@@ -30,15 +31,20 @@ export function FormatterErrorView({ input, error }: { input: string; error: Lin
 
   return (
     <div className="flex min-h-full flex-col">
-      <div role="alert" className="sticky top-0 z-10 flex flex-col gap-1 border-b border-danger/30 bg-danger/10 px-4 py-3 backdrop-blur">
-        <p className="text-sm leading-5 font-semibold text-danger">
-          {e.lead}
-          {e.token && <code className="rounded bg-danger/15 px-1 font-mono">{e.token}</code>}
-          {e.trail}
-        </p>
-        <p className="text-xs leading-5 text-muted">
-          {e.what} It&apos;s highlighted below on line {errorLine} of the formatted view.
-        </p>
+      <div role="alert" className="sticky top-0 z-10 flex items-start gap-3 border-b border-danger/30 bg-danger/10 px-4 py-3 backdrop-blur">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <p className="text-sm leading-5 font-semibold text-danger">
+            {e.lead}
+            {e.token && <code className="rounded bg-danger/15 px-1 font-mono">{e.token}</code>}
+            {e.trail}
+          </p>
+          <p className="text-xs leading-5 text-muted">
+            {e.what} It&apos;s highlighted below on line {errorLine} of the formatted view.
+          </p>
+        </div>
+        <Button variant="secondary" size="xs" onClick={onFixInInput} className="shrink-0">
+          Fix in input
+        </Button>
       </div>
       <pre className="min-w-max flex-1 py-4 font-mono text-sm leading-5 text-muted/90">
         {from > 1 && <div className="px-4 pb-2 text-xs text-muted/60">… {from - 1} lines above</div>}

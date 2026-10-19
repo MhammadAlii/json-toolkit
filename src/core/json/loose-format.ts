@@ -2,8 +2,8 @@ import { positionToLineColumn } from "./parse";
 
 export type LooseFormat = {
   text: string;
-  /** Where `markOffset` (an offset in the input) ended up in `text`; 1-based. */
-  mark?: { line: number; column: number };
+  /** Where `markOffset` (an offset in the input) ended up in `text`: an offset, plus a 1-based line and column. */
+  mark?: { offset: number; line: number; column: number };
 };
 
 type Token = { start: number; end: number; kind: "open" | "close" | "comma" | "colon" | "comment" | "other" };
@@ -83,5 +83,5 @@ export function looseFormat(text: string, markOffset?: number, indent = 2): Loos
   });
 
   if (markOffset !== undefined && markAt === undefined) markAt = out.length;
-  return { text: out, mark: markAt === undefined ? undefined : positionToLineColumn(out, markAt) };
+  return { text: out, mark: markAt === undefined ? undefined : { offset: markAt, ...positionToLineColumn(out, markAt) } };
 }
