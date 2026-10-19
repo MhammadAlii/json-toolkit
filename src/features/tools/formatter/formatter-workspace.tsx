@@ -16,11 +16,13 @@ import { CopyIconButton } from "@/components/ui/copy-icon-button";
 import { Panel } from "@/components/ui/panel";
 import { PanelTitle } from "@/components/ui/panel-title";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { lintJson } from "@/core/json/lint";
 import { describeParseError, parseJson } from "@/core/json/parse";
 import { sortDeep } from "@/core/json/sort";
 import { formatBytes } from "@/core/text/format-bytes";
 import { useDownload } from "@/hooks/use-download";
 import { useJsonColors } from "@/hooks/use-json-colors";
+import { FormatterErrorView } from "./formatter-error-view";
 import { FormatterStats, type FormatterValidity } from "./formatter-stats";
 
 export type FormatterView = "code" | "tree" | "table";
@@ -48,6 +50,9 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
   const parsed = useMemo(() => parseJson(deferredInput), [deferredInput]);
   const value = useMemo(() => (parsed.ok && sortKeys ? sortDeep(parsed.value) : parsed.ok ? parsed.value : undefined), [parsed, sortKeys]);
   const output = parsed.ok ? JSON.stringify(value, null, mode === "format" ? 2 : undefined) : "";
+  // Only invalid input needs the strict checker, which knows the exact offset of the error.
+  const lint = useMemo(() => (parsed.ok || deferredInput.trim() === "" ? null : lintJson(deferredInput)), [parsed, deferredInput]);
+  const lintError = lint && !lint.ok ? lint.error : null;
 
   const validity: FormatterValidity = deferredInput.trim() === "" ? "empty" : parsed.ok ? "valid" : "invalid";
   const size = formatBytes(new TextEncoder().encode(deferredInput).length);
@@ -70,6 +75,7 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
             value={input}
             onChange={setInput}
             placeholder="Paste your JSON here…"
+            highlightLine={lintError && input === deferredInput ? lintError.line : undefined}
             className="text-muted/80 placeholder:text-muted/40"
           />
         </Panel>
@@ -110,7 +116,9 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
             </>
           }
         >
-          {validity === "empty" ? null : !parsed.ok ? (
+          {validity === "empty" ? null : lintError ? (
+            <FormatterErrorView input={deferredInput} error={lintError} />
+          ) : !parsed.ok ? (
             <p role="alert" className="p-4 font-mono text-sm leading-5 text-danger">
               {describeParseError(parsed.error)}
             </p>
