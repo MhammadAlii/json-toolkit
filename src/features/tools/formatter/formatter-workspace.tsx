@@ -83,11 +83,12 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
   const fixInInput = () => formatAndSelectIssue(input);
 
   // A paste of invalid JSON is formatted straight away; typing isn't, so text doesn't move under the cursor.
+  // Only text that starts like JSON is reformatted: an AI answer or a code block is kept as pasted.
   const pasted = useRef(false);
   const onInputChange = (text: string) => {
     if (pasted.current) {
       pasted.current = false;
-      return formatAndSelectIssue(text);
+      if (/^\uFEFF?\s*[[{]/.test(text)) return formatAndSelectIssue(text);
     }
     setInput(text);
   };
@@ -195,7 +196,7 @@ export function FormatterWorkspace({ lockedView }: { lockedView?: FormatterView 
             </p>
           ) : (
             <>
-              {fixed && <FormatterFixNotice changes={fixed.changes} />}
+              {fixed && <FormatterFixNotice changes={fixed.changes} onUseFixed={() => setInput(JSON.stringify(fixed.value, null, 2))} />}
               {view === "code" ? <JsonCodeView text={output} /> : view === "tree" ? <JsonTreeExplorer value={value} /> : <JsonTableExplorer value={value} />}
             </>
           )}

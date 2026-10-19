@@ -71,8 +71,9 @@ export function looseFormat(text: string, markOffset?: number, indent = 2): Loos
       newline();
     } else if (prev && prev.kind === "colon") {
       out += " ";
-    } else if (prev && t.kind !== "comma" && t.kind !== "colon") {
-      // Two values in a row (a missing comma): keep them apart so the gap is visible.
+    } else if (prev && t.kind !== "comma" && t.kind !== "colon" && prev.end < t.start) {
+      // Two values in a row (a missing comma): keep them apart so the gap is visible. Tokens that touched in
+      // the input stay touching, so text around a stray quote ("Ann "The" Lee") isn't changed.
       out += " ";
     }
     if (markOffset !== undefined && markAt === undefined && markOffset < t.end) {
