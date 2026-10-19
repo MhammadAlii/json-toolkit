@@ -4,13 +4,14 @@ import { DatabaseIcon } from "@/components/icons/database";
 import { ListOrderedIcon } from "@/components/icons/list-ordered";
 import { StatCard } from "@/components/ui/stat-card";
 
-export type FormatterValidity = "valid" | "invalid" | "empty";
+export type FormatterValidity = "valid" | "fixed" | "invalid" | "empty";
 
 type Shown = Exclude<FormatterValidity, "empty">;
 
-const validityLabel: Record<Shown, string> = { valid: "Valid JSON", invalid: "Invalid JSON" };
+const validityLabel: Record<Shown, string> = { valid: "Valid JSON", fixed: "Auto-fixed", invalid: "Invalid JSON" };
 const validityTint: Record<Shown, string> = {
   valid: "bg-tint-green/20 text-tint-green",
+  fixed: "bg-tint-amber/20 text-tint-amber",
   invalid: "bg-tint-red/20 text-tint-red",
 };
 
