@@ -6,4 +6,5 @@ export const ruleDot: Record<RepairRule, string> = {
   brackets: "bg-tint-violet",
   comments: "bg-tint-amber",
   literals: "bg-tint-pink",
+  extras: "bg-tint-orange",
 };

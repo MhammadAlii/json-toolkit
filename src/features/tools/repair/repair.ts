@@ -4,7 +4,7 @@ import type { TransformResult } from "@/core/json/parse";
 // trailing commas, unclosed brackets, Python/JS literals…) and records every change it makes, with
 // the input line and where the fix appears in the pretty-printed output.
 
-export type RepairRule = "quotes" | "commas" | "brackets" | "comments" | "literals";
+export type RepairRule = "quotes" | "commas" | "brackets" | "comments" | "literals" | "extras";
 
 export const repairRules: { id: RepairRule; label: string; hint: string }[] = [
   { id: "quotes", label: "Quotes", hint: "Single quotes, backticks, unquoted keys and values" },
@@ -12,11 +12,12 @@ export const repairRules: { id: RepairRule; label: string; hint: string }[] = [
   { id: "brackets", label: "Brackets", hint: "Closes unclosed brackets and strings, removes stray ones" },
   { id: "comments", label: "Comments", hint: "Removes // and /* */ comments" },
   { id: "literals", label: "Literals", hint: "True, None, undefined, NaN, hex and other invalid numbers" },
+  { id: "extras", label: "Extra text", hint: "Code fences, text or code around the JSON, wrappers like ObjectId() and … placeholders" },
 ];
 
 export type RepairOptions = Record<RepairRule, boolean>;
 
-export const allRules: RepairOptions = { quotes: true, commas: true, brackets: true, comments: true, literals: true };
+export const allRules: RepairOptions = { quotes: true, commas: true, brackets: true, comments: true, literals: true, extras: true };
 
 export type RepairChange = {
   rule: RepairRule;
@@ -40,12 +41,28 @@ export type RepairResult =
   | { status: "blocked"; rule: RepairRule; line: number; title: string };
 
 type Tok =
-  | { t: "str"; value: string; raw: string; quote: string; line: number; endLine: number; unterminated: boolean; control: boolean }
+  | {
+      t: "str";
+      value: string;
+      raw: string;
+      quote: string;
+      line: number;
+      endLine: number;
+      unterminated: boolean;
+      control: boolean;
+      /** A backslash that isn't a JSON escape, kept as a literal backslash. */
+      badEscape: boolean;
+      /** A quote inside the string that should have been escaped. */
+      innerQuote: boolean;
+    }
   | { t: "word"; raw: string; line: number }
   | { t: "punct"; raw: "{" | "}" | "[" | "]" | ":" | ","; line: number }
   | { t: "comment"; raw: string; line: number };
 
 const ESCAPES: Record<string, string> = { n: "\n", t: "\t", r: "\r", b: "\b", f: "\f", "/": "/", "\\": "\\", '"': '"', "'": "'", "`": "`" };
+
+// Curly quotes from word processors and notes apps, mapped to the characters that may close them.
+const SMART_QUOTES: Record<string, string> = { "“": "”“", "”": "”“", "‘": "’‘", "’": "’‘" };
 
 function tokenize(input: string): Tok[] {
   const tokens: Tok[] = [];
@@ -55,6 +72,30 @@ function tokenize(input: string): Tok[] {
     for (let k = 0; k < n; k++) if (input[i + k] === "\n") line++;
     i += n;
   };
+  const nextNonSpace = (from: number) => {
+    let k = from;
+    while (k < input.length && (input[k] === " " || input[k] === "\t" || input[k] === "\r")) k++;
+    return k;
+  };
+  // After a closing quote, JSON can only continue with a delimiter, a line break or the end.
+  const endsValue = (k: number) => k >= input.length || ",}]\n".includes(input[k]);
+  // Finds a later quote that properly ends the string, within `lines` line breaks, and returns its index
+  // (or -1). A quote followed by a colon starts a key instead, so the string really did end there.
+  const laterCloser = (from: number, closers: string, lines: number) => {
+    for (let j = from; j < input.length; j++) {
+      if (input[j] === "\n" && --lines < 0) return -1;
+      if (input[j] === "\\") {
+        j++;
+        continue;
+      }
+      if (!closers.includes(input[j])) continue;
+      const k = nextNonSpace(j + 1);
+      if (input[k] === ":") return -1;
+      if (endsValue(k)) return j;
+    }
+    return -1;
+  };
+
   while (i < input.length) {
     const c = input[i];
     if (/\s/.test(c)) {
@@ -66,21 +107,49 @@ function tokenize(input: string): Tok[] {
       const stop = end === -1 ? input.length : input[i + 1] === "/" ? end : end + 2;
       advance(stop - i);
       tokens.push({ t: "comment", raw: input.slice(start, stop), line: startLine });
-    } else if (c === '"' || c === "'" || c === "`") {
+    } else if (c === '"' || c === "'" || c === "`" || c in SMART_QUOTES) {
       const start = i;
       const startLine = line;
+      const closers = SMART_QUOTES[c] ?? c;
       let value = "";
       let control = false;
       let unterminated = false;
+      let badEscape = false;
+      let innerQuote = false;
+      // Once the real closing quote is known, quotes and line breaks before it need no more look-ahead,
+      // which keeps long lines full of quotes linear.
+      let closesAt = -1;
+      const continuesTo = (lines: number) => {
+        if (closesAt > i) return true;
+        closesAt = laterCloser(i + 1, closers, lines);
+        return closesAt > i;
+      };
       advance(1);
       for (;;) {
         const d = input[i];
-        // A line break usually means the closing quote is missing; backticks may span lines.
-        if (d === undefined || (d === "\n" && c !== "`")) {
+        if (d === undefined) {
           unterminated = true;
           break;
         }
-        if (d === c) {
+        // A line break usually means the closing quote is missing, unless the string clearly carries on
+        // and ends on a following line. Backticks may always span lines.
+        if (d === "\n" && c !== "`" && !continuesTo(5)) {
+          unterminated = true;
+          break;
+        }
+        if (closers.includes(d)) {
+          // A quote followed by more text on the same line, with a proper closing quote later, is a quote
+          // inside the string that should have been escaped: "He said "hi" to me".
+          const k = nextNonSpace(i + 1);
+          const next = input[k];
+          const inner =
+            closesAt > i || (!endsValue(k) && next !== ":" && !`"'\`{[/`.includes(next) && !(next in SMART_QUOTES) && continuesTo(0));
+          if (inner) {
+            innerQuote = true;
+            value += d;
+            advance(1);
+            continue;
+          }
           advance(1);
           break;
         }
@@ -89,9 +158,14 @@ function tokenize(input: string): Tok[] {
           if (e === "u" && /^[0-9a-fA-F]{4}$/.test(input.slice(i + 2, i + 6))) {
             value += String.fromCharCode(parseInt(input.slice(i + 2, i + 6), 16));
             advance(6);
-          } else {
-            value += ESCAPES[e] ?? e;
+          } else if (e in ESCAPES) {
+            value += ESCAPES[e];
             advance(2);
+          } else {
+            // Not a JSON escape, as in a Windows path (C:\Users): keep the backslash as a character.
+            badEscape = true;
+            value += "\\";
+            advance(1);
           }
         } else {
           if (d < " ") control = true;
@@ -99,13 +173,13 @@ function tokenize(input: string): Tok[] {
           advance(1);
         }
       }
-      tokens.push({ t: "str", value, raw: input.slice(start, i), quote: c, line: startLine, endLine: line, unterminated, control });
+      tokens.push({ t: "str", value, raw: input.slice(start, i), quote: c, line: startLine, endLine: line, unterminated, control, badEscape, innerQuote });
     } else if ("{}[]:,".includes(c)) {
       tokens.push({ t: "punct", raw: c as "{", line });
       advance(1);
     } else {
       const start = i;
-      while (i < input.length && !/[\s{}[\]:,"'`]/.test(input[i]) && !(input[i] === "/" && /[/*]/.test(input[i + 1] ?? ""))) advance(1);
+      while (i < input.length && !/[\s{}[\]:,"'`“”‘’]/.test(input[i]) && !(input[i] === "/" && /[/*]/.test(input[i + 1] ?? ""))) advance(1);
       tokens.push({ t: "word", raw: input.slice(start, i), line });
     }
   }
@@ -166,6 +240,15 @@ function normalizeNumber(raw: string): string | null {
   return String(m[1] === "-" ? -n : n);
 }
 
+const isPlaceholder = (raw: string) => raw === "..." || raw === "…";
+
+// A word that would become a string: not a literal, number, placeholder or function call.
+function isBareText(raw: string): boolean {
+  if (raw === "true" || raw === "false" || raw === "null" || raw in literalFixes || isPlaceholder(raw)) return false;
+  if (/^-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?$/.test(raw) || normalizeNumber(raw) !== null) return false;
+  return !/\(/.test(raw) && !raw.startsWith(")");
+}
+
 function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): Node {
   let p = 0;
   const lastLine = tokens.length ? tokens[tokens.length - 1].line : 1;
@@ -197,7 +280,7 @@ function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): 
     if (tok.quote !== '"') {
       changes.push(record({
         rule: "quotes",
-        title: tok.quote === "'" ? "Converted Single Quotes to Double Quotes" : "Converted Backticks to Double Quotes",
+        title: tok.quote === "'" ? "Converted Single Quotes to Double Quotes" : tok.quote === "`" ? "Converted Backticks to Double Quotes" : "Converted Smart Quotes to Double Quotes",
         line: tok.line,
         before: short(tok.raw),
         after: short(JSON.stringify(tok.value)),
@@ -205,6 +288,12 @@ function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): 
     }
     if (tok.unterminated) {
       changes.push(record({ rule: "brackets", title: "Closed Unterminated String", line: tok.line, before: short(tok.raw), after: short(JSON.stringify(tok.value)) }));
+    }
+    if (tok.innerQuote) {
+      changes.push(record({ rule: "quotes", title: "Escaped Quotes Inside a String", line: tok.line, before: short(tok.raw), after: short(JSON.stringify(tok.value)) }));
+    }
+    if (tok.badEscape) {
+      changes.push(record({ rule: "quotes", title: "Escaped Backslashes", line: tok.line, note: "A backslash that isn't a JSON escape (as in C:\\Users) was kept as a backslash." }));
     }
     if (tok.control && !asKey) {
       changes.push(record({ rule: "quotes", title: "Escaped Control Characters", line: tok.line, note: "Raw tabs or line breaks inside a string were escaped." }));
@@ -221,6 +310,13 @@ function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): 
       const text = literalFixes[raw];
       const change = record({ rule: "literals", title: "Replaced Non-JSON Literal", line: tok.line, before: raw, after: text });
       return { k: "lit", text, type: text === "null" ? "null" : "boolean", endLine: tok.line, ...marked(change) };
+    }
+    const call = /^([A-Za-z_$][\w$.]*)\(([^()]*)\)$/.exec(raw);
+    if (call) {
+      const inner = call[2].trim();
+      const unwrapped: Node = inner === "" ? { k: "lit", text: "null", type: "null", endLine: tok.line } : word({ t: "word", raw: inner, line: tok.line });
+      const change = record({ rule: "extras", title: "Unwrapped Function Call", line: tok.line, before: short(raw), after: short(inner || "null") });
+      return { ...unwrapped, changes: [...(unwrapped.changes ?? []), change] };
     }
     const number = normalizeNumber(raw);
     if (number !== null) {
@@ -259,6 +355,19 @@ function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): 
       p++;
       return { k: "str", value: tok.value, endLine: tok.endLine, ...string(tok, false) };
     }
+    if (tok.t === "word" && tok.raw === "new" && tokens[p + 1]?.t === "word" && /\($/.test((tokens[p + 1] as { raw: string }).raw)) {
+      p++;
+      return value();
+    }
+    // A call wrapped around a value: ObjectId("…"), ISODate("…"), or JSONP's callback({…}).
+    if (tok.t === "word" && /^[A-Za-z_$][\w$.]*\($/.test(tok.raw)) {
+      p++;
+      const inner = value();
+      const close = peek();
+      if (close?.t === "word" && close.raw.startsWith(")")) p++;
+      const change = record({ rule: "extras", title: "Unwrapped Function Call", line: tok.line, before: `${tok.raw}…)`, note: "Kept only the value inside." });
+      return { ...inner, changes: [...(inner.changes ?? []), change] };
+    }
     if (tok.t === "word") {
       p++;
       return word(tok);
@@ -288,6 +397,11 @@ function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): 
         p++;
         continue;
       }
+      if (tok.t === "word" && isPlaceholder(tok.raw)) {
+        record({ rule: "extras", title: "Removed Placeholder", line: tok.line, before: tok.raw });
+        p++;
+        continue;
+      }
       let key: string;
       const keyMark: Mark = {};
       const keyLine = tok.line;
@@ -312,7 +426,22 @@ function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): 
       } else if (startsValue(tok)) {
         colon.changes = [record({ rule: "commas", title: "Added Missing Colon", line: keyLine, after: ":", note: `after the key "${short(key, 24)}"` })];
       }
-      const v = !tok || isPunct(tok, ",") || isPunct(tok, "}") ? missingValue(keyLine, `The key "${short(key, 24)}" had no value.`) : value();
+      let v: Node;
+      if (!tok || isPunct(tok, ",") || isPunct(tok, "}")) {
+        v = missingValue(keyLine, `The key "${short(key, 24)}" had no value.`);
+      } else if (tok.t === "word" && isBareText(tok.raw) && tokens[p + 1]?.t === "word" && tokens[p + 1].line === tok.line) {
+        // Unquoted text with spaces, like {city: New York}: the words up to the next comma are one value.
+        const first = tok;
+        const words = [first.raw];
+        let j = p + 1;
+        for (let next = tokens[j]; next?.t === "word" && next.line === first.line && isBareText(next.raw) && !isPunct(tokens[j + 1], ":"); next = tokens[++j]) words.push(next.raw);
+        p = j;
+        const text = words.join(" ");
+        const change = record({ rule: "quotes", title: "Quoted Unquoted Value", line: first.line, before: short(text), after: short(JSON.stringify(text)) });
+        v = { k: "str", value: text, endLine: first.line, ...marked(change) };
+      } else {
+        v = value();
+      }
       const entry: Entry = { key, keyMark, colon, value: v, comma: {} };
       entries.push(entry);
       endLine = v.endLine;
@@ -348,6 +477,11 @@ function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): 
         p++;
         continue;
       }
+      if (tok.t === "word" && isPlaceholder(tok.raw)) {
+        record({ rule: "extras", title: "Removed Placeholder", line: tok.line, before: tok.raw });
+        p++;
+        continue;
+      }
       const v = value();
       const item: Item = { value: v, comma: {} };
       items.push(item);
@@ -363,16 +497,45 @@ function parse(tokens: Tok[], options: RepairOptions, changes: RepairChange[]): 
     }
   };
 
-  const skipStray = () => {
+  // Returns the changes it recorded, so they can be dropped along with surrounding text.
+  const skipStray = (): RepairChange[] => {
+    const from = changes.length;
     for (let tok = peek(); tok && tok.t === "punct" && tok.raw !== "{" && tok.raw !== "["; tok = peek()) {
       record({ rule: "brackets", title: "Removed Unexpected Character", line: tok.line, before: tok.raw });
       p++;
     }
+    return changes.slice(from);
   };
 
-  skipStray();
-  const roots: Node[] = [value()];
-  for (skipStray(); peek(); skipStray()) roots.push(value());
+  // Each top-level value with the changes made while reading it, and the stray characters before it.
+  const segments: { node: Node; strays: RepairChange[]; own: RepairChange[] }[] = [];
+  let trailing: RepairChange[] = [];
+  for (;;) {
+    const strays = skipStray();
+    if (!peek()) {
+      trailing = strays;
+      break;
+    }
+    const from = changes.length;
+    const node = value();
+    segments.push({ node, strays, own: changes.slice(from) });
+  }
+  if (segments.length === 0) return value();
+
+  // Text or code around an object or array, as in an AI answer, "const data = {…};" or "export default {…}":
+  // keep the JSON and drop the rest, with everything that was "fixed" inside the dropped text.
+  const isContainer = (n: Node) => n.k === "obj" || n.k === "arr";
+  let kept = segments;
+  if (segments.some((g) => isContainer(g.node)) && segments.some((g) => !isContainer(g.node))) {
+    kept = segments.filter((g) => isContainer(g.node));
+    const dropped = new Set([...segments.filter((g) => !isContainer(g.node)).flatMap((g) => g.own), ...segments.flatMap((g) => g.strays), ...trailing]);
+    const remaining = changes.filter((c) => !dropped.has(c));
+    changes.length = 0;
+    changes.push(...remaining);
+    const firstLine = tokens.find((t) => t.t !== "comment")?.line ?? 1;
+    record({ rule: "extras", title: "Removed Text Around the JSON", line: firstLine, note: "Kept the JSON and removed the text or code before and after it." });
+  }
+  const roots = kept.map((g) => g.node);
   if (roots.length === 1) return roots[0];
   const change = record({ rule: "brackets", title: "Wrapped Multiple Values in an Array", line: 1, note: `Found ${roots.length} top-level values.` });
   // The added brackets and the commas between the values all belong to this one fix.
@@ -413,16 +576,32 @@ function serialize(root: Node): { output: string; segments: OutputSegment[] } {
   return { output: segments.map((s) => s.text).join(""), segments };
 }
 
-export function repair(input: string, options: RepairOptions = allRules): RepairResult {
+export function repair(input: string, options: Partial<RepairOptions> = allRules): RepairResult {
   if (input.trim() === "") return { status: "empty" };
+  // Options saved before a rule existed don't mention it; new rules start on.
+  const rules: RepairOptions = { ...allRules, ...options };
   const changes: RepairChange[] = [];
   let text = input;
   if (text.charCodeAt(0) === 0xfeff) {
     text = text.slice(1);
     changes.push({ rule: "literals", title: "Removed Byte Order Mark", line: 1, note: "Removed the invisible U+FEFF character at the start." });
   }
+  // JSON pasted from a chat answer or a README often sits in a markdown code block.
+  let lineOffset = 0;
+  const fence = /```[^\n`]*\n([\s\S]*?)\n?```/.exec(text);
+  if (fence) {
+    lineOffset = text.slice(0, fence.index).split("\n").length;
+    // Like every other rule, a fix that's switched off stops the repair and says which rule it needs.
+    if (!rules.extras) return { status: "blocked", rule: "extras", line: lineOffset, title: "Removed Markdown Code Fence" };
+    changes.push({ rule: "extras", title: "Removed Markdown Code Fence", line: lineOffset, note: "Kept the JSON inside the ``` code block." });
+    text = fence[1];
+  }
   try {
-    const { output, segments } = serialize(parse(tokenize(text), options, changes));
+    const parsedFrom = changes.length;
+    const tree = parse(tokenize(text), rules, changes);
+    // Lines are counted from the start of the code block; report them as lines of the original input.
+    for (const c of changes.slice(parsedFrom)) c.line += lineOffset;
+    const { output, segments } = serialize(tree);
     return { status: "repaired", output, segments, changes };
   } catch (err) {
     if (err instanceof Blocked) return { status: "blocked", rule: err.rule, line: err.line, title: err.title };

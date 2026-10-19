@@ -20,7 +20,10 @@ import { RepairOutputView } from "./repair-output-view";
 
 export function RepairWorkspace() {
   const [input, setInput] = useState("");
-  const [options, setOptions] = useStoredState<RepairOptions>("json-toolkit:repair-rules", allRules);
+  const [stored, setOptions] = useStoredState<RepairOptions>("json-toolkit:repair-rules", allRules);
+  // Saved options may predate a rule; new rules start on. Memoised on the JSON so the repair stays cached.
+  const storedKey = JSON.stringify(stored);
+  const options = useMemo<RepairOptions>(() => ({ ...allRules, ...(JSON.parse(storedKey) as Partial<RepairOptions>) }), [storedKey]);
   const [focusLine, setFocusLine] = useState<number>();
   const download = useDownload();
   const colors = useJsonColors();
