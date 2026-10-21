@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
       { source: "/sql-to-json", destination: "/json-to-sql", permanent: true },
       { source: "/typescript-to-json", destination: "/json-to-typescript", permanent: true },
       { source: "/ts-to-json", destination: "/json-to-typescript", permanent: true },
+      { source: "/jwt-encoder", destination: "/jwt-decoder", permanent: true },
     ];
   },
   turbopack: {

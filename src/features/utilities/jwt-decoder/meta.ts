@@ -2,23 +2,23 @@ import type { ToolMeta } from "@/core/tool/types";
 
 export const jwtDecoderTool: ToolMeta = {
   slug: "jwt-decoder",
-  name: "JWT Decoder",
-  h1: "JWT Decoder",
-  title: "JWT Decoder – Decode JSON Web Tokens Online",
+  name: "JWT Encoder & Decoder",
+  h1: "JWT Encoder & Decoder",
+  title: "JWT Decoder & Encoder – Decode, Verify and Sign JSON Web Tokens Online",
   description:
-    "Decode JSON Web Tokens to inspect the header, payload, claims and expiry, and verify the signature. Runs entirely in your browser, so your tokens are never sent to a server.",
-  keywords: ["jwt decoder", "decode jwt", "jwt parser", "json web token decoder", "jwt viewer"],
+    "Decode JSON Web Tokens to inspect the header, payload, claims and expiry and verify the signature, or sign a JSON payload into a new token with HS, RS, PS or ES algorithms. Runs entirely in your browser.",
+  keywords: ["jwt decoder", "jwt encoder", "decode jwt", "create jwt", "sign jwt", "jwt generator", "jwt parser", "json web token decoder", "jwt viewer"],
   category: "utilities",
-  tagline: "Inspect JWT header and payload",
-  summary: "Securely decode JSON Web Tokens and inspect header and payload data.",
+  tagline: "Decode, verify and sign JWTs",
+  summary: "Decode and verify JSON Web Tokens, or sign a JSON payload into a new token.",
   icon: "key",
   tint: "pink",
   intro:
-    "Paste a JWT to see its header and payload as formatted JSON, with issued-at and expiry times shown as readable dates. Decoding happens locally, so tokens stay private.",
+    "Paste a JWT to see its header and payload as formatted JSON, with issued-at and expiry times shown as readable dates, or swap direction to sign a JSON payload into a new token. Decoding and signing happen locally, so tokens and keys stay private.",
   steps: [
-    "Paste a JSON Web Token; a leading \"Bearer \" is ignored.",
-    "Read the decoded payload and header, with every claim explained and times shown as dates.",
-    "Use Verify with the secret or public key to check the signature, then copy or download the JSON.",
+    "Paste a JSON Web Token to decode it (a leading \"Bearer \" is ignored), or press Swap and paste a JSON payload to create one.",
+    "Read the decoded payload and header with every claim explained, or open Sign to choose the algorithm, secret or private key, expiry and key ID.",
+    "Use Verify with the secret or public key to check a signature; after signing, Swap carries the token and key across so it shows as verified.",
   ],
   faqs: [
     {
@@ -28,6 +28,10 @@ export const jwtDecoderTool: ToolMeta = {
     {
       q: "Is it safe to paste a real token?",
       a: "The token is decoded in your browser and never sent anywhere. Still, treat production tokens like passwords and avoid sharing them.",
+    },
+    {
+      q: "How do I create a signed JWT?",
+      a: "Press Swap, paste the claims as a JSON object, then open Sign. HS algorithms use a shared secret; RS, PS and ES algorithms use a private key in PEM (PKCS#8) or JWK form, or a key pair generated on the spot. Options add iat, an expiry and a kid header. Keys are never stored or sent anywhere.",
     },
   ],
   related: ["base64-converter", "json-formatter", "epoch-converter"],
