@@ -3,33 +3,97 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { AlignLeftIcon } from "@/components/icons/align-left";
 import { ShieldAlertIcon } from "@/components/icons/shield-alert";
+import { JsonCodeView } from "@/components/json/json-code-view";
 import { JsonInputPanel } from "@/components/tool/json-input-panel";
 import { Button } from "@/components/ui/button";
 import { useJsonColors } from "@/hooks/use-json-colors";
-import { useStoredState } from "@/hooks/use-stored-state";
+import { useStoredOptions } from "@/hooks/use-stored-options";
 import { ConverterOutputPanel } from "@/features/converters/shared/converter-output-panel";
-import { ConverterStats } from "@/features/converters/shared/converter-stats";
-import { byteSize, parseInput } from "@/features/converters/shared/converter";
+import { ConverterStats, statusStat } from "@/features/converters/shared/converter-stats";
+import { byteSize, parseInput, positionedError } from "@/features/converters/shared/converter";
+import { SwapButton } from "@/features/converters/shared/swap-button";
 import { defaultSqlOptions, jsonToSql, type SqlOptions } from "./json-to-sql";
 import { SqlCodeView } from "./sql-code-view";
 import { SqlColumnsCard } from "./sql-columns-card";
 import { SqlOptionsMenu } from "./sql-options-menu";
+import { defaultSqlToJsonOptions, sqlToJson, type SqlToJsonOptions } from "./sql-to-json";
+import { SqlToJsonOptionsMenu } from "./sql-to-json-options-menu";
 
+// One page for both directions: JSON → SQL, and SQL → JSON. Swap flips the direction and carries the
+// current result over as the new input.
 export function JsonToSqlWorkspace() {
   const [input, setInput] = useState("");
+  const [toSql, setToSql] = useState(true);
   const [rootKey, setRootKey] = useState<string>();
   const [names, setNames] = useState<Record<string, string>>({});
-  const [stored, setOptions] = useStoredState<SqlOptions>("json-toolkit:sql-options", defaultSqlOptions);
-  // Stored options are re-read each render, so memoise on their JSON to keep the SQL cached.
-  const storedKey = JSON.stringify(stored);
-  const options = useMemo<SqlOptions>(() => ({ ...defaultSqlOptions, ...(JSON.parse(storedKey) as Partial<SqlOptions>) }), [storedKey]);
+  const [options, setOptions] = useStoredOptions<SqlOptions>("json-toolkit:sql-options", defaultSqlOptions);
+  const [jsonOptions, setJsonOptions] = useStoredOptions<SqlToJsonOptions>("json-toolkit:sql-json-options", defaultSqlToJsonOptions);
   const colors = useJsonColors();
 
   const text = useDeferredValue(input);
-  const parsed = useMemo(() => parseInput(text), [text]);
-  const result = useMemo(() => (parsed.status === "valid" ? jsonToSql(parsed.value, options, names, rootKey) : null), [parsed, options, names, rootKey]);
+  const parsed = useMemo(() => (toSql ? parseInput(text) : null), [toSql, text]);
+  const result = useMemo(() => (parsed?.status === "valid" ? jsonToSql(parsed.value, options, names, rootKey) : null), [parsed, options, names, rootKey]);
   const ok = result?.ok ? result : null;
   const suggestions = result && !rootKey ? result.suggestions : [];
+  const json = useMemo(() => (!toSql && text.trim() ? sqlToJson(text, jsonOptions) : null), [toSql, text, jsonOptions]);
+
+  const swap = () => {
+    setToSql(!toSql);
+    setRootKey(undefined);
+    if (toSql && ok) setInput(ok.sql);
+    else if (!toSql && json?.ok) setInput(json.json);
+  };
+
+  if (!toSql) {
+    return (
+      <div className="flex flex-col gap-8">
+        {json?.ok && json.notes.length > 0 && (
+          <div role="status" className="flex flex-col gap-2 rounded-xl border border-tint-amber/30 bg-tint-amber/5 px-4 py-3 text-sm text-tint-amber">
+            {json.notes.map((n) => (
+              <p key={n} className="flex items-center gap-2">
+                <ShieldAlertIcon className="size-3.5 shrink-0" /> {n}
+              </p>
+            ))}
+          </div>
+        )}
+        <div className="grid gap-4 lg:grid-cols-2">
+          <JsonInputPanel
+            title="Input SQL"
+            label="SQL input"
+            placeholder="Paste INSERT statements or a database dump…"
+            value={input}
+            onChange={setInput}
+            extraActions={<SwapButton to="JSON → SQL" onClick={swap} />}
+          />
+          <div style={colors.style} className="min-w-0">
+            <ConverterOutputPanel
+              title="JSON Output"
+              output={json?.ok ? json.json : ""}
+              error={json && !json.ok ? positionedError(json) : undefined}
+              fixLinks={false}
+              filename="converted.json"
+              mime="application/json"
+              options={<SqlToJsonOptionsMenu options={jsonOptions} onChange={setJsonOptions} />}
+            >
+              {json?.ok && <JsonCodeView text={json.json} />}
+            </ConverterOutputPanel>
+          </div>
+        </div>
+        {text.trim() !== "" && (
+          <ConverterStats
+            stats={[
+              { label: "Rows", value: json?.ok ? json.rows.toLocaleString() : "—" },
+              { label: "Tables", value: json?.ok ? json.tables.length.toLocaleString() : "—" },
+              { label: "Statements", value: json?.ok ? json.statements.toLocaleString() : "—" },
+              { label: "Input Size", value: byteSize(text) },
+              { label: "Output Size", value: json?.ok ? byteSize(json.json) : "—" },
+              statusStat(!!json?.ok, "Can't read SQL"),
+            ]}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -66,16 +130,19 @@ export function JsonToSqlWorkspace() {
             setRootKey(undefined);
           }}
           extraActions={
-            <Button variant="soft" size="tiny" onClick={() => parsed.status === "valid" && setInput(JSON.stringify(parsed.value, null, 2))} disabled={parsed.status !== "valid"}>
-              <AlignLeftIcon className="h-[11px] w-auto" /> Format
-            </Button>
+            <>
+              <SwapButton to="SQL → JSON" onClick={swap} />
+              <Button variant="soft" size="tiny" onClick={() => parsed?.status === "valid" && setInput(JSON.stringify(parsed.value, null, 2))} disabled={parsed?.status !== "valid"}>
+                <AlignLeftIcon className="h-[11px] w-auto" /> Format
+              </Button>
+            </>
           }
         />
         <div style={colors.style} className="min-w-0">
           <ConverterOutputPanel
             title="SQL Output"
             output={ok?.sql ?? ""}
-            error={parsed.status === "invalid" ? parsed.error : undefined}
+            error={parsed?.status === "invalid" ? parsed.error : undefined}
             filename={`${options.table || "data"}.sql`}
             mime="application/sql"
             options={<SqlOptionsMenu options={options} keys={ok?.columns.map((c) => c.key) ?? []} onChange={setOptions} />}
@@ -106,7 +173,7 @@ export function JsonToSqlWorkspace() {
         </div>
       )}
 
-      {parsed.status !== "empty" && (
+      {parsed && parsed.status !== "empty" && (
         <ConverterStats
           stats={[
             { label: "Rows", value: ok ? ok.rows.toLocaleString() : "—" },

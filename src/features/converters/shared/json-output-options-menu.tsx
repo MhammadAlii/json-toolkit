@@ -5,10 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover } from "@/components/ui/popover";
 import { MenuSelect } from "@/components/ui/menu-select";
-import { defaultJsonOutputOptions, type JsonOutputOptions } from "./string-to-json";
+import { defaultJsonOutputOptions, type JsonOutputOptions } from "./json-output";
 
-export function JsonOutputOptionsMenu({ options, onChange }: { options: JsonOutputOptions; onChange: (options: JsonOutputOptions) => void }) {
-  const changed = (Object.keys(defaultJsonOutputOptions) as (keyof JsonOutputOptions)[]).filter((k) => options[k] !== defaultJsonOutputOptions[k]).length;
+// Indent and key sorting for converters that produce JSON. A converter with settings of its own passes
+// them as children and its full `defaults`, so they're counted and reset with the rest.
+export function JsonOutputOptionsMenu<T extends JsonOutputOptions>({
+  options,
+  onChange,
+  defaults = defaultJsonOutputOptions as T,
+  children,
+}: {
+  options: T;
+  onChange: (options: T) => void;
+  defaults?: T;
+  children?: React.ReactNode;
+}) {
+  const changed = (Object.keys(defaults) as (keyof T)[]).filter((k) => options[k] !== defaults[k]).length;
   return (
     <Popover
       label="JSON options"
@@ -33,10 +45,11 @@ export function JsonOutputOptionsMenu({ options, onChange }: { options: JsonOutp
             <option value="minify">Minified</option>
           </MenuSelect>
         </label>
+        {children}
         <Checkbox label="Sort keys" checked={options.sortKeys} onChange={(on) => onChange({ ...options, sortKeys: on })} />
         <button
           type="button"
-          onClick={() => onChange(defaultJsonOutputOptions)}
+          onClick={() => onChange(defaults)}
           disabled={changed === 0}
           className="self-start border-t border-border pt-2 font-semibold text-brand disabled:opacity-40"
         >

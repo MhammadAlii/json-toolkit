@@ -23,3 +23,9 @@ export function valueAtPath(value: unknown, segments: PathSegment[]): unknown {
 export function samePath(a: PathSegment[], b: PathSegment[]): boolean {
   return a.length === b.length && a.every((s, i) => s === b[i]);
 }
+
+/** Adds a key to a parsed object. A plain assignment to "__proto__" would change the object's prototype instead. */
+export function setKey(obj: Record<string, unknown>, key: string, value: unknown): void {
+  if (key === "__proto__") Object.defineProperty(obj, key, { value, enumerable: true, writable: true, configurable: true });
+  else obj[key] = value;
+}

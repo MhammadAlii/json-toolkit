@@ -2,16 +2,16 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import { AlignLeftIcon } from "@/components/icons/align-left";
-import { RightLeftIcon } from "@/components/icons/right-left";
 import { ShieldAlertIcon } from "@/components/icons/shield-alert";
 import { JsonCodeView } from "@/components/json/json-code-view";
 import { JsonInputPanel } from "@/components/tool/json-input-panel";
 import { Button } from "@/components/ui/button";
 import { useJsonColors } from "@/hooks/use-json-colors";
-import { useStoredState } from "@/hooks/use-stored-state";
+import { useStoredOptions } from "@/hooks/use-stored-options";
 import { ConverterOutputPanel } from "@/features/converters/shared/converter-output-panel";
-import { ConverterStats, type ConverterStat } from "@/features/converters/shared/converter-stats";
-import { byteSize, parseInput } from "@/features/converters/shared/converter";
+import { SwapButton } from "@/features/converters/shared/swap-button";
+import { ConverterStats, statusStat } from "@/features/converters/shared/converter-stats";
+import { byteSize, parseInput, positionedError } from "@/features/converters/shared/converter";
 import { defaultXmlOptions, jsonToXml, type XmlOptions } from "./json-to-xml";
 import { XmlCodeView } from "./xml-code-view";
 import { XmlOptionsMenu } from "./xml-options-menu";
@@ -21,7 +21,6 @@ import { XmlToJsonOptionsMenu } from "./xml-to-json-options-menu";
 
 type Direction = "toXml" | "toJson";
 
-const status = (ok: boolean, failure: string): ConverterStat => (ok ? { label: "Status", value: "Successful", tone: "success" } : { label: "Status", value: failure, tone: "danger" });
 const count = (n: number | undefined) => (n === undefined ? "—" : n.toLocaleString());
 
 // One page for both directions: JSON → XML, and XML → JSON. Swap flips the direction and carries the
@@ -29,13 +28,8 @@ const count = (n: number | undefined) => (n === undefined ? "—" : n.toLocaleSt
 export function JsonToXmlWorkspace() {
   const [input, setInput] = useState("");
   const [direction, setDirection] = useState<Direction>("toXml");
-  const [stored, setOptions] = useStoredState<XmlOptions>("json-toolkit:xml-options", defaultXmlOptions);
-  const [storedJson, setJsonOptions] = useStoredState<XmlToJsonOptions>("json-toolkit:xml-json-options", defaultXmlToJsonOptions);
-  // Stored options are re-read each render, so memoise on their JSON to keep the results cached.
-  const storedKey = JSON.stringify(stored);
-  const jsonKey = JSON.stringify(storedJson);
-  const options = useMemo<XmlOptions>(() => ({ ...defaultXmlOptions, ...(JSON.parse(storedKey) as Partial<XmlOptions>) }), [storedKey]);
-  const jsonOptions = useMemo<XmlToJsonOptions>(() => ({ ...defaultXmlToJsonOptions, ...(JSON.parse(jsonKey) as Partial<XmlToJsonOptions>) }), [jsonKey]);
+  const [options, setOptions] = useStoredOptions<XmlOptions>("json-toolkit:xml-options", defaultXmlOptions);
+  const [jsonOptions, setJsonOptions] = useStoredOptions<XmlToJsonOptions>("json-toolkit:xml-json-options", defaultXmlToJsonOptions);
   const colors = useJsonColors();
 
   const text = useDeferredValue(input);
@@ -51,7 +45,7 @@ export function JsonToXmlWorkspace() {
       ? parsed.error
       : undefined
     : json && !json.ok
-      ? `Line ${json.line}, column ${json.column}: ${json.error}`
+      ? positionedError(json)
       : undefined;
   const notes = toXml ? (result?.notes ?? []) : json?.ok ? json.notes : [];
 
@@ -96,9 +90,7 @@ export function JsonToXmlWorkspace() {
           onChange={setInput}
           extraActions={
             <>
-              <Button variant="soft" size="tiny" onClick={swap} title={toXml ? "Switch to XML → JSON" : "Switch to JSON → XML"}>
-                <RightLeftIcon className="h-[11px] w-auto" /> Swap
-              </Button>
+              <SwapButton to={toXml ? "XML → JSON" : "JSON → XML"} onClick={swap} />
               {toXml && (
                 <Button variant="soft" size="tiny" onClick={() => parsed?.status === "valid" && setInput(JSON.stringify(parsed.value, null, 2))} disabled={parsed?.status !== "valid"}>
                   <AlignLeftIcon className="h-[11px] w-auto" /> Format
@@ -131,7 +123,7 @@ export function JsonToXmlWorkspace() {
                   { label: "Output Size", value: output ? byteSize(output) : "—" },
                   { label: "Elements", value: count(result?.elements) },
                   { label: "Attributes", value: count(result?.attributes) },
-                  status(!!result, "Invalid JSON"),
+                  statusStat(!!result, "Invalid JSON"),
                   { label: "Processing", value: "Local (Client)", tone: "brand" },
                 ]
               : [
@@ -139,7 +131,7 @@ export function JsonToXmlWorkspace() {
                   { label: "Output Size", value: output ? byteSize(output) : "—" },
                   { label: "Elements", value: count(json?.ok ? json.elements : undefined) },
                   { label: "Attributes", value: count(json?.ok ? json.attributes : undefined) },
-                  status(!!json?.ok, "Invalid XML"),
+                  statusStat(!!json?.ok, "Invalid XML"),
                   { label: "Processing", value: "Local (Client)", tone: "brand" },
                 ]
           }

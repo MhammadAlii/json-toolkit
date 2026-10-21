@@ -5,8 +5,8 @@ import { toolsInCategory } from "@/features/catalog";
 import { DirectoryLayout } from "@/features/tools/shared/directory-layout";
 
 export const convertersDirectoryMetadata = pageMetadata({
-  title: "JSON Converters – JSON to YAML, CSV, TypeScript, Excel, XML & SQL",
-  description: `Convert JSON to YAML, CSV, TypeScript interfaces, Excel, XML, SQL inserts and escaped strings, or turn a string back into JSON. Free ${site.name} converters that run in your browser.`,
+  title: "JSON Converters – JSON ⇄ YAML, CSV, TypeScript, Excel, XML & SQL",
+  description: `Convert JSON to YAML, CSV, TypeScript interfaces, Excel, XML, SQL inserts and escaped strings, and every one of them back into JSON. Free ${site.name} converters that run in your browser.`,
   path: "/converters",
   absoluteTitle: true,
 });

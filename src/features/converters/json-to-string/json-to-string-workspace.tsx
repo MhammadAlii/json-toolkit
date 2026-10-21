@@ -2,24 +2,23 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import { AlignLeftIcon } from "@/components/icons/align-left";
-import { RightLeftIcon } from "@/components/icons/right-left";
 import { JsonCodeView } from "@/components/json/json-code-view";
 import { JsonInputPanel } from "@/components/tool/json-input-panel";
 import { Button } from "@/components/ui/button";
 import { useJsonColors } from "@/hooks/use-json-colors";
 import { useStoredState } from "@/hooks/use-stored-state";
 import { ConverterOutputPanel } from "@/features/converters/shared/converter-output-panel";
-import { ConverterStats, type ConverterStat } from "@/features/converters/shared/converter-stats";
+import { SwapButton } from "@/features/converters/shared/swap-button";
+import { ConverterStats, statusStat } from "@/features/converters/shared/converter-stats";
 import { byteSize, parseInput } from "@/features/converters/shared/converter";
-import { JsonOutputOptionsMenu } from "./json-output-options-menu";
+import { defaultJsonOutputOptions, formatJson, type JsonOutputOptions } from "@/features/converters/shared/json-output";
+import { JsonOutputOptionsMenu } from "@/features/converters/shared/json-output-options-menu";
 import { defaultStringOptions, jsonToString, type StringOptions } from "./json-to-string";
 import { StringCodeView } from "./string-code-view";
 import { StringOptionsMenu } from "./string-options-menu";
-import { defaultJsonOutputOptions, formatJson, stringToJson, type JsonOutputOptions } from "./string-to-json";
+import { stringToJson } from "./string-to-json";
 
 type Direction = "escape" | "unescape";
-
-const status = (ok: boolean, failure: string): ConverterStat => (ok ? { label: "Status", value: "Successful", tone: "success" } : { label: "Status", value: failure, tone: "danger" });
 
 // One page for both directions: JSON → escaped string, and escaped string → JSON. Swap flips the
 // direction and carries the current result over as the new input.
@@ -61,9 +60,7 @@ export function JsonToStringWorkspace() {
           onChange={setInput}
           extraActions={
             <>
-              <Button variant="soft" size="tiny" onClick={swap} title={escaping ? "Switch to String → JSON" : "Switch to JSON → String"}>
-                <RightLeftIcon className="h-[11px] w-auto" /> Swap
-              </Button>
+              <SwapButton to={escaping ? "String → JSON" : "JSON → String"} onClick={swap} />
               {escaping && (
                 <Button variant="soft" size="tiny" onClick={() => parsed?.status === "valid" && setInput(JSON.stringify(parsed.value, null, 2))} disabled={parsed?.status !== "valid"}>
                   <AlignLeftIcon className="h-[11px] w-auto" /> Format
@@ -96,7 +93,7 @@ export function JsonToStringWorkspace() {
             escaping
               ? { label: "Escapes", value: escaped ? escaped.escapes.toLocaleString() : "—" }
               : { label: "Levels Unwrapped", value: unescaped?.ok ? unescaped.levels.toLocaleString() : "—" },
-            escaping ? status(!!escaped, "Invalid JSON") : status(!!unescaped?.ok, "Can't unescape"),
+            escaping ? statusStat(!!escaped, "Invalid JSON") : statusStat(!!unescaped?.ok, "Can't unescape"),
             { label: "Processing", value: "Local (Client)", tone: "brand" },
           ]}
         />

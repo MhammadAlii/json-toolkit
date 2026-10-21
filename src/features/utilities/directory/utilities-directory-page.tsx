@@ -5,7 +5,7 @@ import { toolsInCategory } from "@/features/catalog";
 import { DirectoryLayout } from "@/features/tools/shared/directory-layout";
 
 export const utilitiesDirectoryMetadata = pageMetadata({
-  title: "Developer Utilities – JWT Decoder, URL, Base64 & Epoch Converter",
+  title: "Developer Utilities – JWT Encoder & Decoder, URL, Base64 & Epoch Converter",
   description: `Decode JWTs, encode and decode URLs and Base64, and convert Unix timestamps to dates. Free ${site.name} utilities that run in your browser.`,
   path: "/utilities",
   absoluteTitle: true,
