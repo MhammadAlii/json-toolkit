@@ -19,3 +19,6 @@ export function ConverterStats({ stats }: { stats: ConverterStat[] }) {
     </dl>
   );
 }
+
+/** The Status card: "Successful", or why the input couldn't be converted. */
+export const statusStat = (ok: boolean, failure: string): ConverterStat => (ok ? { label: "Status", value: "Successful", tone: "success" } : { label: "Status", value: failure, tone: "danger" });

@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       { source: "/xml-to-json", destination: "/json-to-xml", permanent: true },
       { source: "/yaml-to-json", destination: "/json-to-yaml", permanent: true },
       { source: "/yml-to-json", destination: "/json-to-yaml", permanent: true },
+      { source: "/csv-to-json", destination: "/json-to-csv", permanent: true },
     ];
   },
   turbopack: {

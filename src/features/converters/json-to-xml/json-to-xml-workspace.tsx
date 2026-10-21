@@ -10,7 +10,7 @@ import { useJsonColors } from "@/hooks/use-json-colors";
 import { useStoredOptions } from "@/hooks/use-stored-options";
 import { ConverterOutputPanel } from "@/features/converters/shared/converter-output-panel";
 import { SwapButton } from "@/features/converters/shared/swap-button";
-import { ConverterStats, type ConverterStat } from "@/features/converters/shared/converter-stats";
+import { ConverterStats, statusStat } from "@/features/converters/shared/converter-stats";
 import { byteSize, parseInput, positionedError } from "@/features/converters/shared/converter";
 import { defaultXmlOptions, jsonToXml, type XmlOptions } from "./json-to-xml";
 import { XmlCodeView } from "./xml-code-view";
@@ -21,7 +21,6 @@ import { XmlToJsonOptionsMenu } from "./xml-to-json-options-menu";
 
 type Direction = "toXml" | "toJson";
 
-const status = (ok: boolean, failure: string): ConverterStat => (ok ? { label: "Status", value: "Successful", tone: "success" } : { label: "Status", value: failure, tone: "danger" });
 const count = (n: number | undefined) => (n === undefined ? "—" : n.toLocaleString());
 
 // One page for both directions: JSON → XML, and XML → JSON. Swap flips the direction and carries the
@@ -124,7 +123,7 @@ export function JsonToXmlWorkspace() {
                   { label: "Output Size", value: output ? byteSize(output) : "—" },
                   { label: "Elements", value: count(result?.elements) },
                   { label: "Attributes", value: count(result?.attributes) },
-                  status(!!result, "Invalid JSON"),
+                  statusStat(!!result, "Invalid JSON"),
                   { label: "Processing", value: "Local (Client)", tone: "brand" },
                 ]
               : [
@@ -132,7 +131,7 @@ export function JsonToXmlWorkspace() {
                   { label: "Output Size", value: output ? byteSize(output) : "—" },
                   { label: "Elements", value: count(json?.ok ? json.elements : undefined) },
                   { label: "Attributes", value: count(json?.ok ? json.attributes : undefined) },
-                  status(!!json?.ok, "Invalid XML"),
+                  statusStat(!!json?.ok, "Invalid XML"),
                   { label: "Processing", value: "Local (Client)", tone: "brand" },
                 ]
           }

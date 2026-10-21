@@ -10,7 +10,7 @@ import { jsonStats } from "@/core/json/stats";
 import { useJsonColors } from "@/hooks/use-json-colors";
 import { useStoredOptions } from "@/hooks/use-stored-options";
 import { ConverterOutputPanel } from "@/features/converters/shared/converter-output-panel";
-import { ConverterStats, type ConverterStat } from "@/features/converters/shared/converter-stats";
+import { ConverterStats, statusStat } from "@/features/converters/shared/converter-stats";
 import { byteSize, parseInput, positionedError } from "@/features/converters/shared/converter";
 import { JsonOutputOptionsMenu } from "@/features/converters/shared/json-output-options-menu";
 import { OptionSelect } from "@/features/converters/shared/option-select";
@@ -19,8 +19,6 @@ import { defaultYamlOptions, toYaml, type YamlOptions } from "./json-to-yaml";
 import { YamlCodeView } from "./yaml-code-view";
 import { YamlOptionsMenu } from "./yaml-options-menu";
 import { defaultYamlToJsonOptions, yamlToJson, type YamlToJsonOptions } from "./yaml-to-json";
-
-const status = (ok: boolean, failure: string): ConverterStat => (ok ? { label: "Status", value: "Successful", tone: "success" } : { label: "Status", value: failure, tone: "danger" });
 
 // One page for both directions: JSON → YAML, and YAML → JSON. Swap flips the direction and carries the
 // current result over as the new input.
@@ -113,7 +111,7 @@ export function JsonToYamlWorkspace() {
             { label: "Output Size", value: output ? byteSize(output) : "—" },
             { label: "Total Keys", value: keys === undefined ? "—" : keys.toLocaleString() },
             ...(toYamlOut ? [] : [{ label: "Documents", value: json?.ok ? json.documents.toLocaleString() : "—" }]),
-            toYamlOut ? status(!!output, "Invalid JSON") : status(!!json?.ok, "Invalid YAML"),
+            toYamlOut ? statusStat(!!output, "Invalid JSON") : statusStat(!!json?.ok, "Invalid YAML"),
             { label: "Processing", value: "Local (Client)", tone: "brand" as const },
           ]}
         />

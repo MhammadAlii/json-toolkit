@@ -9,7 +9,7 @@ import { useJsonColors } from "@/hooks/use-json-colors";
 import { useStoredState } from "@/hooks/use-stored-state";
 import { ConverterOutputPanel } from "@/features/converters/shared/converter-output-panel";
 import { SwapButton } from "@/features/converters/shared/swap-button";
-import { ConverterStats, type ConverterStat } from "@/features/converters/shared/converter-stats";
+import { ConverterStats, statusStat } from "@/features/converters/shared/converter-stats";
 import { byteSize, parseInput } from "@/features/converters/shared/converter";
 import { defaultJsonOutputOptions, formatJson, type JsonOutputOptions } from "@/features/converters/shared/json-output";
 import { JsonOutputOptionsMenu } from "@/features/converters/shared/json-output-options-menu";
@@ -19,8 +19,6 @@ import { StringOptionsMenu } from "./string-options-menu";
 import { stringToJson } from "./string-to-json";
 
 type Direction = "escape" | "unescape";
-
-const status = (ok: boolean, failure: string): ConverterStat => (ok ? { label: "Status", value: "Successful", tone: "success" } : { label: "Status", value: failure, tone: "danger" });
 
 // One page for both directions: JSON → escaped string, and escaped string → JSON. Swap flips the
 // direction and carries the current result over as the new input.
@@ -95,7 +93,7 @@ export function JsonToStringWorkspace() {
             escaping
               ? { label: "Escapes", value: escaped ? escaped.escapes.toLocaleString() : "—" }
               : { label: "Levels Unwrapped", value: unescaped?.ok ? unescaped.levels.toLocaleString() : "—" },
-            escaping ? status(!!escaped, "Invalid JSON") : status(!!unescaped?.ok, "Can't unescape"),
+            escaping ? statusStat(!!escaped, "Invalid JSON") : statusStat(!!unescaped?.ok, "Can't unescape"),
             { label: "Processing", value: "Local (Client)", tone: "brand" },
           ]}
         />
