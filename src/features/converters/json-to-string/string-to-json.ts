@@ -1,12 +1,3 @@
-import { sortDeep } from "@/core/json/sort";
-
-export type JsonOutputOptions = {
-  indent: 2 | 4 | "tab" | "minify";
-  sortKeys: boolean;
-};
-
-export const defaultJsonOutputOptions: JsonOutputOptions = { indent: 2, sortKeys: false };
-
 export type StringToJson =
   | { ok: true; value: unknown; levels: number; note?: string }
   | { ok: false; error: string };
@@ -87,10 +78,4 @@ export function stringToJson(input: string): StringToJson {
     current = next.value;
   }
   return { ok: false, error: `The string is stringified more than ${maxLevels} times.` };
-}
-
-export function formatJson(value: unknown, options: JsonOutputOptions): string {
-  const v = options.sortKeys ? sortDeep(value) : value;
-  const indent = options.indent === "minify" ? undefined : options.indent === "tab" ? "\t" : options.indent;
-  return JSON.stringify(v, null, indent);
 }

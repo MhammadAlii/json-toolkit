@@ -16,3 +16,6 @@ export function parseInput(text: string): ParsedInput {
 }
 
 export const byteSize = (text: string) => formatBytes(new TextEncoder().encode(text).length);
+
+/** A parser error with its position, the way the two-way converters show it. */
+export const positionedError = (e: { error: string; line: number; column: number }) => `Line ${e.line}, column ${e.column}: ${e.error}`;

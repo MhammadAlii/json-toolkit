@@ -4,11 +4,13 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
-  // String to JSON and XML to JSON are the other directions of the JSON to String and JSON to XML pages.
+  // The other direction of each two-way converter lives on its JSON to … page.
   async redirects() {
     return [
       { source: "/string-to-json", destination: "/json-to-string", permanent: true },
       { source: "/xml-to-json", destination: "/json-to-xml", permanent: true },
+      { source: "/yaml-to-json", destination: "/json-to-yaml", permanent: true },
+      { source: "/yml-to-json", destination: "/json-to-yaml", permanent: true },
     ];
   },
   turbopack: {

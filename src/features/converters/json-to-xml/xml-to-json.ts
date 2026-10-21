@@ -1,7 +1,7 @@
-import { sortDeep } from "@/core/json/sort";
+import { setKey } from "@/core/json/path";
+import { defaultJsonOutputOptions, formatJson, type JsonOutputOptions } from "@/features/converters/shared/json-output";
 
-export type XmlToJsonOptions = {
-  indent: 2 | 4 | "tab" | "minify";
+export type XmlToJsonOptions = JsonOutputOptions & {
   /** `prefixed` writes attributes as `@name` keys (what JSON to XML reads back), `merged` as plain keys. */
   attributes: "prefixed" | "merged" | "omit";
   /** `repeated` makes an array only when an element name repeats; `always` puts every child in an array. */
@@ -12,18 +12,16 @@ export type XmlToJsonOptions = {
   cdata: "text" | "key";
   namespaces: "keep" | "strip";
   keepRoot: boolean;
-  sortKeys: boolean;
 };
 
 export const defaultXmlToJsonOptions: XmlToJsonOptions = {
-  indent: 2,
+  ...defaultJsonOutputOptions,
   attributes: "prefixed",
   arrays: "repeated",
   values: "typed",
   cdata: "text",
   namespaces: "keep",
   keepRoot: true,
-  sortKeys: false,
 };
 
 export type XmlToJsonResult =
@@ -69,12 +67,6 @@ type Frame = {
   run: Piece[];
   cdata: string[];
 };
-
-function setKey(obj: Record<string, unknown>, key: string, value: unknown) {
-  // A plain assignment to "__proto__" would change the object's prototype instead of adding a key.
-  if (key === "__proto__") Object.defineProperty(obj, key, { value, enumerable: true, writable: true, configurable: true });
-  else obj[key] = value;
-}
 
 function lineColumn(text: string, at: number) {
   let line = 1;
@@ -365,8 +357,7 @@ export function xmlToJson(input: string, options: XmlToJsonOptions = defaultXmlT
     }
     let json: string;
     try {
-      if (o.sortKeys) value = sortDeep(value);
-      json = o.indent === "minify" ? JSON.stringify(value) : JSON.stringify(value, null, o.indent === "tab" ? "\t" : o.indent);
+      json = formatJson(value, o);
     } catch {
       return fail(`Elements are nested ${counts.depth.toLocaleString("en-US")} levels deep, too deep to write as JSON.`, 0);
     }
