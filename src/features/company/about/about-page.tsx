@@ -72,10 +72,10 @@ const inside: { title: string; items: { label: string; href?: string }[] }[] = [
   {
     title: "Converters",
     items: [
-      { label: "JSON to YAML / CSV", href: "/json-to-yaml" },
-      { label: "JSON to TypeScript", href: "/json-to-typescript" },
-      { label: "JSON to SQL Inserts", href: "/json-to-sql" },
-      { label: "JSON to XML / Excel", href: "/json-to-xml" },
+      { label: "JSON ⇄ YAML / CSV", href: "/json-to-yaml" },
+      { label: "JSON ⇄ TypeScript", href: "/json-to-typescript" },
+      { label: "JSON ⇄ SQL", href: "/json-to-sql" },
+      { label: "JSON ⇄ XML / Excel", href: "/json-to-xml" },
     ],
   },
 ];
