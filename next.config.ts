@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
       { source: "/csv-to-json", destination: "/json-to-csv", permanent: true },
       { source: "/excel-to-json", destination: "/json-to-excel", permanent: true },
       { source: "/xlsx-to-json", destination: "/json-to-excel", permanent: true },
+      { source: "/sql-to-json", destination: "/json-to-sql", permanent: true },
     ];
   },
   turbopack: {
