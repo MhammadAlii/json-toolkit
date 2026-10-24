@@ -23,16 +23,31 @@ const minHeights: Record<AdPlacement, string> = {
 
 export function AdSlot({ placement, className = "" }: { placement: AdPlacement; className?: string }) {
   const slot = ads.slots[placement];
-  const ref = useRef<HTMLModElement>(null);
+  const ref = useRef<HTMLElement>(null);
 
+  // The <ins> is created here, after hydration, rather than rendered. AdSense rewrites the first unprocessed <ins> on
+  // the page (and its ancestors' styles) on any push, so a server-rendered one could be filled before React hydrated it
+  // and the page would fail to hydrate. Creating it right before our own push also ties each push to its own slot.
   useEffect(() => {
-    if (!ads.client || !slot || !ref.current || ref.current.dataset.adsbygoogleStatus) return;
+    const aside = ref.current;
+    if (!ads.client || !slot || !aside || aside.querySelector("ins.adsbygoogle")) return;
+    // Without data-ad-format, AdSense sizes the ad to the <ins> box, which is how the hero stays inside its frame.
+    const fillsFrame = placement === "hero";
+    const ins = document.createElement("ins");
+    ins.className = fillsFrame ? "adsbygoogle block size-full overflow-hidden" : "adsbygoogle block";
+    ins.dataset.adClient = ads.client;
+    ins.dataset.adSlot = slot;
+    if (!fillsFrame) {
+      ins.dataset.adFormat = placement === "sidebar" ? "vertical" : placement === "footer" ? "horizontal" : "auto";
+      ins.dataset.fullWidthResponsive = "true";
+    }
+    aside.appendChild(ins);
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {
       // Ad blockers throw here; the page must keep working.
     }
-  }, [slot]);
+  }, [slot, placement]);
 
   if (!ads.client || !slot) {
     if (process.env.NODE_ENV !== "development") return null;
@@ -44,18 +59,5 @@ export function AdSlot({ placement, className = "" }: { placement: AdPlacement; 
     );
   }
 
-  // Without data-ad-format, AdSense sizes the ad to the <ins> box, which is how the hero stays inside its frame.
-  const fillsFrame = placement === "hero";
-  return (
-    <aside aria-label="Advertisement" className={`ad-slot ${minHeights[placement]} ${className}`}>
-      <ins
-        ref={ref}
-        className={fillsFrame ? "adsbygoogle block size-full overflow-hidden" : "adsbygoogle block"}
-        data-ad-client={ads.client}
-        data-ad-slot={slot}
-        data-ad-format={fillsFrame ? undefined : placement === "sidebar" ? "vertical" : placement === "footer" ? "horizontal" : "auto"}
-        data-full-width-responsive={fillsFrame ? undefined : "true"}
-      />
-    </aside>
-  );
+  return <aside ref={ref} aria-label="Advertisement" className={`ad-slot ${minHeights[placement]} ${className}`} />;
 }
