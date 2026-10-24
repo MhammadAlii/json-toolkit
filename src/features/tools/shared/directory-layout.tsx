@@ -33,7 +33,7 @@ export function DirectoryLayout({
         {children}
       </div>
 
-      <aside className="sticky top-24 hidden xl:block">
+      <aside className="ad-frame sticky top-24 hidden xl:block">
         <AdSlot placement="sidebar" />
       </aside>
 

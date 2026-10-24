@@ -119,3 +119,10 @@ body {
     @apply mb-3 list-decimal space-y-1.5 pl-5 leading-7 text-muted;
   }
 }
+
+/* AdSense marks a slot it could not fill (e.g. before approval). Collapse the slot and any frame reserved for it
+   instead of leaving an empty box. Unlayered, so it wins over Tailwind's display utilities. */
+.ad-slot:has(ins.adsbygoogle[data-ad-status="unfilled"]),
+.ad-frame:has(ins.adsbygoogle[data-ad-status="unfilled"]) {
+  display: none;
+}

@@ -24,7 +24,7 @@ export function GuidesDirectoryPage() {
             filters. Every guide links to a free tool so you can try it on your own data.
           </Lead>
         </div>
-        <div className="hidden w-[300px] shrink-0 lg:block">
+        <div className="ad-frame hidden w-[300px] shrink-0 lg:block">
           <AdSlot placement="hero" />
         </div>
       </header>

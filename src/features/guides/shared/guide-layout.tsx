@@ -35,7 +35,7 @@ export function GuideLayout({ guide, children }: { guide: GuideMeta; children: R
             </span>
           </p>
         </div>
-        <div className="hidden w-[300px] shrink-0 lg:block">
+        <div className="ad-frame hidden w-[300px] shrink-0 lg:block">
           <AdSlot placement="hero" />
         </div>
       </header>

@@ -44,7 +44,7 @@ export function AdSlot({ placement, className = "" }: { placement: AdPlacement; 
   }
 
   return (
-    <aside aria-label="Advertisement" className={`${minHeights[placement]} ${className}`}>
+    <aside aria-label="Advertisement" className={`ad-slot ${minHeights[placement]} ${className}`}>
       <ins
         ref={ref}
         className="adsbygoogle block"
