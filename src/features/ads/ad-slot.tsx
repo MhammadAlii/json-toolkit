@@ -11,13 +11,14 @@ declare global {
   }
 }
 
-// Reserved heights prevent layout shift (CLS) when ads load.
+// Reserved heights prevent layout shift (CLS) when ads load. The hero has none: it fills a frame sized by the
+// title and description beside it, so it never makes the header taller.
 const minHeights: Record<AdPlacement, string> = {
   toolBelow: "min-h-[128px]",
   sidebar: "min-h-[600px]",
   inContent: "min-h-[250px]",
   footer: "min-h-[69px]",
-  hero: "min-h-[128px]",
+  hero: "",
 };
 
 export function AdSlot({ placement, className = "" }: { placement: AdPlacement; className?: string }) {
@@ -43,15 +44,17 @@ export function AdSlot({ placement, className = "" }: { placement: AdPlacement; 
     );
   }
 
+  // Without data-ad-format, AdSense sizes the ad to the <ins> box, which is how the hero stays inside its frame.
+  const fillsFrame = placement === "hero";
   return (
     <aside aria-label="Advertisement" className={`ad-slot ${minHeights[placement]} ${className}`}>
       <ins
         ref={ref}
-        className="adsbygoogle block"
+        className={fillsFrame ? "adsbygoogle block size-full overflow-hidden" : "adsbygoogle block"}
         data-ad-client={ads.client}
         data-ad-slot={slot}
-        data-ad-format={placement === "sidebar" ? "vertical" : placement === "footer" ? "horizontal" : "auto"}
-        data-full-width-responsive="true"
+        data-ad-format={fillsFrame ? undefined : placement === "sidebar" ? "vertical" : placement === "footer" ? "horizontal" : "auto"}
+        data-full-width-responsive={fillsFrame ? undefined : "true"}
       />
     </aside>
   );

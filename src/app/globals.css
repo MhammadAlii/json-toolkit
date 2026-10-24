@@ -126,3 +126,8 @@ body {
 .ad-frame:has(ins.adsbygoogle[data-ad-status="unfilled"]) {
   display: none;
 }
+
+/* Until AdSense reports a filled ad it draws a blank white frame; keep it invisible (size is kept, so it can still fill). */
+ins.adsbygoogle:not([data-ad-status="filled"]) {
+  visibility: hidden;
+}

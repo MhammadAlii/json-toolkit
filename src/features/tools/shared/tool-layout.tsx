@@ -11,8 +11,8 @@ export function ToolLayout({ tool, related, children }: { tool: ToolMeta; relate
       <ToolHeader
         tool={tool}
         aside={
-          <div className="ad-frame hidden w-[300px] shrink-0 lg:block">
-            <AdSlot placement="hero" />
+          <div className="ad-frame relative hidden w-[300px] shrink-0 self-stretch lg:block">
+            <AdSlot placement="hero" className="absolute inset-0" />
           </div>
         }
       />
