@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Synaptiq Splash Preview</title>
+<style>body{margin:0;background:#0B0B17;color:#F5F3FF;font:14px system-ui;display:grid;place-items:center;min-height:100vh}
+#a{width:min(512px,90vw);aspect-ratio:1}input{width:min(512px,90vw)}</style></head>
+<body><div><div id="a"></div><input id="s" type="range" min="0" max="209" value="0"><p id="f">frame 0</p><button id="p">Replay</button></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+<script>
+// Serve this folder (python3 -m http.server) and open /preview.html
+const a = lottie.loadAnimation({container: document.getElementById('a'), renderer: 'svg', loop: false, autoplay: true, path: 'synaptiq_splash.json'});
+a.addEventListener('enterFrame', e => { s.value = e.currentTime | 0; f.textContent = 'frame ' + (e.currentTime | 0); });
+s.oninput = () => { a.goToAndStop(+s.value, true); f.textContent = 'frame ' + s.value; };
+p.onclick = () => a.goToAndPlay(0, true);
+</script></body></html>
